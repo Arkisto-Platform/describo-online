@@ -12,9 +12,9 @@ services:
         environment:
             TERM: "xterm-256color"
             NODE_ENV: "development"
-            POSTGRES_DB: "dbtest"
-            POSTGRES_USER: "dbtest"
-            POSTGRES_PASSWORD: "dbtest"
+            POSTGRES_DB: "describo"
+            POSTGRES_USER: "admin"
+            POSTGRES_PASSWORD: "admin"
             PGDATA: /postgresql/data
         # volumes:
         #     - describo_online_db_test:/postgresql
@@ -30,12 +30,12 @@ services:
             NODE_ENV: "development"
             DB_HOST: "db"
             DB_PORT: "5432"
-            DB_USER: "dbtest"
-            DB_PASSWORD: "dbtest"
-            DB_DATABASE: "dbtest"
+            DB_USER: "admin"
+            DB_PASSWORD: "admin"
+            DB_DATABASE: "describo"
         volumes:
-            - $PWD:/srv:delegated
-            - $PWD/../.git:/srv/.git:delegated
+            - $PWD/api:/srv:delegated
+            - $PWD/.git:/srv/.git:delegated
         working_dir: /srv
         command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
         ports:

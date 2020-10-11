@@ -7,7 +7,7 @@
         "develop": "concurrently \"npm run develop:server\" \"npm run test:watch\"",
         "develop:server": "npm install && ./node_modules/.bin/nodemon ./index.js",
         "test": "./node_modules/.bin/jest  --rootDir src",
-        "test:watch": "./node_modules/.bin/jest --watch --rootDir src"
+        "test:watch": "sleep 10 && ./node_modules/.bin/jest --watch --rootDir src"
     },
     "author": "Marco La Rosa",
     "license": "GPL-3.0",
