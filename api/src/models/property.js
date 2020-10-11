@@ -1,0 +1,43 @@
+"use strict";
+
+module.exports = function (sequelize, DataTypes) {
+    let Property = sequelize.define(
+        "property",
+        {
+            id: {
+                primaryKey: true,
+                type: DataTypes.UUID,
+                allowNull: false,
+                defaultValue: DataTypes.UUIDV4,
+            },
+            name: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: "",
+            },
+            sequenceNumber: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
+            tgtEntityId: {
+                type: DataTypes.UUID,
+            },
+            value: {
+                type: DataTypes.TEXT,
+            },
+            direction: {
+                type: DataTypes.ENUM(["F", "R"]),
+                allowNull: true,
+            },
+        },
+        {
+            timestamps: true,
+            indexes: [{ fields: ["entityId"] }],
+        }
+    );
+    Property.associate = function (models) {
+        Property.belongsTo(models.entity);
+    };
+
+    return Property;
+};

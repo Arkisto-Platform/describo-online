@@ -1,0 +1,35 @@
+"use strict";
+
+module.exports = function (sequelize, DataTypes) {
+    let Collection = sequelize.define("collection", {
+        id: {
+            primaryKey: true,
+            type: DataTypes.UUID,
+            allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            },
+            unique: "compositeIndex",
+        },
+        description: {
+            type: DataTypes.TEXT,
+        },
+    });
+    Collection.associate = function (models) {
+        Collection.hasMany(models.entity, {
+            onDelete: "CASCADE",
+        });
+        Collection.belongsToMany(models.user, {
+            through: models.collection_user,
+            foreignKey: "collectionId",
+            otherKey: "userId",
+            onDelete: "CASCADE",
+        });
+    };
+    return Collection;
+};
