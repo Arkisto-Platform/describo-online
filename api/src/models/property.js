@@ -36,7 +36,7 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
     Property.associate = function (models) {
-        Property.belongsTo(models.entity);
+        Property.belongsTo(models.entity, { foreignKey: { allowNull: false } });
     };
 
     return Property;

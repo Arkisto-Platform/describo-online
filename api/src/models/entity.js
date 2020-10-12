@@ -47,6 +47,7 @@ module.exports = function (sequelize, DataTypes) {
     Entity.associate = function (models) {
         Entity.hasMany(models.property, {
             onDelete: "CASCADE",
+            foreignKey: { allowNull: false },
         });
         Entity.belongsTo(models.collection);
     };

@@ -19,10 +19,14 @@ module.exports = function (sequelize, DataTypes) {
         description: {
             type: DataTypes.TEXT,
         },
+        metadata: {
+            type: DataTypes.JSON,
+        },
     });
     Collection.associate = function (models) {
         Collection.hasMany(models.entity, {
             onDelete: "CASCADE",
+            foreignKey: { allowNull: false },
         });
         Collection.belongsToMany(models.user, {
             through: models.collection_user,
