@@ -21,7 +21,7 @@ async function insertCollection({ name, description }) {
 
 async function removeCollection({ id }) {
     await sequelize.transaction(async (t) => {
-        entity = await models.collection.findOne({
+        let collection = await models.collection.findOne({
             where: { id },
             include: [
                 {
@@ -30,7 +30,11 @@ async function removeCollection({ id }) {
                 },
             ],
         });
-        await entity.destroy({ where: { id }, transaction: t, cascade: true });
+        await collection.destroy({
+            where: { id },
+            transaction: t,
+            cascade: true,
+        });
     });
 }
 
