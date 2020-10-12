@@ -13,6 +13,9 @@ describe("Test collection management operations", () => {
         await models.entity.truncate({ cascade: true });
         await models.collection.truncate({ cascade: true });
     });
+    afterAll(async () => {
+        await models.sequelize.close();
+    });
     test("it should be able to create a new collection", async () => {
         let collection = await insertCollection({
             name: "test",

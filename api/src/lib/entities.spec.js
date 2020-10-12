@@ -14,6 +14,9 @@ describe("Test entity and property management operations", () => {
         await models.entity.truncate({ cascade: true });
         await models.collection.truncate({ cascade: true });
     });
+    afterAll(async () => {
+        await models.sequelize.close();
+    });
     test("it should be able to create an entity", async () => {
         const collection = await models.collection.create({ name: "test" });
         let entity = {
