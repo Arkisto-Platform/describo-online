@@ -1,10 +1,11 @@
-const {
+import "regenerator-runtime";
+import {
     findCollection,
     insertCollection,
     removeCollection,
-} = require("./collections");
-const { insertEntity, attachProperty } = require("./entities");
-const models = require("../models");
+} from "./collections";
+import { insertEntity, attachProperty } from "./entities";
+import models from "../models";
 const chance = require("chance").Chance();
 
 describe("Test collection management operations", () => {
@@ -101,7 +102,7 @@ describe("Test collection management operations", () => {
             description: "awesome",
         });
         let entity = {
-            "@id": "1'",
+            "@id": "1",
             "@type": "Person",
             name: "a person",
         };
@@ -120,7 +121,7 @@ describe("Test collection management operations", () => {
             description: "awesome",
         });
         entity = {
-            "@id": "1'",
+            "@id": "1",
             "@type": "Person",
             name: "a person",
         };
@@ -135,11 +136,21 @@ describe("Test collection management operations", () => {
         });
 
         await removeCollection({ id: collection1.id });
-        let collections = await models.collection.findAll();
-        expect(collections.length).toEqual(1);
-        let entities = await models.entity.findAll();
-        expect(entities.length).toEqual(1);
+        let collection = await models.collection.findOne({
+            where: { id: collection1.id },
+        });
+        expect(collection).toBeNull;
+        let entities = await models.entity.findAll({
+            where: { id: collection1.id },
+        });
+        expect(entities.length).toEqual(0);
+
         let properties = await models.property.findAll();
-        expect(properties.length).toEqual(1);
+        for (let prop of properties) {
+            let entity = await models.entity.findOne({
+                where: { id: prop.entityId },
+            });
+            expect(entity.collectionId).toEqual(collection2.id);
+        }
     });
 });

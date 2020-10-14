@@ -4,6 +4,8 @@ const sequelize = models.sequelize;
 
 module.exports = {
     findEntity,
+    updateEntity,
+    getEntity,
     insertEntity,
     removeEntity,
     associate,
@@ -12,17 +14,16 @@ module.exports = {
 
 async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
-    const originalEntity = cloneDeep(entity);
-    const entityProperties = Object.keys(entity).filter(
-        (prop) => !["@id", "@type", "name"].includes(prop)
-    );
-
-    return await models.entity.create({
-        eid: entity["@id"],
-        etype: entity["@type"],
-        name: entity["name"],
-        collectionId,
-    });
+    try {
+        return await models.entity.create({
+            eid: entity["@id"],
+            etype: entity["@type"],
+            name: entity["name"],
+            collectionId,
+        });
+    } catch (error) {
+        console.log(error);
+    }
 
     function verifyEntity({ entity }) {
         if (!entity["@id"]) {
@@ -37,6 +38,19 @@ async function insertEntity({ entity, collectionId }) {
     }
 }
 
+async function updateEntity({ entityId, name, eid }) {
+    let entity = await models.entity.findOne({ where: { id: entityId } });
+
+    if (!entity) {
+        throw new Error(`Unable to find an entity with that id`);
+    }
+
+    let update = {};
+    if (name) update.name = name;
+    if (eid) update.eid = eid;
+    return (await entity.update(update)).get();
+}
+
 async function attachProperty({ entityId, property, value }) {
     return await models.property.create({
         name: property,
@@ -46,44 +60,36 @@ async function attachProperty({ entityId, property, value }) {
 }
 
 async function associate({ entityId, property, tgtEntityId }) {
-    let properties = [
-        {
-            name: property,
-            tgtEntityId: tgtEntityId,
-            direction: "F",
-            entityId,
-        },
-        {
-            name: property,
-            tgtEntityId: entityId,
-            direction: "R",
-            entityId: tgtEntityId,
-        },
-    ];
-    await models.property.bulkCreate(properties);
+    await sequelize.transaction(async (t) => {
+        let properties = [
+            {
+                name: property,
+                tgtEntityId: tgtEntityId,
+                direction: "F",
+                entityId,
+            },
+            {
+                name: property,
+                tgtEntityId: entityId,
+                direction: "R",
+                entityId: tgtEntityId,
+            },
+        ];
+        await models.property.bulkCreate(properties, { transaction: t });
+    });
 }
 
 async function removeEntity({ id }) {
     await sequelize.transaction(async (t) => {
-        entity = await models.entity.findOne({
+        await models.entity.destroy({
             where: { id },
             include: [{ model: models.property }],
+            transaction: t,
         });
-
-        // find all the forward links
-        let tgtEntityIds = entity.properties
-            .filter((p) => p.direction === "F")
-            .map((p) => p.tgtEntityId);
-
-        // iterate over them and remove the reverse links from them
-        for (let targetId of tgtEntityIds) {
-            await models.property.destroy({
-                where: { direction: "R", tgtEntityId: id, entityId: targetId },
-            });
-        }
-
-        // finally, destroy the source entity
-        await entity.destroy();
+        await models.property.destroy({
+            where: { tgtEntityId: id },
+            transaction: t,
+        });
     });
 }
 
@@ -93,4 +99,16 @@ async function findEntity({ "@id": eid, "@type": etype, collectionId }) {
     if (eid) where.eid = eid;
     if (etype) where.etype = etype;
     return (await models.entity.findAll({ where })).map((e) => e.get());
+}
+
+async function getEntity({ id }) {
+    return await models.entity.findOne({
+        where: { id },
+        include: [
+            {
+                model: models.property,
+                required: false,
+            },
+        ],
+    });
 }

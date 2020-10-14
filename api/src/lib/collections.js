@@ -9,28 +9,28 @@ module.exports = {
     removeCollection,
 };
 
-async function insertCollection({ name, description }) {
+async function insertCollection({ name, description, metadata }) {
     if (!name) {
         throw new Error("You must provide a collection name");
     }
-    return await models.collection.create({
-        name,
-        description,
-    });
+    return (
+        await models.collection.create({
+            name,
+            description,
+            metadata,
+        })
+    ).get();
 }
 
 async function removeCollection({ id }) {
     await sequelize.transaction(async (t) => {
-        let collection = await models.collection.findOne({
-            where: { id },
-            include: [
-                {
-                    model: models.entity,
-                    include: [{ model: models.property }],
-                },
-            ],
+        await models.entity.destroy({
+            where: { collectionId: id },
+            include: [{ model: models.property }],
+            transaction: t,
+            cascade: true,
         });
-        await collection.destroy({
+        await models.collection.destroy({
             where: { id },
             transaction: t,
             cascade: true,

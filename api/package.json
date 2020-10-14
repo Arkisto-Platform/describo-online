@@ -5,13 +5,18 @@
     "main": "index.js",
     "scripts": {
         "develop": "concurrently \"npm run develop:server\" \"npm run test:watch\"",
-        "develop:server": "npm install && ./node_modules/.bin/nodemon ./index.js",
-        "test": "./node_modules/.bin/jest  --rootDir src",
+        "develop:server": "npm install && ./node_modules/.bin/nodemon --exec babel-node ./index.js",
+        "test": "./node_modules/.bin/jest --rootDir src",
         "test:watch": "sleep 10 && ./node_modules/.bin/jest --watch --rootDir src"
     },
     "author": "Marco La Rosa",
     "license": "GPL-3.0",
     "devDependencies": {
+        "@babel/cli": "^7.11.6",
+        "@babel/core": "^7.11.6",
+        "@babel/node": "^7.10.5",
+        "@babel/plugin-proposal-optional-chaining": "^7.11.0",
+        "@babel/preset-env": "^7.11.5",
         "chance": "^1.1.7",
         "concurrently": "^5.3.0",
         "jest": "^26.4.2",
@@ -27,7 +32,9 @@
         "lodash": "^4.17.20",
         "pg": "^8.3.3",
         "pg-hstore": "^2.3.3",
+        "regenerator-runtime": "^0.13.7",
         "restify": "^8.5.1",
-        "sequelize": "^6.3.5"
+        "sequelize": "^6.3.5",
+        "uuid": "^8.3.1"
     }
 }

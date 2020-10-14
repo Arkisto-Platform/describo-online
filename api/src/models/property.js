@@ -32,7 +32,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         {
             timestamps: true,
-            indexes: [{ fields: ["entityId"] }],
+            indexes: [{ fields: ["entityId"] }, { fields: ["tgtEntityId"] }],
         }
     );
     Property.associate = function (models) {

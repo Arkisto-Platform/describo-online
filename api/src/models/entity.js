@@ -36,6 +36,7 @@ module.exports = function (sequelize, DataTypes) {
                     fields: ["collectionId", "etype"],
                 },
                 {
+                    unique: true,
                     fields: ["collectionId", "eid"],
                 },
                 {
