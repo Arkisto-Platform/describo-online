@@ -1,8 +1,10 @@
 version: "3.8"
 
-# volumes:
-#     describo_online_db_test:
-#         driver: local
+volumes:
+    api_node_modules:
+        driver: local
+    ui_node_modules:
+        driver: local
 
 services:
     db:
@@ -36,7 +38,24 @@ services:
         volumes:
             - $PWD/api:/srv:delegated
             - $PWD/.git:/srv/.git:delegated
+            - api_node_modules:/srv/node_modules:delegated
         working_dir: /srv
         command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
         ports:
             - 8080:8080
+
+    ui:
+        image: node:14-stretch
+        hostname: ui
+        tty: true
+        environment:
+            TERM: "xterm-256color"
+            NODE_ENV: "development"
+        volumes:
+            - $PWD/ui:/srv:delegated
+            - $PWD/.git:/srv/.git:delegated
+            - ui_node_modules:/srv/node_modules:delegated
+        working_dir: /srv
+        command: ["npm", "run", "serve"]
+        ports:
+            - 9000:9000
