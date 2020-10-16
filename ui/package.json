@@ -7,7 +7,11 @@
         "build": "npm install && vue-cli-service build"
     },
     "dependencies": {
+        "@babel/plugin-proposal-optional-chaining": "^7.12.0",
+        "@microsoft/microsoft-graph-client": "^2.1.0",
         "core-js": "^3.6.5",
+        "element-ui": "^2.13.2",
+        "msal": "^1.4.1",
         "tailwindcss": "^1.9.2",
         "vue": "^2.6.11",
         "vue-router": "^3.2.0",

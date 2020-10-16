@@ -1,0 +1,9 @@
+{
+    "api": "http://localhost:8080",
+    "services": {
+        "onedrive": {
+            "clientID": "",
+            "redirectURI": "http://localhost:9000/onedrive-callback"
+        }
+    }
+}
