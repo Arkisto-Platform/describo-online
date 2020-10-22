@@ -3,3 +3,4 @@ dist
 
 configuration.json
 development-configuration.json
+production-configuration.json
