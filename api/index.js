@@ -1,4 +1,4 @@
-import "regenerator-runtime";
+require("regenerator-runtime");
 const restify = require("restify");
 const server = restify.createServer();
 const models = require("./src/models");
