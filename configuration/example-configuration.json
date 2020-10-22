@@ -5,12 +5,11 @@
         "services": {
             "okta": {
                 "domain": "https://${okta_domain}",
-                "clientId": "",
-                "issuer": "",
-                "redirectUri": "http://localhost:9000/login/callback"
+                "clientId": "{okta Client ID}",
+                "redirectUri": "http://localhost:9000/okta-login"
             },
             "onedrive": {
-                "clientID": "",
+                "clientID": "{microsoft Client ID}",
                 "redirectURI": "http://localhost:9000/onedrive-callback"
             }
         }
