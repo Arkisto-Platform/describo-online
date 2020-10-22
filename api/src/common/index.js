@@ -7,6 +7,6 @@ export async function loadConfiguration() {
             ? path.resolve(
                   path.join(__dirname, "..", "..", "configuration.json")
               )
-            : path.resolve(path.join(__dirname, "configuration.json"));
+            : "/srv/configuration.json";
     return await readJSON(configuration);
 }
