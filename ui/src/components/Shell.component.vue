@@ -1,15 +1,24 @@
 <template>
-    <div class="">
+    <div class="flex flex-col">
+        <navigation-component />
         <onedrive-authenticator-component
             v-if="onedrive"
             :client-id="onedrive.clientID"
             :redirect-uri="onedrive.redirectURI"
             @rclone-configuration="postRcloneConfiguration"
         />
+        <pre>{{ configuration }}</pre>
     </div>
 </template>
+
 <script>
+import HTTPService from "./http.service";
+import NavigationComponent from "@/components/Navigation.component.vue";
+
 export default {
+    components: {
+        NavigationComponent,
+    },
     data() {
         return {
             configuration: {},
@@ -26,10 +35,10 @@ export default {
     methods: {
         async postRcloneConfiguration(configuration) {
             this.configuration = configuration;
-            await fetch("/api/user/onedrive/configuration", {
-                method: "POST",
-                body: JSON.stringify(this.configuration),
-                headers: { "content-type": "application/json" },
+            const httpService = new HTTPService({ $auth: this.$auth });
+            await httpService.post({
+                route: "/onedrive/configuration",
+                body: this.configuration,
             });
         },
     },

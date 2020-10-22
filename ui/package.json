@@ -8,7 +8,11 @@
     },
     "dependencies": {
         "@babel/plugin-proposal-optional-chaining": "^7.12.0",
+        "@fortawesome/fontawesome-free": "^5.15.1",
+        "@fortawesome/fontawesome-svg-core": "^1.2.32",
         "@microsoft/microsoft-graph-client": "^2.1.0",
+        "@okta/okta-signin-widget": "^4.5.1",
+        "@okta/okta-vue": "^2.1.1",
         "core-js": "^3.6.5",
         "element-ui": "^2.13.2",
         "msal": "^1.4.1",

@@ -39,6 +39,7 @@ let modules = [
     require("./entity_properties.js"),
     require("./property.js"),
     require("./user.js"),
+    require("./session.js"),
     require("./user_entity.js"),
 ];
 

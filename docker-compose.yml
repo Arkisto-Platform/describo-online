@@ -36,9 +36,9 @@ services:
             DB_PASSWORD: "admin"
             DB_DATABASE: "describo"
         volumes:
-            - $PWD/.git:/srv/.git:delegated
-            - api_node_modules:/srv/node_modules:delegated
             - $PWD/api:/srv/api:delegated
+            - $PWD/.git:/srv/api/.git:delegated
+            - api_node_modules:/srv/api/node_modules:delegated
             - $PWD/configuration/development-configuration.json:/srv/api/configuration.json
         working_dir: /srv/api
         command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
@@ -53,9 +53,9 @@ services:
             TERM: "xterm-256color"
             NODE_ENV: "development"
         volumes:
-            - $PWD/.git:/srv/.git:delegated
-            - ui_node_modules:/srv/node_modules:delegated
             - $PWD/ui:/srv/ui:delegated
+            - $PWD/.git:/srv/ui/.git:delegated
+            - ui_node_modules:/srv/ui/node_modules:delegated
             - $PWD/../describo-ui-plugins:/srv/plugins:delegated
         working_dir: /srv/ui
         command: ["npm", "run", "serve"]

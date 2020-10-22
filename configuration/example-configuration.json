@@ -1,9 +1,21 @@
 {
-    "api": "http://localhost:8080",
-    "services": {
-        "onedrive": {
-            "clientID": "",
-            "redirectURI": "http://localhost:9000/onedrive-callback"
+    "ui": {
+        "siteName": "UTS Describo Online",
+        "logo": "http://www.researchobject.org/ro-crate/assets/img/ro-crate.svg",
+        "services": {
+            "okta": {
+                "domain": "https://${okta_domain}",
+                "clientId": "",
+                "issuer": "",
+                "redirectUri": "http://localhost:9000/login/callback"
+            },
+            "onedrive": {
+                "clientID": "",
+                "redirectURI": "http://localhost:9000/onedrive-callback"
+            }
         }
+    },
+    "api": {
+        "applications": [{ "name": "stash.uts.edu.au", "secret": "xxx" }]
     }
 }

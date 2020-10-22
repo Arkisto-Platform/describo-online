@@ -15,6 +15,7 @@ const { setupRoutes } = require("./src/routes");
     await models.sequelize.sync();
 
     setupRoutes({ server });
+    server.pre(restify.plugins.pre.dedupeSlashes());
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
