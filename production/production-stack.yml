@@ -19,7 +19,7 @@ services:
             - database_volume:/postgresql
 
     api:
-        image: describo-online-api:latest
+        image: utseresearch/describo-online-api:latest
         hostname: api
         tty: true
         environment:
@@ -42,7 +42,7 @@ services:
             - $PWD/production-configuration.json:/srv/configuration.json
 
     ui:
-        image: describo-online-ui:latest
+        image: utseresearch/describo-online-ui:latest
         hostname: ui
         tty: true
         environment:
