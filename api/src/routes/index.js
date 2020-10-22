@@ -15,6 +15,7 @@ export function setupRoutes({ server }) {
 
 async function getConfiguration(req, res, next) {
     let configuration = await loadConfiguration();
+    configuration.ui.services.okta.issuer = `${configuration.ui.services.okta.domain}/oauth2/default`;
     res.send({ configuration: configuration.ui });
     return next();
 }
