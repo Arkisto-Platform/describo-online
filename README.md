@@ -4,6 +4,10 @@ This is the source code for the describo-online application.
 
 - [describo-online](#describo-online)
   - [Before you start up the development environment](#before-you-start-up-the-development-environment)
+    - [Get Describo UI plugins](#get-describo-ui-plugins)
+    - [Register your application with Microsoft](#register-your-application-with-microsoft)
+    - [Create and Okta organisation and setup your application](#create-and-okta-organisation-and-setup-your-application)
+    - [Create a configuration file](#create-a-configuration-file)
   - [Developing the application](#developing-the-application)
   - [Setting up for production](#setting-up-for-production)
 
@@ -11,7 +15,14 @@ This is the source code for the describo-online application.
 
 There are some things you need to do before you can start developing this application:
 
-1.  Check out `https://github.com/UTS-eResearch/describo-ui-plugins` alongside this folder on your development machine. You should have a structure like:
+1. Get Describo UI plugins
+2. Register your application with Microsoft
+3. Create and Okta organisation and setup your application
+4. Create a configuration file
+
+### Get Describo UI plugins
+
+Check out `https://github.com/UTS-eResearch/describo-ui-plugins` alongside this folder on your development machine. You should have a structure like:
 
 ```
 .../describo-online
@@ -20,11 +31,11 @@ There are some things you need to do before you can start developing this applic
     ** It is crucial that these two repo's are sibling folders.
 ```
 
-2. Register your application with Microsoft
+### Register your application with Microsoft
 
     Follow the documentation at [https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive](https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive). Specifically, the section `Setting up Azure`
 
-3. Create an okta organisation and setup up your application
+### Create and Okta organisation and setup your application
 
     - Create an account at [developer.okta.com] and log in
     - Create a new `application` (Applications tab at the top, `Add Application`)
@@ -35,7 +46,7 @@ There are some things you need to do before you can start developing this applic
     - Logout redirect URIs: `http://localhost:9000`
     - Grant type allowed: `Authorization Code` and not Implicit
 
-4. Create the file `configuration/development-configuration.json`
+### Create a configuration file
 
 Copy `configuration/example-configuration.json` to `configuration/development-configuration.json` and fill in the various properties.
 
