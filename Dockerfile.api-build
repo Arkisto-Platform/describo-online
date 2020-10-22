@@ -1,0 +1,17 @@
+FROM node:14-buster AS api-builder
+WORKDIR /srv
+COPY api/ /srv/
+RUN npm install
+RUN npm run build:production
+
+FROM node:14-buster AS api-module-install
+WORKDIR /srv
+COPY --from=api-builder /srv/dist/ /srv/
+RUN npm install
+
+FROM node:14-buster-slim
+WORKDIR /srv
+RUN apt-get update && apt-get install -y postgresql-client
+COPY --from=api-module-install /srv/ /srv/
+COPY production/wait-for-postgres.sh /srv/wait-for-postgres.sh
+CMD [ "/srv/wait-for-postgres.sh", "node", "./server.bundle.js" ]  
