@@ -2,13 +2,13 @@ require("regenerator-runtime");
 const restify = require("restify");
 const server = restify.createServer();
 const models = require("./src/models");
-const { readJSON } = require("fs-extra");
 const { setupRoutes } = require("./src/routes");
+const { loadConfiguration } = require("./src/common");
 
 (async () => {
     let configuration;
     try {
-        configuration = await readJSON("./configuration.json");
+        configuration = await loadConfiguration();
     } catch (error) {
         console.error("configuration.json not found - stopping now");
         process.exit();
@@ -31,7 +31,7 @@ const { setupRoutes } = require("./src/routes");
             maxFieldsSize: 2 * 1024 * 1024,
         })
     );
-    server.listen(8080, function () {
+    server.listen(configuration.api.port, function () {
         console.log("ready on %s", server.url);
     });
 })();
