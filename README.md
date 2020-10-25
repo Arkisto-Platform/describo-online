@@ -6,7 +6,7 @@ This is the source code for the describo-online application.
   - [Before you start up the development environment](#before-you-start-up-the-development-environment)
     - [Get Describo UI plugins](#get-describo-ui-plugins)
     - [Register your application with Microsoft](#register-your-application-with-microsoft)
-    - [Create and Okta organisation and setup your application](#create-and-okta-organisation-and-setup-your-application)
+    - [Create an Okta organisation and setup your application](#create-an-okta-organisation-and-setup-your-application)
     - [Create a configuration file](#create-a-configuration-file)
   - [Developing the application](#developing-the-application)
   - [Setting up for production](#setting-up-for-production)
@@ -35,7 +35,7 @@ Check out `https://github.com/UTS-eResearch/describo-ui-plugins` alongside this 
 
     Follow the documentation at [https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive](https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive). Specifically, the section `Setting up Azure`
 
-### Create and Okta organisation and setup your application
+### Create an Okta organisation and setup your application
 
     - Create an account at [developer.okta.com] and log in
     - Create a new `application` (Applications tab at the top, `Add Application`)
