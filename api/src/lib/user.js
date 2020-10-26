@@ -27,7 +27,7 @@ export async function getUserSession({ sessionId, email }) {
                     {
                         model: models.user,
                         raw: true,
-                        attributes: ["name", "email"],
+                        attributes: ["id", "name", "email"],
                     },
                 ],
             });
@@ -43,6 +43,7 @@ export async function getUserSession({ sessionId, email }) {
         } else if (email) {
             let user = await models.user.findOne({
                 where: { email },
+                attributes: ["id", "name", "email"],
                 include: [{ model: models.session }],
             });
             if (user) {
