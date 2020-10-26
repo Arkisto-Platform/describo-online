@@ -1,4 +1,6 @@
 import { demandKnownUser } from "../middleware";
+import { cloneDeep } from "lodash";
+import models from "../models";
 
 export function setupOnedriveRoutes({ server }) {
     server.post(
@@ -9,7 +11,17 @@ export function setupOnedriveRoutes({ server }) {
 }
 
 async function saveUserOnedriveConfiguration(req, res, next) {
-    console.log(req.body);
-    res.send();
+    let session = await models.session.findOne({
+        where: { id: req.session.id },
+    });
+    let data = cloneDeep(session.data);
+    data = {
+        ...data,
+        rclone: {
+            onedrive: req.body,
+        },
+    };
+    await session.update({ data });
+    res.send({});
     next();
 }
