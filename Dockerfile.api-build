@@ -11,7 +11,7 @@ RUN npm install
 
 FROM node:14-buster-slim
 WORKDIR /srv
-RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get update && apt-get install -y postgresql-client ca-certificates
 COPY --from=api-module-install /srv/ /srv/
 COPY --from=api-builder /srv/bin /srv/bin
 COPY production/wait-for-postgres.sh /srv/wait-for-postgres.sh
