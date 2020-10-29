@@ -5,7 +5,8 @@
         </div>
         <div class="flex flex-col" v-if="!target.resource || !target.folder">
             <onedrive-authenticator-component
-                @rclone-configuration="postOnedriveRcloneConfiguration"
+                api="/onedrive/configuration"
+                @set-resource="resource = 'onedrive'"
             />
             <file-browser-component
                 v-if="resource && !selectedFolder"
@@ -25,6 +26,7 @@
 <script>
 import HTTPService from "@/components//http.service";
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
+import { isMatch } from "lodash";
 
 export default {
     components: {
@@ -43,15 +45,6 @@ export default {
         },
     },
     methods: {
-        async postOnedriveRcloneConfiguration(configuration) {
-            this.configuration = configuration;
-            const httpService = new HTTPService({ $auth: this.$auth });
-            await httpService.post({
-                route: "/onedrive/configuration",
-                body: this.configuration,
-            });
-            this.resource = "onedrive";
-        },
         setSelectedFolder(folder) {
             this.selectedFolder = folder;
             this.$store.commit("setTargetResource", {

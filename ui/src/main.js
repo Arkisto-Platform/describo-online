@@ -26,10 +26,9 @@ prefixer.apply(log);
         let { configuration } = await response.json();
 
         if (!configuration.services.okta) {
-            console.log(`Okta configuration not found in configuration.json`);
+            console.error(`Okta configuration not found in configuration.json`);
             process.exit();
         }
-        store.commit("saveConfiguration", { configuration });
         Vue.use(Auth, {
             ...configuration.services.okta,
         });
@@ -39,6 +38,7 @@ prefixer.apply(log);
             log,
         });
 
+        store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;
         Vue.prototype.$log = log;
         new Vue({
