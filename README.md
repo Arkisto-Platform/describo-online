@@ -10,6 +10,7 @@ This is the source code for the describo-online application.
     - [Create a configuration file](#create-a-configuration-file)
   - [Developing the application](#developing-the-application)
   - [Setting up for production](#setting-up-for-production)
+  - [Building production containers](#building-production-containers)
 
 ## Before you start up the development environment
 
@@ -72,9 +73,20 @@ The application is developed inside docker containers. To get started:
 
 ## Setting up for production
 
-When setting up for a production deployment you need to create an okta application and setup microsoft api access as required for development. Just ensure you use the real DNS name where required.
+Setting up for production is similar to setting up for development except that you don't need the source code.
 
-Also, a sample `docker compose` file and associated scripts and config is in the folder `production`. Start there when setting up a production instance. Specifically:
+1. Set up an Azure application so the app can auth to onedrive. Follow the documentation at [https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive](https://github.com/UTS-eResearch/describo-ui-plugins/tree/master/onedrive). Specifically, the section `Setting up Azure`
+2. Set up an okta organisation as defined in the section above: **Create an Okta organisation and setup your application**
+3. Copy the `production` folder to your server
+    1. The file `docker-compose.yml` is a docker compose file you can use (alternately, if you have a swarm use the file `production-stack.yml` to start a stack)
+    2. Update nginx.conf: if you've set up SSL on your server be sure to update the nginx config as required.
+4. Copy `configuration/example-configuration.json` to `production-configuration.json` on the server and configure with Azure and okta details. Put it in the same folder as the compose/stack file.
+5. Start the service: `docker-compose up -d`
 
--   add https to the nginx config as related to your prod setup
--   don't forget to create the configuration file
+## Building production containers
+
+To build the production containers for a release:
+
+```
+> ./build-production-containers.sh
+```
