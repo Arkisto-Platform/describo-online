@@ -4,10 +4,10 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "develop": "concurrently \"npm run develop:server\" \"npm run test:watch\"",
+        "develop": "concurrently \"npm run develop:server\"",
         "develop:server": "npm install && ./node_modules/.bin/nodemon --exec babel-node ./index.js",
         "test": "./node_modules/.bin/jest",
-        "test:watch": "sleep 10 && ./node_modules/.bin/jest --watch",
+        "test:watch": "./node_modules/.bin/jest --watch",
         "build:production": "./node_modules/.bin/webpack --config webpack.production.js"
     },
     "author": "Marco La Rosa",

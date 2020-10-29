@@ -12,6 +12,13 @@ import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import OneDrivePlugin from "../../plugins/onedrive";
 import Auth from "@okta/okta-vue";
+import log from "loglevel";
+import prefix from "loglevel-plugin-prefix";
+const level = process.env.NODE_ENV === "development" ? "debug" : "warn";
+log.setLevel(level);
+const prefixer = prefix.noConflict();
+prefixer.reg(log);
+prefixer.apply(log);
 
 (async () => {
     let response = await fetch("/api/configuration");
@@ -27,8 +34,13 @@ import Auth from "@okta/okta-vue";
             ...configuration.services.okta,
         });
         Vue.use(ElementUI, { locale });
-        Vue.use(OneDrivePlugin);
+        Vue.use(OneDrivePlugin, {
+            ...configuration.services.onedrive,
+            log,
+        });
+
         Vue.config.productionTip = false;
+        Vue.prototype.$log = log;
         new Vue({
             router,
             store,

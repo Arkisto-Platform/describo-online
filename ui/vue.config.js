@@ -11,4 +11,23 @@ module.exports = {
             },
         },
     },
+    configureWebpack: (config) => {
+        config.module.rules.push({
+            test: /\.worker\.js$/,
+            use: [
+                {
+                    loader: "worker-loader",
+                    options: {
+                        inline: "fallback",
+                    },
+                },
+                {
+                    loader: "babel-loader",
+                    options: {
+                        presets: ["@babel/preset-env"],
+                    },
+                },
+            ],
+        });
+    },
 };

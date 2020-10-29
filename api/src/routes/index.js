@@ -1,9 +1,10 @@
-import { setupOnedriveRoutes } from "./onedrive";
 import { demandKnownUser } from "../middleware";
 import { loadConfiguration } from "../common";
 import { postSession as postSessionController } from "../controllers/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, ForbiddenError } from "restify-errors";
+import { setupOnedriveRoutes } from "./onedrive";
+import { setupFileBrowserRoutes } from "./file-browser";
 
 export function setupRoutes({ server }) {
     server.get("/configuration", getConfiguration);
@@ -11,6 +12,7 @@ export function setupRoutes({ server }) {
     server.post("/session/okta", createOktaSession);
     server.post("/session/application", createApplicationSession);
     setupOnedriveRoutes({ server });
+    setupFileBrowserRoutes({ server });
 }
 
 async function getConfiguration(req, res, next) {

@@ -7,6 +7,9 @@ const mutations = {
     saveConfiguration: (state, payload) => {
         state.configuration = { ...payload.configuration };
     },
+    setTargetResource: (state, payload) => {
+        state.target = { ...payload };
+    },
 };
 
 const actions = {
@@ -22,6 +25,10 @@ const actions = {
 export default new Vuex.Store({
     state: {
         configuration: undefined,
+        target: {
+            resource: undefined,
+            folder: undefined,
+        },
     },
     mutations,
     actions,

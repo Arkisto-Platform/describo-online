@@ -23,37 +23,35 @@ export async function getUserSession({ sessionId, email }) {
         if (sessionId) {
             let session = await models.session.findOne({
                 where: { id: sessionId },
+                attributes: ["id", "data"],
                 include: [
                     {
                         model: models.user,
-                        raw: true,
                         attributes: ["id", "name", "email"],
                     },
                 ],
             });
             if (session) {
-                return {
-                    user: session.user.get(),
-                    session: {
-                        id: session.id,
-                        data: session.data,
-                    },
-                };
+                let user = session.user.get({ plain: true });
+                session = session.get({ plain: true });
+                delete session.user;
+                return { user, session };
             }
         } else if (email) {
             let user = await models.user.findOne({
                 where: { email },
                 attributes: ["id", "name", "email"],
-                include: [{ model: models.session }],
+                include: [
+                    { model: models.session, attributes: ["id", "data"] },
+                ],
             });
             if (user) {
-                return {
-                    user: user.get(),
-                    session: {
-                        id: user.session ? user.session.id : null,
-                        data: user.session ? user.session.data : null,
-                    },
-                };
+                user = user.get({ plain: true });
+                let session = user.session
+                    ? user.session
+                    : { id: null, data: null };
+                delete user.session;
+                return { user, session };
             }
         }
     } catch (error) {
