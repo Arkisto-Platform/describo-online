@@ -127,6 +127,7 @@ function handleError(error) {
     ) {
         throw new UnauthorizedError(error.message);
     } else {
-        throw new InternalServerError();
+        console.error(error);
+        throw new InternalServerError(error.message);
     }
 }
