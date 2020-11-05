@@ -14,10 +14,6 @@ module.exports = function (sequelize, DataTypes) {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            date: {
-                type: DataTypes.DATE,
-                allowNull: false,
-            },
             profile: {
                 type: DataTypes.JSON,
                 allowNull: false,
