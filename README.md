@@ -9,6 +9,7 @@ This is the source code for the describo-online application.
     - [Create an Okta organisation and setup your application](#create-an-okta-organisation-and-setup-your-application)
     - [Create a configuration file](#create-a-configuration-file)
   - [Developing the application](#developing-the-application)
+    - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
   - [Setting up for production](#setting-up-for-production)
   - [Building production containers](#building-production-containers)
 
@@ -18,7 +19,7 @@ There are some things you need to do before you can start developing this applic
 
 1. Get Describo UI plugins
 2. Register your application with Microsoft
-3. Create and Okta organisation and setup your application
+3. Create an Okta organisation and setup your application
 4. Create a configuration file
 
 ### Get Describo UI plugins
@@ -66,10 +67,25 @@ The application is developed inside docker containers. To get started:
 > docker-compose up
 ```
 
--   The API service will be started in addition to a test watcher. The API will livereload when API code changes and tests will be re-run when any test file changes. Jest is used for testing.
+-   The API service will be started.
+-   The UI dev environment will be started
 -   The Postgres service will be commissioned with a database called `describo` and user / password: `admin / admin`
 -   The API service will be available on `localhost:8080`
 -   The UI service will be available on `localhost:9000`
+
+### Running the tests in watch mode
+
+If you want to run the tests in watch mode you need to start the service manually as follows:
+
+-   in another terminal
+    -   find the id of the docker API container: `docker ps`
+    -   exec into the container: `docker exec -it {container id} bash`
+    -   run jest: `npm run test:watch`
+
+Jest tests run in parallel so it comes with the ability to filter which tests run. However, in order
+to do this the command can't be started automatically by docker as you won't be able to attach to
+jest. By starting it manually - and it has to be inside the container - you can control which tests
+run which is very handy when you're developing new tests or checking existing ones.
 
 ## Setting up for production
 

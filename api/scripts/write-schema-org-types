@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl --silent --output schema.org.jsonld https://schema.org/version/latest/schemaorg-current-http.jsonld
+node write-types.js
+rm schema.org.jsonld
+cp types/index.json ../src/common/type-definitions.json
+rm -rf types

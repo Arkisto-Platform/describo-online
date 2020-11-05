@@ -13,13 +13,13 @@ import { getUserSession } from "../lib/user";
  *
  */
 const api = "http://localhost:8080";
-describe("Test file browser api routes", () => {
+const userEmail = "m@lr.id.au";
+describe.skip("Test file browser api routes", () => {
     let sessionId;
     beforeAll(async () => {
         // sessionId = await createSession();
     });
     test("it should fail to find an rclone configuration", async () => {
-        const userEmail = "m@lr.id.au";
         const { user, session } = await getUserSession({
             email: userEmail,
         });
@@ -35,7 +35,6 @@ describe("Test file browser api routes", () => {
         expect(response.status).toBe(404);
     });
     test("it should be able to get a listing of a onedrive folder using rclone", async () => {
-        const userEmail = "m@lr.id.au";
         const { user, session } = await getUserSession({ email: userEmail });
 
         let response = await fetch(`${api}/folder/read`, {
@@ -51,7 +50,6 @@ describe("Test file browser api routes", () => {
         expect(response.content).toBeTruthy;
     });
     test("it should be able to create a folder in onedrive", async () => {
-        const userEmail = "m@lr.id.au";
         const { user, session } = await getUserSession({
             email: userEmail,
         });
@@ -81,7 +79,6 @@ describe("Test file browser api routes", () => {
         ).toBe(1);
     });
     test("it should be able to create, and then remove a folder in onedrive", async () => {
-        const userEmail = "m@lr.id.au";
         const { user, session } = await getUserSession({
             email: userEmail,
         });
