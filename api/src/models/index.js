@@ -41,6 +41,7 @@ let modules = [
     require("./user.js"),
     require("./session.js"),
     require("./user_entity.js"),
+    require("./profile.js"),
 ];
 
 // Initialize models
