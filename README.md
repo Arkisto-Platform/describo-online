@@ -11,6 +11,7 @@ This is the source code for the describo-online application.
   - [Developing the application](#developing-the-application)
     - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
   - [Setting up for production](#setting-up-for-production)
+  - [Integrating Descibo Online into another service](#integrating-descibo-online-into-another-service)
   - [Building production containers](#building-production-containers)
 
 ## Before you start up the development environment
@@ -98,6 +99,22 @@ Setting up for production is similar to setting up for development except that y
     2. Update nginx.conf: if you've set up SSL on your server be sure to update the nginx config as required.
 4. Copy `configuration/example-configuration.json` to `production-configuration.json` on the server and configure with Azure and okta details. Put it in the same folder as the compose/stack file.
 5. Start the service: `docker-compose up -d`
+
+## Integrating Descibo Online into another service
+
+Describo Online can function in a mode where authentication is effectively delegated to another service. In
+this mode, okta auth is bypassed for a given session. This works as follows:
+
+-   Set up an entry for your service in the configuration file under `api/applications`. This must be an array of objects each with a key `name` set to the full qualified domain name of the service and a key `secret` set to some long, random string.
+-   In order to bypass okta, your service must first POST to `https://{describo-online}/api/session/application` a JSON object `containing a name and an email`.
+-   The POST must set the header `Authorization: Bearer: {your secret as defined in the configuration}`
+-   The POST must set the header `"Content-Type": "application/json"`
+
+-   **See the test `it should be able to create a new session` @ `api/src/routes/index.spec.js` for an example.**
+
+-   If successful, a `session identifier` will be returned from describo online. Call describo-online inside an iframe as `https://{describo-online}?sid={sessionId}`. From that point on the session id will be used to identifier the currently logged in user bypassing all okta authentication.
+
+-   The application secret is not stored in the DB so it can be changed at anytime by changing in the configuration file and restarting describo online.
 
 ## Building production containers
 

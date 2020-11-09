@@ -4,7 +4,7 @@
         "logo": "http://www.researchobject.org/ro-crate/assets/img/ro-crate.svg",
         "services": {
             "okta": {
-                "domain": "https://${okta_domain}",
+                "domain": "https://{okta_domain}",
                 "clientId": "{okta Client ID}",
                 "redirectUri": "http://localhost:9000/okta-login"
             },
