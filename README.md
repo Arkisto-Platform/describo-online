@@ -110,7 +110,7 @@ this mode, okta auth is bypassed for a given session. This works as follows:
 -   The POST must set the header `Authorization: Bearer: {your secret as defined in the configuration}`
 -   The POST must set the header `"Content-Type": "application/json"`
 
--   **See the test `it should be able to create a new session` @ `api/src/routes/index.spec.js` for an example.**
+-   **See the test `it should be able to create a session and login - bypassing okta auth` @ [api/src/routes/index.spec.js](https://github.com/UTS-eResearch/describo-online/blob/master/api/src/routes/index.spec.js#L48) for an example.**
 
 -   If successful, a `session identifier` will be returned from describo online. Call describo-online inside an iframe as `https://{describo-online}?sid={sessionId}`. From that point on the session id will be used to identifier the currently logged in user bypassing all okta authentication.
 
