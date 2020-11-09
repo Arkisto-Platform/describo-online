@@ -6,6 +6,8 @@ import { BadRequestError, ForbiddenError } from "restify-errors";
 import { setupOnedriveRoutes } from "./onedrive";
 import { setupFileBrowserRoutes } from "./file-browser";
 import { setupProfileHandlingRoutes } from "./profile";
+import { getLogger } from "../common";
+const log = getLogger();
 
 export function setupRoutes({ server }) {
     server.get("/configuration", getConfiguration);
@@ -32,6 +34,7 @@ async function createOktaSession(req, res, next) {
     const email = req.body.email;
     const name = req.body.name;
     if (!email || !name) {
+        log.error(`createOktaSession: email || name not provided`);
         return next(new BadRequestError());
     }
 
@@ -46,6 +49,9 @@ async function createApplicationSession(req, res, next) {
     const email = req.body.email;
     const name = req.body.name;
     if (!authorization || !email || !name) {
+        log.error(
+            `createApplicationSession: authorization || email || name not provided`
+        );
         return next(new BadRequestError());
     }
 
@@ -58,6 +64,7 @@ async function createApplicationSession(req, res, next) {
         res.send({ sessionId });
         next();
     } catch (error) {
+        log.error(`createApplicationSession: ${error.message}`);
         return next(new ForbiddenError());
     }
 }

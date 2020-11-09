@@ -1,6 +1,8 @@
 import { demandKnownUser } from "../middleware";
 import { getProfile, createProfile, updateProfile } from "../lib/profile";
 import { BadRequestError, InternalServerError } from "restify-errors";
+import { getLogger } from "../common";
+const log = getLogger();
 
 export function setupProfileHandlingRoutes({ server }) {
     server.get("/profile/:profileId", demandKnownUser, getProfileRouteHandler);
@@ -15,6 +17,7 @@ export function setupProfileHandlingRoutes({ server }) {
 async function getProfileRouteHandler(req, res, next) {
     const profileId = req.params.profileId;
     if (!profileId) {
+        log.error(`getProfileRouteHandler: profileId not provided`);
         return next(new BadRequestError());
     }
     try {
@@ -22,6 +25,7 @@ async function getProfileRouteHandler(req, res, next) {
         res.send({ profile });
         return next();
     } catch (error) {
+        log.error(`getProfileRouteHandler: ${error.message}`);
         return next(new InternalServerError());
     }
 }
@@ -29,11 +33,15 @@ async function getProfileRouteHandler(req, res, next) {
 async function createProfileRouteHandler(req, res, next) {
     let { name, profile, collectionId } = req.body;
     if (!name || !profile || !collectionId) {
+        log.error(
+            `updateProfileRouteHandler: name || profile || collection not provided`
+        );
         return next(new BadRequestError());
     }
     try {
         profile = await createProfile({ collectionId, name, profile });
     } catch (error) {
+        log.error(`createProfileRouteHandler: ${error.message}`);
         return next(new BadRequestError());
     }
     res.send({ profile });
@@ -43,6 +51,7 @@ async function createProfileRouteHandler(req, res, next) {
 async function updateProfileRouteHandler(req, res, next) {
     const profileId = req.params.profileId;
     if (!profileId) {
+        log.error(`updateProfileRouteHandler: profileId not provided`);
         return next(new BadRequestError());
     }
     let { name, profile } = req.body;
@@ -52,6 +61,7 @@ async function updateProfileRouteHandler(req, res, next) {
     try {
         profile = await updateProfile({ profileId, name, profile });
     } catch (error) {
+        log.error(`updateProfileRouteHandler: ${error.message}`);
         return next(new BadRequestError());
     }
     res.send({ profile });

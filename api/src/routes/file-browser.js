@@ -1,6 +1,8 @@
 import { demandKnownUser } from "../middleware";
 import { listFolder, createFolder, deleteFolder } from "../lib/file-browser";
 import { BadRequestError } from "restify-errors";
+import { getLogger } from "../common";
+const log = getLogger();
 
 export function setupFileBrowserRoutes({ server }) {
     server.post("/folder/create", demandKnownUser, createFolderRouteHandler);
@@ -11,6 +13,7 @@ export function setupFileBrowserRoutes({ server }) {
 async function readFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource) {
+        log.error(`readFolderRouterHandler: resource not provided`);
         return next(new BadRequestError());
     }
     let content;
@@ -22,6 +25,7 @@ async function readFolderRouteHandler(req, res, next) {
             folderPath,
         });
     } catch (error) {
+        log.error(`readFolderRouterHandler: ${error.message}`);
         return next(error);
     }
     res.send({ content });
@@ -31,6 +35,9 @@ async function readFolderRouteHandler(req, res, next) {
 async function createFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
+        log.error(
+            `createFolderRouterHandler: resource || folderPath not provided`
+        );
         return next(new BadRequestError());
     }
     try {
@@ -41,6 +48,7 @@ async function createFolderRouteHandler(req, res, next) {
             folderPath,
         });
     } catch (error) {
+        log.error(`createFolderRouterHandler: ${error.message}`);
         return next(error);
     }
     res.send();
@@ -50,6 +58,9 @@ async function createFolderRouteHandler(req, res, next) {
 async function deleteFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
+        log.error(
+            `createFolderRouterHandler: resource || folderPath not provided`
+        );
         return next(new BadRequestError());
     }
     try {
@@ -60,7 +71,7 @@ async function deleteFolderRouteHandler(req, res, next) {
             folderPath,
         });
     } catch (error) {
-        console.log(error);
+        log.error(`deleteFolderRouterHandler: ${error.message}`);
         return next(error);
     }
     res.send();
