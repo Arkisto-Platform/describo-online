@@ -34,7 +34,10 @@ module.exports = function (sequelize, DataTypes) {
             otherKey: "userId",
             onDelete: "CASCADE",
         });
-        Collection.hasOne(models.profile, { onDelete: "CASCADE" });
+        Collection.hasOne(models.profile, {
+            foreignKey: { allowNull: false },
+            onDelete: "CASCADE",
+        });
     };
     return Collection;
 };

@@ -24,7 +24,9 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
     Profile.associate = function (models) {
-        Profile.belongsTo(models.collection);
+        Profile.belongsTo(models.collection, {
+            foreignKey: { allowNull: false },
+        });
     };
 
     return Profile;

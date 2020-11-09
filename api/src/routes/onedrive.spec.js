@@ -1,16 +1,14 @@
 import "regenerator-runtime";
 import fetch from "node-fetch";
-import { loadConfiguration } from "../common";
-import { writeJSON } from "fs-extra";
-import { cloneDeep, isMatch } from "lodash";
-import path from "path";
+import { isMatch } from "lodash";
+import { createSessionForTest } from "../common";
 const api = "http://localhost:8080";
 import models from "../models";
 
 describe("Test onedrive api routes", () => {
     let sessionId;
     beforeAll(async () => {
-        sessionId = await createSession();
+        sessionId = await createSessionForTest();
     });
     test("it should be able to save a onedrive rclone configuration", async () => {
         const rcloneConfig = {
@@ -35,27 +33,3 @@ describe("Test onedrive api routes", () => {
         expect(isMatch(data.rclone.onedrive, rcloneConfig)).toBeTrue;
     });
 });
-
-async function createSession() {
-    const origConfig = await loadConfiguration();
-
-    let testConfig = cloneDeep(origConfig);
-    testConfig.api.applications = [{ name: "test", secret: "xxx" }];
-    await writeJSON(path.join("../../configuration.json"), testConfig);
-    let user = {
-        email: "test@test.com",
-        name: "test user",
-    };
-
-    let response = await fetch(`${api}/session/application`, {
-        method: "POST",
-        headers: {
-            Authorization: "Bearer xxx",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-    });
-    response = await response.json();
-    await writeJSON(path.join("../../configuration.json"), origConfig);
-    return response.sessionId;
-}
