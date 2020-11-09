@@ -2,6 +2,9 @@ import path from "path";
 import fetch from "node-fetch";
 import { readJSON, writeJSON } from "fs-extra";
 import { cloneDeep } from "lodash";
+const winston = require("winston");
+const { createLogger, format, transports } = require("winston");
+const { combine, timestamp, printf } = format;
 const api = "http://localhost:8080";
 
 export async function loadConfiguration() {
@@ -38,4 +41,16 @@ export async function createSessionForTest() {
     response = await response.json();
     await writeJSON(path.join("../../configuration.json"), origConfig);
     return response.sessionId;
+}
+
+export function getLogger() {
+    const myFormat = printf(({ level, message, timestamp }) => {
+        return `${timestamp} ${level.toUpperCase()}: ${message}`;
+    });
+    const logger = createLogger({
+        level: process.env === "development" ? "debug" : "info",
+        format: combine(timestamp(), myFormat),
+        transports: [new transports.Console()],
+    });
+    return logger;
 }
