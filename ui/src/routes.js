@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import ShellComponent from "@/components/Shell.component.vue";
+import LogoutComponent from "@/components/Logout.component.vue";
 import OktaLoginComponent from "@/components/OktaLogin.component.vue";
 import OktaLoginCallbackComponent from "@/components/OktaLoginCallback.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
@@ -18,8 +19,14 @@ const routes = [
         },
     },
     {
+        name: "login",
         path: "/login",
         component: OktaLoginComponent,
+    },
+    {
+        name: "logout",
+        path: "/logout",
+        component: LogoutComponent,
     },
     {
         path: "/okta-login",
@@ -39,7 +46,9 @@ const router = new VueRouter({
 router.beforeEach(onAuthRequired);
 
 async function onAuthRequired(from, to, next) {
-    if (
+    if (to.name === "logout" || from.name === "logout") {
+        next();
+    } else if (
         (from.matched.some((r) => r.meta.requiresAuth) ||
             to.matched.some((r) => r.meta.requiresAuth)) &&
         !(await authService.isAuthenticated())

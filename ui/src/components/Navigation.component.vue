@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import AuthService from "./auth.service";
 export default {
     data() {
         return {
@@ -20,8 +19,7 @@ export default {
     },
     methods: {
         async logout() {
-            const as = new AuthService({ $auth: this.$auth });
-            as.logout();
+            this.$router.push({ name: "logout" });
         },
     },
 };
