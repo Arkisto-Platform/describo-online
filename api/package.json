@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "develop": "concurrently \"npm run develop:server\"",
+        "develop": "npm run develop:server",
         "develop:server": "npm install && ./node_modules/.bin/nodemon --exec babel-node ./index.js",
         "test": "./node_modules/.bin/jest",
         "test:watch": "./node_modules/.bin/jest --watch",
