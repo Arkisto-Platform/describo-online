@@ -1,12 +1,29 @@
 <template>
     <el-card class="box-card">
-        <div slot="header" class="clearfix">
-            <div class="text-xl">Select a resource to work with</div>
+        <div
+            slot="header"
+            class="flex flex-row"
+            v-if="!target.resource && !target.folder"
+        >
+            <div class="flex flex-row">
+                Select a resource to work with
+                <div v-if="resource" class="ml-2">:&nbsp;{{ resource }}</div>
+            </div>
+            <div class="flex-grow"></div>
+            <div v-if="resource">
+                <el-button
+                    type="danger"
+                    size="small"
+                    @click="resource = undefined"
+                    >Change resource</el-button
+                >
+            </div>
         </div>
         <div class="flex flex-col" v-if="!target.resource || !target.folder">
             <onedrive-authenticator-component
                 api="/onedrive/configuration"
                 @set-resource="resource = 'onedrive'"
+                v-if="!resource"
             />
             <file-browser-component
                 v-if="resource && !selectedFolder"
@@ -17,8 +34,17 @@
                 @selected-folder="setSelectedFolder"
             />
         </div>
-        <div class="flex flex-col" v-if="target.resource || target.folder">
-            {{ target.resource }}:/{{ target.folder }}
+        <div class="flex flex-row" v-if="target.resource && target.folder">
+            <div class="mr-2">Selected Resource:</div>
+            <div>{{ target.resource }}:{{ target.folder }}</div>
+            <div class="flex-grow"></div>
+            <el-button
+                type="danger"
+                @click="selectNewTargetFolder"
+                size="small"
+            >
+                <i class="fas fa-trash-alt"></i>
+            </el-button>
         </div>
     </el-card>
 </template>
@@ -46,10 +72,18 @@ export default {
     },
     methods: {
         setSelectedFolder(folder) {
-            this.selectedFolder = folder;
+            this.selectedFolder = `/${folder}`;
             this.$store.commit("setTargetResource", {
                 resource: this.resource,
-                folder,
+                folder: this.selectedFolder,
+            });
+        },
+        selectNewTargetFolder() {
+            this.resource = undefined;
+            this.selectedFolder = undefined;
+            this.$store.commit("setTargetResource", {
+                resource: undefined,
+                folder: undefined,
             });
         },
     },
