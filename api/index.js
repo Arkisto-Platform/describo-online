@@ -4,6 +4,7 @@ const server = restify.createServer();
 const models = require("./src/models");
 const { setupRoutes } = require("./src/routes");
 const { loadConfiguration } = require("./src/common");
+const corsMiddleware = require("restify-cors-middleware");
 
 (async () => {
     let configuration;
@@ -16,7 +17,20 @@ const { loadConfiguration } = require("./src/common");
     await models.sequelize.sync();
 
     setupRoutes({ server });
+    const cors = corsMiddleware({
+        preflightMaxAge: 5, //Optional
+        origins: ["*"],
+        allowHeaders: [
+            "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization",
+        ],
+        exposeHeaders: [
+            "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization",
+        ],
+    });
+
     server.pre(restify.plugins.pre.dedupeSlashes());
+    server.pre(cors.preflight);
+    server.use(cors.actual);
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
