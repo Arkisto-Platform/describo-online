@@ -45,7 +45,17 @@ async function createOktaSession(req, res, next) {
 }
 
 async function createApplicationSession(req, res, next) {
-    const authorization = req.headers.authorization.split("Bearer ").pop();
+    let authorization;
+    try {
+        authorization = req.headers.authorization.split("Bearer ").pop();
+    } catch (error) {
+        log.error(
+            `createApplicationSession: issue with authorization header: ${error.message}`
+        );
+        return next(
+            new BadRequestError("Unable to get authorization from header")
+        );
+    }
     const email = req.body.email;
     const name = req.body.name;
     if (!authorization || !email || !name) {
