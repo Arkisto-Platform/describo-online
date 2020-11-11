@@ -31,6 +31,12 @@ const corsMiddleware = require("restify-cors-middleware");
     server.pre(restify.plugins.pre.dedupeSlashes());
     server.pre(cors.preflight);
     server.use(cors.actual);
+    if (process.env.NODE_ENV === "development") {
+        server.use((req, res, next) => {
+            console.log(req.route);
+            return next();
+        });
+    }
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
