@@ -103,6 +103,7 @@ export default {
     },
     methods: {
         async loadNode(node, resolve) {
+            this.loading = true;
             let content;
             if (node.level === 0) {
                 await this.load({ resolve });
@@ -114,6 +115,7 @@ export default {
                     : node.data.path;
                 await this.load({ resolve, path });
             }
+            this.loading = false;
         },
         async load({ resolve, path }) {
             let body = {
