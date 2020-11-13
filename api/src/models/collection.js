@@ -14,7 +14,6 @@ module.exports = function (sequelize, DataTypes) {
             validate: {
                 notEmpty: true,
             },
-            unique: "compositeIndex",
         },
         description: {
             type: DataTypes.TEXT,

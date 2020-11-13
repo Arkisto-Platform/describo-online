@@ -1,6 +1,6 @@
 import { loadConfiguration } from "../common";
 import { ForbiddenError } from "restify-errors";
-import { createUser, createUserSession } from "../lib/user";
+import { createUser, createUserSession } from "./user";
 
 export async function postSession({ authorization, email, name }) {
     const api = (await loadConfiguration()).api;

@@ -2,7 +2,6 @@ import path from "path";
 import fetch from "node-fetch";
 import { readJSON, writeJSON } from "fs-extra";
 import { cloneDeep } from "lodash";
-const winston = require("winston");
 const { createLogger, format, transports } = require("winston");
 const { combine, timestamp, printf } = format;
 const api = "http://localhost:8080";
@@ -48,7 +47,7 @@ export function getLogger() {
         return `${timestamp} ${level.toUpperCase()}: ${message}`;
     });
     const logger = createLogger({
-        level: process.env === "development" ? "debug" : "info",
+        level: process.env.NODE_ENV === "development" ? "debug" : "info",
         format: combine(timestamp(), myFormat),
         transports: [new transports.Console()],
     });

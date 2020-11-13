@@ -36,7 +36,7 @@
         </div>
         <div class="flex flex-row" v-if="target.resource && target.folder">
             <div class="mr-2">Selected Resource:</div>
-            <div>{{ target.resource }}:{{ target.folder }}</div>
+            <div>{{ target.resource }}:{{ target.folder.path }}</div>
             <div class="flex-grow"></div>
             <el-button
                 type="danger"
@@ -72,10 +72,10 @@ export default {
     },
     methods: {
         setSelectedFolder(folder) {
-            this.selectedFolder = `/${folder}`;
+            this.selectedFolder = folder;
             this.$store.commit("setTargetResource", {
                 resource: this.resource,
-                folder: this.selectedFolder,
+                folder,
             });
         },
         selectNewTargetFolder() {

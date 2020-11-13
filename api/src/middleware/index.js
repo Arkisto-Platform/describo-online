@@ -4,13 +4,21 @@ import OktaJwtVerifier from "@okta/jwt-verifier";
 import { loadConfiguration } from "../common";
 import { createUser, getUserSession, createUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
+import { getLogger } from "../common";
+const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {
     if (!req.headers.authorization) {
+        log.error(
+            `demandKnownUser: Authorization header not preset in request`
+        );
         return next(new ForbiddenError());
     }
     let [authType, token] = req.headers.authorization.split(" ");
     if (!expectedAuthorizationTypes.includes(authType)) {
+        log.error(
+            `demandKnownUser: unknown authorization presented: expected okta || sid got authType`
+        );
         return next(new ForbiddenError());
     }
     try {

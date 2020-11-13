@@ -1,11 +1,12 @@
 import { demandKnownUser } from "../middleware";
 import { loadConfiguration } from "../common";
-import { postSession as postSessionController } from "../controllers/session";
+import { postSession as postSessionController } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, ForbiddenError } from "restify-errors";
 import { setupOnedriveRoutes } from "./onedrive";
 import { setupFileBrowserRoutes } from "./file-browser";
 import { setupProfileHandlingRoutes } from "./profile";
+import { setupLoadRoutes } from "./load";
 import { getLogger } from "../common";
 const log = getLogger();
 
@@ -17,6 +18,7 @@ export function setupRoutes({ server }) {
     setupOnedriveRoutes({ server });
     setupFileBrowserRoutes({ server });
     setupProfileHandlingRoutes({ server });
+    setupLoadRoutes({ server });
 }
 
 async function getConfiguration(req, res, next) {

@@ -45,5 +45,9 @@ async function findCollection({ id, name }) {
         where.name = {
             [Op.substring]: [name],
         };
-    return (await models.collection.findAll({ where })).map((c) => c.get());
+    let collections = await models.collection.findAll({ where });
+    if (collections.length) {
+        return collections.map((c) => c.get());
+    }
+    return [];
 }

@@ -166,7 +166,8 @@ export default {
                 const path = node.parent
                     ? `${node.parent}/${node.path}`
                     : node.path;
-                this.$emit("selected-folder", path);
+                const id = node.id;
+                this.$emit("selected-folder", { path: `/${path}`, id });
             } else {
                 await this.debouncedAddParts();
             }

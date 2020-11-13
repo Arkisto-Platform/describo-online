@@ -1,4 +1,4 @@
-import { ensureDir, open, write, close } from "fs-extra";
+import { ensureDir, open, write, close, pathExists, remove } from "fs-extra";
 import { spawn } from "child_process";
 import {
     NotFoundError,
@@ -7,6 +7,8 @@ import {
 } from "restify-errors";
 import path from "path";
 import { camelCase } from "lodash";
+import { getLogger } from "../common";
+const log = getLogger();
 
 export async function listFolder({ session, user, resource, folderPath }) {
     let cwd = await setup({ user, session, resource });
@@ -55,6 +57,56 @@ export async function deleteFolder({ session, user, resource, folderPath }) {
         await runCommand({ cwd, args });
     } catch (error) {
         handleError(error);
+    }
+}
+
+export async function syncRemoteFileToLocal({
+    session,
+    user,
+    resource,
+    parent,
+    name,
+}) {
+    let cwd = await setup({ user, session, resource });
+
+    const rcloneSrc = `${resource}:${path.join(parent, name)}`;
+    const rcloneTgt = path.join(cwd, "current");
+
+    if (await pathExists(rcloneTgt)) {
+        await remove(rcloneTgt);
+    }
+    await ensureDir(rcloneTgt);
+
+    let args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
+    log.debug(`syncRemoteFileToLocal: rclone ${JSON.stringify(args)}`);
+    try {
+        await runCommand({ cwd, args });
+        return path.join(rcloneTgt, name);
+    } catch (error) {
+        log.error(`syncRemoteFileToLocal: ${error.message}`);
+        console.log(error);
+    }
+}
+
+export async function syncLocalFileToRemote({
+    session,
+    user,
+    resource,
+    parent,
+    localFile,
+}) {
+    let cwd = await setup({ user, session, resource });
+
+    const rcloneSrc = localFile;
+    const rcloneTgt = `${resource}:${parent}`;
+
+    let args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
+    log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
+    try {
+        await runCommand({ cwd, args });
+    } catch (error) {
+        log.error(`syncLocalFileToRemote: ${error.message}`);
+        console.log(error);
     }
 }
 

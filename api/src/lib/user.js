@@ -77,6 +77,15 @@ export async function createUserSession({ email, data }) {
     return user.session.get();
 }
 
+export async function updateUserSession({ sessionId, data }) {
+    let session = await models.session.findOne({ where: { id: sessionId } });
+    return (
+        await session.update({
+            data: { ...session.data, ...data },
+        })
+    ).get();
+}
+
 export async function destroyUserSession({ email }) {
     let user = await models.user.findOne({
         where: { email },

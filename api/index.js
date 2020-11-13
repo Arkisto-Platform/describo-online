@@ -3,8 +3,9 @@ const restify = require("restify");
 const server = restify.createServer();
 const models = require("./src/models");
 const { setupRoutes } = require("./src/routes");
-const { loadConfiguration } = require("./src/common");
+const { loadConfiguration, getLogger } = require("./src/common");
 const corsMiddleware = require("restify-cors-middleware");
+const log = getLogger();
 
 (async () => {
     let configuration;
@@ -33,7 +34,7 @@ const corsMiddleware = require("restify-cors-middleware");
     server.use(cors.actual);
     if (process.env.NODE_ENV === "development") {
         server.use((req, res, next) => {
-            console.log(req.route);
+            log.debug(`${req.route.method}: ${req.route.path}`);
             return next();
         });
     }
