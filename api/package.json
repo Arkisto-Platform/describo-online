@@ -43,6 +43,7 @@
         "restify-cors-middleware": "^1.1.1",
         "restify-errors": "^8.0.2",
         "sequelize": "^6.3.5",
+        "socket.io": "^3.0.1",
         "uuid": "^8.3.1",
         "winston": "^3.3.3"
     }

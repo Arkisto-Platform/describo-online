@@ -18,6 +18,7 @@
         "loglevel": "^1.7.0",
         "loglevel-plugin-prefix": "^0.8.4",
         "msal": "^1.4.1",
+        "socket.io-client": "^3.0.1",
         "tailwindcss": "^1.9.2",
         "vue": "^2.6.11",
         "vue-router": "^3.2.0",

@@ -16,8 +16,16 @@ const log = getLogger();
         process.exit();
     }
     await models.sequelize.sync();
+    const io = require("socket.io")(server.server, {
+        cors: {
+            origin: configuration.api.socketIO.origin,
+            methods: ["GET", "POST"],
+            allowedHeaders: ["Authorization"],
+            credentials: true,
+        },
+    });
 
-    setupRoutes({ server });
+    setupRoutes({ server, io });
     const cors = corsMiddleware({
         preflightMaxAge: 5, //Optional
         origins: ["*"],
@@ -38,6 +46,10 @@ const log = getLogger();
             return next();
         });
     }
+    server.use((req, res, next) => {
+        req.io = io;
+        return next();
+    });
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
@@ -52,7 +64,7 @@ const log = getLogger();
             maxFieldsSize: 2 * 1024 * 1024,
         })
     );
-    server.listen(configuration.api.port, function () {
+    const app = server.listen(configuration.api.port, function () {
         console.log("ready on %s", server.url);
     });
 })();

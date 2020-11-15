@@ -15,6 +15,9 @@
         }
     },
     "api": {
+        "socketIO": {
+            "origin": "{frontendURL}"
+        },
         "port": 8080,
         "applications": [{ "name": "stash.uts.edu.au", "secret": "xxx" }]
     }

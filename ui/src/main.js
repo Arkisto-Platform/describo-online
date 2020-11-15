@@ -19,6 +19,7 @@ log.setLevel(level);
 const prefixer = prefix.noConflict();
 prefixer.reg(log);
 prefixer.apply(log);
+import { io } from "socket.io-client";
 
 (async () => {
     let response = await fetch("/api/configuration");
@@ -41,6 +42,11 @@ prefixer.apply(log);
         store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;
         Vue.prototype.$log = log;
+        Vue.prototype.$socket =
+            process.env.NODE_ENV === "development"
+                ? io("http://localhost:8080")
+                : io("/api");
+
         new Vue({
             router,
             store,

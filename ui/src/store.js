@@ -10,6 +10,9 @@ const mutations = {
     setTargetResource: (state, payload) => {
         state.target = { ...payload };
     },
+    setActiveCollection(state, payload) {
+        state.collection = { ...payload };
+    },
 };
 
 const actions = {
@@ -29,6 +32,7 @@ export default new Vuex.Store({
             resource: undefined,
             folder: undefined,
         },
+        collection: {},
     },
     mutations,
     actions,
