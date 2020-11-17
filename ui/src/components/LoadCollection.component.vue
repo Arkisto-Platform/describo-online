@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import HTTPService from "./http.service";
 import { round } from "lodash";
 
 export default {
@@ -31,13 +30,11 @@ export default {
         this.$socket.on("loadRouteHandler", (response) => {
             this.msg = response.msg;
         });
-
-        this.httpService = new HTTPService({ $auth: this.$auth });
     },
     methods: {
         async loadFolder() {
             this.loading = true;
-            let response = await this.httpService.post({
+            let response = await this.$http.post({
                 route: "/load",
                 body: {
                     resource: this.target.resource,

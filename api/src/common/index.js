@@ -5,6 +5,8 @@ import { cloneDeep } from "lodash";
 const { createLogger, format, transports } = require("winston");
 const { combine, timestamp, printf } = format;
 const api = "http://localhost:8080";
+import Chance from "chance";
+const chance = new Chance();
 
 export async function loadConfiguration() {
     let configuration =
@@ -25,8 +27,8 @@ export async function createSessionForTest() {
     testConfig.api.applications = [{ name: "test", secret: "xxx" }];
     await writeJSON(path.join("../../configuration.json"), testConfig);
     let user = {
-        email: "test@test.com",
-        name: "test user",
+        email: chance.email(),
+        name: chance.name(),
     };
 
     let response = await fetch(`${api}/session/application`, {
@@ -39,7 +41,7 @@ export async function createSessionForTest() {
     });
     response = await response.json();
     await writeJSON(path.join("../../configuration.json"), origConfig);
-    return response.sessionId;
+    return { sessionId: response.sessionId, user };
 }
 
 export function getLogger() {

@@ -9,6 +9,7 @@ import path from "path";
 import { camelCase } from "lodash";
 import { getLogger } from "../common";
 const log = getLogger();
+const localCachePath = "/srv/tmp";
 
 export async function listFolder({ session, user, resource, folderPath }) {
     let cwd = await setup({ user, session, resource });
@@ -110,7 +111,7 @@ export async function syncLocalFileToRemote({
     }
 }
 
-async function setup({ session, user, resource }) {
+export async function setup({ session, user, resource }) {
     // use resource to see if we have a suitable rclone configuration
     let rcloneConfiguration = session.data?.rclone[resource];
     if (!rcloneConfiguration) {
@@ -121,12 +122,16 @@ async function setup({ session, user, resource }) {
     // write rclone configuration to disk
     return await writeRcloneConfiguration({
         rcloneConfiguration,
-        userId: user.id,
+        user,
     });
 }
 
-async function writeRcloneConfiguration({ rcloneConfiguration, userId }) {
-    const folderPath = path.join(`/srv/tmp/${userId}`);
+export function localWorkingDirectory({ user }) {
+    return path.join(localCachePath, user.id);
+}
+
+async function writeRcloneConfiguration({ rcloneConfiguration, user }) {
+    const folderPath = localWorkingDirectory({ user });
     const filePath = path.join(folderPath, "rclone.conf");
     await ensureDir(folderPath);
     const fd = await open(filePath, "w");

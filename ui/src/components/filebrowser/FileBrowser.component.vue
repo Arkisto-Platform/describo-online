@@ -59,7 +59,6 @@
 // import Worker from "./file-tree.worker";
 // import path from "path";
 import { flattenDeep, uniq, uniqBy, compact, debounce } from "lodash";
-import HTTPService from "../http.service";
 
 export default {
     props: {
@@ -98,9 +97,6 @@ export default {
             selectedFolder: undefined,
         };
     },
-    async beforeMount() {
-        this.httpService = new HTTPService({ $auth: this.$auth });
-    },
     methods: {
         async loadNode(node, resolve) {
             this.loading = true;
@@ -122,7 +118,7 @@ export default {
                 resource: this.resource,
             };
             if (path) body.path = path;
-            let response = await this.httpService.post({
+            let response = await this.$http.post({
                 route: "/folder/read",
                 body,
             });

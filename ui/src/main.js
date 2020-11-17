@@ -20,6 +20,7 @@ const prefixer = prefix.noConflict();
 prefixer.reg(log);
 prefixer.apply(log);
 import { io } from "socket.io-client";
+import HTTPService from "./components/http.service";
 
 (async () => {
     let response = await fetch("/api/configuration");
@@ -41,6 +42,7 @@ import { io } from "socket.io-client";
 
         store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;
+        Vue.prototype.$http = new HTTPService({ $auth: Vue.prototype.$auth });
         Vue.prototype.$log = log;
         Vue.prototype.$socket =
             process.env.NODE_ENV === "development"

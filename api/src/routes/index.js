@@ -7,6 +7,7 @@ import { setupOnedriveRoutes } from "./onedrive";
 import { setupFileBrowserRoutes } from "./file-browser";
 import { setupProfileHandlingRoutes } from "./profile";
 import { setupLoadRoutes } from "./load";
+import { setupEntityRoutes } from "./entity";
 import { getLogger } from "../common";
 const log = getLogger();
 
@@ -19,6 +20,7 @@ export function setupRoutes({ server }) {
     setupFileBrowserRoutes({ server });
     setupProfileHandlingRoutes({ server });
     setupLoadRoutes({ server });
+    setupEntityRoutes({ server });
 }
 
 async function getConfiguration(req, res, next) {

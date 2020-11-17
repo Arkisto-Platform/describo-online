@@ -6,9 +6,12 @@ const api = "http://localhost:8080";
 import models from "../models";
 
 describe("Test onedrive api routes", () => {
-    let sessionId;
+    let user, sessionId;
     beforeAll(async () => {
-        sessionId = await createSessionForTest();
+        ({ user, sessionId } = await createSessionForTest());
+    });
+    afterAll(async () => {
+        await models.user.destroy({ where: { email: user.email } });
     });
     test("it should be able to save a onedrive rclone configuration", async () => {
         const rcloneConfig = {

@@ -56,23 +56,6 @@ describe("Test entity and property management operations", () => {
         expect(entity.eid).toBe("boo");
         expect(entity.name).toBe("blah");
     });
-    test("it should not be able to create an entity - missing @id", async () => {
-        const collection = await models.collection.create({
-            name: "test",
-        });
-        let entity = {
-            "@type": "Person",
-            name: "test",
-        };
-        try {
-            entity = await insertEntity({
-                entity,
-                collectionId: collection.id,
-            });
-        } catch (error) {
-            expect(error.message).toEqual(`Entity missing '@id' property`);
-        }
-    });
     test("it should not be able to create an entity - missing @type", async () => {
         const collection = await models.collection.create({
             name: "test",
@@ -222,7 +205,10 @@ describe("Test entity and property management operations", () => {
             property: "author",
             tgtEntityId: entityB.id,
         });
-        let entity = await getEntity({ id: entityA.id });
+        let entity = await getEntity({
+            id: entityA.id,
+            collectionId: collection.id,
+        });
         let forward = entity.properties.filter((p) => p.direction === "F");
         let reverse = entity.properties.filter((p) => p.direction === "R");
         expect(entity.properties.length).toEqual(3);
@@ -242,14 +228,17 @@ describe("Test entity and property management operations", () => {
             entity,
             collectionId: collection.id,
         });
+        const entityId = entity.id;
         let property = await attachProperty({
             entityId: entity.id,
             property: "author",
             value: "something",
         });
-        await removeEntity({ id: entity.id });
-        entity = await models.entity.findAll();
-        property = await models.property.findAll();
+        await removeEntity({ id: entityId });
+        entity = await models.entity.findAll({ where: { id: entityId } });
+        property = await models.property.findAll({
+            where: { entityId },
+        });
         expect(entity.length).toBe(0);
         expect(property.length).toBe(0);
     });

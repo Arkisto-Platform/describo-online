@@ -3,7 +3,7 @@ import { writeJSON, remove, ensureDir } from "fs-extra";
 import { removeCollection, insertCollection } from "./collections";
 import path from "path";
 import { Crate } from "./crate";
-import { isPlainObject, isMatch, cloneDeep } from "lodash";
+import { isPlainObject, isMatch, flattenDeep } from "lodash";
 import { attachProperty, associate, getEntity } from "./entities";
 import models from "../models";
 
@@ -296,7 +296,7 @@ describe("Test loading a crate from a file", () => {
             where: { collectionId: collection.id },
         });
         expect(entities.length).toEqual(1);
-        await models.collection.destroy({ where: { id: collection.id } });
+        await removeCollection({ id: collection.id });
     });
     test("should fail to load a simple crate without root descriptor", async () => {
         const name = "my collection";
@@ -324,9 +324,7 @@ describe("Test loading a crate from a file", () => {
                 `The crate does not have exactly one root dataset descriptor`
             );
         }
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+        await removeCollection({ id: collection.id });
     });
     test("should fail to load a simple crate without multiple root descriptors", async () => {
         const name = "my collection";
@@ -369,9 +367,7 @@ describe("Test loading a crate from a file", () => {
                 `The crate does not have exactly one root dataset descriptor`
             );
         }
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+        await removeCollection({ id: collection.id });
     });
     test("should fail to re-load a collection ", async () => {
         const name = "my test collection";
@@ -410,12 +406,10 @@ describe("Test loading a crate from a file", () => {
         } catch (error) {
             expect(error.message).toEqual("That collection is already loaded.");
         }
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+        await removeCollection({ id: collection.id });
     });
     test("should load simple crate with one dataset and one entity", async () => {
-        const name = "my collection";
+        const name = "asdsadkgsdfgsdf";
         const crate = {
             "@context": ["https://w3id.org/ro/crate/1.1/context"],
             "@graph": [
@@ -441,7 +435,7 @@ describe("Test loading a crate from a file", () => {
                 },
             ],
         };
-        let collection = await insertCollection({ name: "test1" });
+        const collection = await insertCollection({ name });
         let crateManager = new Crate();
         await crateManager.importCrateIntoDatabase({
             collection,
@@ -450,18 +444,16 @@ describe("Test loading a crate from a file", () => {
         });
         let entities = await models.entity.findAll({
             where: { collectionId: collection.id },
-            raw: true,
             attributes: ["id"],
-        });
-        let properties = await models.property.findAll({
-            raw: true,
-            attributes: ["id"],
+            include: [
+                { model: models.property, attributes: ["id"], raw: true },
+            ],
         });
         expect(entities.length).toEqual(2);
-        expect(properties.length).toEqual(3);
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+        let properties = entities.map((e) => e.properties);
+        expect(flattenDeep(properties).length).toEqual(3);
+
+        await removeCollection({ id: collection.id });
     });
     test("should export a simple crate with one dataset and one entity", async () => {
         const name = "my collection";
@@ -510,14 +502,13 @@ describe("Test loading a crate from a file", () => {
             exportedEntry = exportedEntry.pop();
             expect(isMatch(exportedEntry, entry)).toBeTrue;
         });
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+
+        await removeCollection({ id: collection.id });
     });
     test("should assemble property values", async () => {
         let crateManager = new Crate();
         const collection = await models.collection.create({
-            name: "collection1",
+            name: "sfdvksdfbskudgnbsfgb",
         });
         const entityA = await models.entity.create({
             name: "entityA",
@@ -546,7 +537,9 @@ describe("Test loading a crate from a file", () => {
         // let properties = await models.property.findAll({
         //     where: { entityId: entityA.id },
         // })   ;
-        let properties = (await getEntity({ id: entityA.id })).properties;
+        let properties = (
+            await getEntity({ id: entityA.id, collectionId: collection.id })
+        ).properties;
         let entities = await models.entity.findAll({
             raw: true,
             attributes: ["id", "eid"],
@@ -570,7 +563,10 @@ describe("Test loading a crate from a file", () => {
             property: "author",
             tgtEntityId: entityB.id,
         });
-        ({ properties } = await getEntity({ id: entityA.id }));
+        ({ properties } = await getEntity({
+            id: entityA.id,
+            collectionId: collection.id,
+        }));
         entities = await models.entity.findAll({
             raw: true,
             attributes: ["id", "eid"],
@@ -590,7 +586,10 @@ describe("Test loading a crate from a file", () => {
             properties.forward.author.filter((e) => isPlainObject(e)).length
         ).toEqual(1);
 
-        ({ properties } = await getEntity({ id: entityB.id }));
+        ({ properties } = await getEntity({
+            id: entityB.id,
+            collectionId: collection.id,
+        }));
         properties = crateManager.assembleProperties({
             properties,
             idToEidMapping,
@@ -598,8 +597,6 @@ describe("Test loading a crate from a file", () => {
         // // console.log(JSON.stringify(properties, null, 2));
         expect(properties.reverse.author.length).toEqual(1);
 
-        await models.collection.destroy({
-            where: { id: collection.id },
-        });
+        await removeCollection({ id: collection.id });
     });
 });

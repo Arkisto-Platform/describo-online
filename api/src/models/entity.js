@@ -12,7 +12,6 @@ module.exports = function (sequelize, DataTypes) {
             },
             eid: {
                 type: DataTypes.STRING,
-                allowNull: false,
             },
             etype: {
                 type: DataTypes.STRING,

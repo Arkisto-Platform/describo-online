@@ -2,18 +2,40 @@ import { demandKnownUser } from "../middleware";
 import { BadRequestError, ConflictError } from "restify-errors";
 import {
     listFolder,
+    setup,
+    localWorkingDirectory,
     syncRemoteFileToLocal,
     syncLocalFileToRemote,
 } from "../lib/file-browser";
 import { Crate } from "../lib/crate";
 import { updateUserSession } from "../lib/user";
+import path from "path";
+import { writeJSON } from "fs-extra";
 import { getLogger } from "../common";
 const log = getLogger();
 
+const defaultCrateFileName = "ro-crate-metadata.json";
 const validCrateFileNames = [
     "ro-crate-metadata.json",
     "ro-crate-metadata.jsonld",
 ];
+
+const crateMetadata = {
+    "@context": "https://w3id.org/ro/crate/1.1/context",
+    "@graph": [
+        {
+            "@type": "CreativeWork",
+            "@id": "ro-crate-metadata.json",
+            conformsTo: { "@id": "https://w3id.org/ro/crate/1.1" },
+            about: { "@id": "./" },
+        },
+        {
+            "@id": "./",
+            "@type": "Dataset",
+            name: "my Research Object Crate",
+        },
+    ],
+};
 
 export function setupLoadRoutes({ server }) {
     server.post("/load", demandKnownUser, loadRouteHandler);
@@ -56,6 +78,19 @@ async function loadRouteHandler(req, res, next) {
                 stage: 3,
                 total: 7,
             });
+
+            const cwd = await setup({
+                session: req.session,
+                user: req.user,
+                resource,
+            });
+            localFile = path.join(cwd, "current", defaultCrateFileName);
+            await writeJSON(localFile, crateMetadata);
+
+            crateFile = {
+                parent: folder,
+                name: defaultCrateFileName,
+            };
         } else if (crateFile.length > 1) {
             // handle error - how ?
             return next(
@@ -79,17 +114,16 @@ async function loadRouteHandler(req, res, next) {
                 parent: crateFile.parent,
                 name: crateFile.name,
             });
-            // console.log(localFile);
-
-            req.io.emit("loadRouteHandler", {
-                msg: "loading the crate file",
-                stage: 4,
-                total: 7,
-            });
-            ({ crate, collection } = await crateManager.loadCrateFromFile({
-                file: localFile,
-            }));
         }
+
+        req.io.emit("loadRouteHandler", {
+            msg: "loading the crate file",
+            stage: 4,
+            total: 7,
+        });
+        ({ crate, collection } = await crateManager.loadCrateFromFile({
+            file: localFile,
+        }));
 
         // stamp the current collection id into the session
         log.debug("Setting the collection id in the user session");
@@ -98,9 +132,27 @@ async function loadRouteHandler(req, res, next) {
             stage: 5,
             total: 7,
         });
-        await updateUserSession({
+        let session = await updateUserSession({
             sessionId: req.session.id,
-            data: { current: { collectionId: collection.id } },
+            data: {
+                current: {
+                    collectionId: collection.id,
+                    local: {
+                        file: localFile,
+                        workingDirectory: path.join(
+                            localWorkingDirectory({
+                                user: req.user,
+                            }),
+                            "current"
+                        ),
+                    },
+                    remote: {
+                        resource,
+                        parent: folder,
+                        name: crateFile.name,
+                    },
+                },
+            },
         });
 
         // sync the local file back to the remote

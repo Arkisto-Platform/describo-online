@@ -228,7 +228,10 @@ export class Crate {
             {}
         );
         for (let entity of entities) {
-            entity = await getEntity({ id: entity.id });
+            entity = await getEntity({
+                id: entity.id,
+                collectionId: collection.id,
+            });
             let properties = this.assembleProperties({
                 idToEidMapping,
                 properties: entity.properties,

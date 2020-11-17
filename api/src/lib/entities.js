@@ -16,8 +16,8 @@ async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
     try {
         return await models.entity.create({
-            eid: entity["@id"],
-            etype: entity["@type"],
+            eid: entity["@id"] ? entity["@id"] : entity.eid,
+            etype: entity["@type"] ? entity["@type"] : entity.etype,
             name: entity["name"],
             collectionId,
         });
@@ -26,10 +26,10 @@ async function insertEntity({ entity, collectionId }) {
     }
 
     function verifyEntity({ entity }) {
-        if (!entity["@id"]) {
-            throw new Error(`Entity missing '@id' property`);
-        }
-        if (!entity["@type"]) {
+        // if (!entity["@id"]) {
+        //     throw new Error(`Entity missing '@id' property`);
+        // }
+        if (!entity["@type"] && !entity.etype) {
             throw new Error(`Entity missing '@type' property`);
         }
         if (!entity["name"]) {
@@ -86,8 +86,14 @@ async function removeEntity({ id }) {
             include: [{ model: models.property }],
             transaction: t,
         });
+        // remove properties where this entity is the target
         await models.property.destroy({
             where: { tgtEntityId: id },
+            transaction: t,
+        });
+        // remove properties associated to this entity
+        await models.property.destroy({
+            where: { entityId: id },
             transaction: t,
         });
     });
@@ -101,9 +107,9 @@ async function findEntity({ "@id": eid, "@type": etype, collectionId }) {
     return (await models.entity.findAll({ where })).map((e) => e.get());
 }
 
-async function getEntity({ id }) {
+async function getEntity({ id, collectionId }) {
     return await models.entity.findOne({
-        where: { id },
+        where: { id, collectionId },
         include: [
             {
                 model: models.property,

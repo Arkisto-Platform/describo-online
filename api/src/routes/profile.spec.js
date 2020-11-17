@@ -7,9 +7,12 @@ const chance = require("chance").Chance();
 const api = "http://localhost:8080";
 
 describe("Test profile handling routes", () => {
-    let sessionId;
+    let sessionId, user;
     beforeAll(async () => {
-        sessionId = await createSessionForTest();
+        ({ user, sessionId } = await createSessionForTest());
+    });
+    afterAll(async () => {
+        await models.user.destroy({ where: { email: user.email } });
     });
     test("it should be able to create a profile", async () => {
         const name = chance.word();
