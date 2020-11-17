@@ -49,6 +49,9 @@ async function getEntityRouteHandler(req, res, next) {
         const properties = entity.properties.map((p) => p.get());
         entity = entity.get();
         entity.properties = properties;
+        if (req.query?.simple) {
+            delete entity.properties;
+        }
         res.send({ entity });
         next();
     } catch (error) {
