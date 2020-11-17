@@ -85,6 +85,8 @@ export default {
                 resource: undefined,
                 folder: undefined,
             });
+            this.$store.commit("setActiveCollection", {});
+            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
     },
 };
