@@ -13,6 +13,9 @@ const mutations = {
     setActiveCollection(state, payload) {
         state.collection = { ...payload };
     },
+    setSelectedEntity(state, payload) {
+        state.selectedEntity = { ...payload };
+    },
 };
 
 const actions = {
@@ -33,6 +36,7 @@ export default new Vuex.Store({
             folder: undefined,
         },
         collection: {},
+        selectedEntity: { id: "RootDataset" },
     },
     mutations,
     actions,
