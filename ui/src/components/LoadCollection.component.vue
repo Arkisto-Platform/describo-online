@@ -1,12 +1,12 @@
 <template>
     <el-card class="box-card">
         <div class="flex flex-row">
-            <div>
+            <!-- <div>
                 <el-button @click="loadFolder" :disabled="loading">
                     load folder
                 </el-button>
-            </div>
-            <div class="ml-2 pt-2">{{ msg }}</div>
+            </div> -->
+            <div class="ml-2 pt-2">Loading collection: {{ msg }}</div>
         </div>
     </el-card>
 </template>
@@ -30,6 +30,7 @@ export default {
         this.$socket.on("loadRouteHandler", (response) => {
             this.msg = response.msg;
         });
+        this.loadFolder();
     },
     methods: {
         async loadFolder() {
