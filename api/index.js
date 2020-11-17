@@ -50,6 +50,7 @@ const log = getLogger();
         req.io = io;
         return next();
     });
+    server.use(restify.plugins.queryParser({ mapParams: false }));
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
