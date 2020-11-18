@@ -17,6 +17,7 @@ const log = getLogger();
     }
     await models.sequelize.sync();
     const io = require("socket.io")(server.server, {
+        path: configuration.api.socketIO.path,
         cors: {
             origin: configuration.api.socketIO.origin,
             methods: ["GET", "POST"],

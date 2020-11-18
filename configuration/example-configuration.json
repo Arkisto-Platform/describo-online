@@ -15,12 +15,13 @@
         },
         "socketIO": {
             "server": "https://{backend URL}",
-            "path": "/api/socket.io"
+            "path": "/socket.io"
         }
     },
     "api": {
         "socketIO": {
-            "origin": "{frontendURL}"
+            "origin": "{frontendURL}",
+            "path": "/socket.io"
         },
         "port": 8080,
         "applications": [{ "name": "stash.uts.edu.au", "secret": "xxx" }]
