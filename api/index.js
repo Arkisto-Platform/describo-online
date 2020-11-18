@@ -16,15 +16,7 @@ const log = getLogger();
         process.exit();
     }
     await models.sequelize.sync();
-    const io = require("socket.io")(server.server, {
-        path: configuration.api.socketIO.path,
-        cors: {
-            origin: configuration.api.socketIO.origin,
-            methods: ["GET", "POST"],
-            allowedHeaders: ["Authorization"],
-            credentials: true,
-        },
-    });
+    const io = require("socket.io")(server.server, {});
 
     setupRoutes({ server, io });
     const cors = corsMiddleware({

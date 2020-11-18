@@ -12,17 +12,9 @@
                 "clientID": "{microsoft Client ID}",
                 "redirectURI": "http://localhost:9000/onedrive-callback"
             }
-        },
-        "socketIO": {
-            "server": "https://{backend URL}",
-            "path": "/socket.io"
         }
     },
     "api": {
-        "socketIO": {
-            "origin": "{frontendURL}",
-            "path": "/socket.io"
-        },
         "port": 8080,
         "applications": [{ "name": "stash.uts.edu.au", "secret": "xxx" }]
     }
