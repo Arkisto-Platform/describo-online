@@ -14,7 +14,8 @@
             }
         },
         "socketIO": {
-            "server": "https://{backend URL}/api"
+            "server": "https://{backend URL}",
+            "path": "/api/socket.io"
         }
     },
     "api": {
