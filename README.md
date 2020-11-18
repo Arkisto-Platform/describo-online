@@ -71,8 +71,9 @@ The application is developed inside docker containers. To get started:
 -   The API service will be started.
 -   The UI dev environment will be started
 -   The Postgres service will be commissioned with a database called `describo` and user / password: `admin / admin`
--   The API service will be available on `localhost:8080`
--   The UI service will be available on `localhost:9000`
+-   The UI service is available at [http://localhost:9000](http://localhost:9000)
+-   The API service will be available on [http://localhost:9000/api](http://localhost:9000/api)
+-   The environment is setup the same way production is run - namely, you connect to an nginx container that reverse proxies back to the ui / api servers.
 
 ### Running the tests in watch mode
 
