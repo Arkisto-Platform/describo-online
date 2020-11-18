@@ -44,10 +44,7 @@ import HTTPService from "./components/http.service";
         Vue.config.productionTip = false;
         Vue.prototype.$http = new HTTPService({ $auth: Vue.prototype.$auth });
         Vue.prototype.$log = log;
-        Vue.prototype.$socket =
-            process.env.NODE_ENV === "development"
-                ? io("http://localhost:8080")
-                : io("/api");
+        Vue.prototype.$socket = io(configuration.socketIO.server);
 
         new Vue({
             router,
