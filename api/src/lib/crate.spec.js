@@ -6,6 +6,8 @@ import { Crate } from "./crate";
 import { isPlainObject, isMatch, flattenDeep } from "lodash";
 import { attachProperty, associate, getEntity } from "./entities";
 import models from "../models";
+import Chance from "chance";
+const chance = new Chance();
 
 const testFiles = path.join("/tmp", "test-files");
 describe("Test loading a crate from a file", () => {
@@ -508,7 +510,7 @@ describe("Test loading a crate from a file", () => {
     test("should assemble property values", async () => {
         let crateManager = new Crate();
         const collection = await models.collection.create({
-            name: "sfdvksdfbskudgnbsfgb",
+            name: chance.name(),
         });
         const entityA = await models.entity.create({
             name: "entityA",
@@ -523,11 +525,13 @@ describe("Test loading a crate from a file", () => {
             collectionId: collection.id,
         });
         await attachProperty({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             value: "personA",
         });
         await attachProperty({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             value: "personB",
@@ -559,6 +563,7 @@ describe("Test loading a crate from a file", () => {
 
         // test 2 - should return an array with two strings an object
         await associate({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             tgtEntityId: entityB.id,

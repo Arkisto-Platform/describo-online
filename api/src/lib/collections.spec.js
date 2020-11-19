@@ -72,8 +72,8 @@ describe("Test collection management operations", () => {
     });
     test("it should be able to remove a collection and associated entites w/ associated props 1", async () => {
         let collection = await insertCollection({
-            name: "test",
-            description: "awesome",
+            name: chance.name(),
+            description: chance.sentence(),
         });
         let entity = {
             "@id": "1'",
@@ -82,6 +82,7 @@ describe("Test collection management operations", () => {
         };
         entity = await insertEntity({ entity, collectionId: collection.id });
         let property = await attachProperty({
+            collectionId: collection.id,
             entityId: entity.id,
             property: "author",
             value: "test",
@@ -98,8 +99,8 @@ describe("Test collection management operations", () => {
     });
     test("it should be able to remove a collection and associated entites w/ associated props 2", async () => {
         let collection1 = await insertCollection({
-            name: "test",
-            description: "awesome",
+            name: chance.name(),
+            description: chance.sentence(),
         });
         let entity = {
             "@id": "1",
@@ -111,6 +112,7 @@ describe("Test collection management operations", () => {
             collectionId: collection1.id,
         });
         let property = await attachProperty({
+            collectionId: collection1.id,
             entityId: entity.id,
             property: "author",
             value: "test",
@@ -130,6 +132,7 @@ describe("Test collection management operations", () => {
             collectionId: collection2.id,
         });
         property = await attachProperty({
+            collectionId: collection2.id,
             entityId: entity.id,
             property: "author",
             value: "test",

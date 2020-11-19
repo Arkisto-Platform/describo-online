@@ -5,6 +5,10 @@ import {
     insertEntity,
     updateEntity,
     removeEntity,
+    attachProperty,
+    updateProperty,
+    removeProperty,
+    associate,
 } from "../lib/entities";
 import { getLogger } from "../common";
 const log = getLogger();
@@ -28,8 +32,8 @@ export async function getEntityRouteHandler(req, res, next) {
         if (req.params.entityId === "RootDataset") {
             entity = (
                 await findEntity({
-                    "@id": "./",
-                    "@type": "Dataset",
+                    eid: "./",
+                    etype: "Dataset",
                     collectionId,
                 })
             ).pop();
@@ -51,6 +55,30 @@ export async function getEntityRouteHandler(req, res, next) {
         next();
     } catch (error) {
         log.error(`getEntityRouteHandler: ${error.message}`);
+        return next(new ForbiddenError());
+    }
+}
+
+export async function findEntityRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError("No collection loaded"));
+    }
+
+    let eid, etype;
+    try {
+        ({ eid, etype } = req.body);
+    } catch (error) {}
+    let find = { collectionId };
+    if (eid) find.eid = eid;
+    if (etype) find.etype = etype;
+
+    try {
+        let entity = await findEntity(find);
+        res.send({ entity });
+        next();
+    } catch (error) {
+        log.error(`findEntityRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
 }
@@ -114,6 +142,93 @@ export async function delEntityRouteHandler(req, res, next) {
         next();
     } catch (error) {
         log.error(`delEntityRouteHandler: ${error.message}`);
+        return next(new BadRequestError(error.message));
+    }
+}
+
+export async function postEntityPropertyRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    let entityId = req.params.entityId;
+    let { property, value } = req.body;
+    try {
+        property = await attachProperty({
+            collectionId,
+            entityId,
+            property,
+            value,
+        });
+        res.send({ property: property.get() });
+        return next();
+    } catch (error) {
+        log.error(`postEntityPropertyRouteHandler: ${error.message}`);
+        return next(new BadRequestError(error.message));
+    }
+}
+
+export async function putEntityPropertyRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    const { entityId, propertyId } = req.params;
+    let { value } = req.body;
+    try {
+        let property = await updateProperty({
+            collectionId,
+            entityId,
+            propertyId,
+            value,
+        });
+        res.send({ property: property.get() });
+        return next();
+    } catch (error) {
+        log.error(`putEntityPropertyRouteHandler: ${error.message}`);
+        return next(new BadRequestError(error.message));
+    }
+}
+
+export async function delEntityPropertyRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    const { entityId, propertyId } = req.params;
+    try {
+        await removeProperty({
+            collectionId,
+            entityId,
+            propertyId,
+        });
+        res.send({});
+        return next();
+    } catch (error) {
+        log.error(`delEntityPropertyRouteHandler: ${error.message}`);
+        return next(new BadRequestError(error.message));
+    }
+}
+
+export async function putEntityAssociateRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    let entityId = req.params.entityId;
+    try {
+        let { property, tgtEntityId } = req.body;
+
+        property = await associate({
+            collectionId,
+            entityId,
+            property,
+            tgtEntityId,
+        });
+        res.send({});
+        return next();
+    } catch (error) {
+        log.error(`putEntityPropertyRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }
 }

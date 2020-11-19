@@ -17,9 +17,14 @@ import {
 } from "./profile";
 import {
     getEntityRouteHandler,
+    findEntityRouteHandler,
     postEntityRouteHandler,
     putEntityRouteHandler,
     delEntityRouteHandler,
+    postEntityPropertyRouteHandler,
+    putEntityPropertyRouteHandler,
+    delEntityPropertyRouteHandler,
+    putEntityAssociateRouteHandler,
 } from "./entity";
 import { loadRouteHandler } from "./load";
 
@@ -52,10 +57,31 @@ export function setupRoutes({ server }) {
 
     server.post("/load", demandKnownUser, loadRouteHandler);
 
+    server.post("/entity/lookup", demandKnownUser, findEntityRouteHandler);
     server.get("/entity/:entityId", demandKnownUser, getEntityRouteHandler);
     server.post("/entity", demandKnownUser, postEntityRouteHandler);
     server.put("/entity/:entityId", demandKnownUser, putEntityRouteHandler);
     server.del("/entity/:entityId", demandKnownUser, delEntityRouteHandler);
+    server.post(
+        "/entity/:entityId/property",
+        demandKnownUser,
+        postEntityPropertyRouteHandler
+    );
+    server.put(
+        "/entity/:entityId/property/:propertyId",
+        demandKnownUser,
+        putEntityPropertyRouteHandler
+    );
+    server.del(
+        "/entity/:entityId/property/:propertyId",
+        demandKnownUser,
+        delEntityPropertyRouteHandler
+    );
+    server.put(
+        "/entity/:entityId/associate",
+        demandKnownUser,
+        putEntityAssociateRouteHandler
+    );
 }
 
 async function getConfiguration(req, res, next) {

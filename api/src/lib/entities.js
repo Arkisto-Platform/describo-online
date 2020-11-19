@@ -2,17 +2,7 @@ const models = require("../models");
 const { cloneDeep, isString, isArray, isPlainObject } = require("lodash");
 const sequelize = models.sequelize;
 
-module.exports = {
-    findEntity,
-    updateEntity,
-    getEntity,
-    insertEntity,
-    removeEntity,
-    associate,
-    attachProperty,
-};
-
-async function insertEntity({ entity, collectionId }) {
+export async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
     try {
         return await models.entity.create({
@@ -38,7 +28,7 @@ async function insertEntity({ entity, collectionId }) {
     }
 }
 
-async function updateEntity({ entityId, name, eid }) {
+export async function updateEntity({ entityId, name, eid }) {
     let entity = await models.entity.findOne({ where: { id: entityId } });
 
     if (!entity) {
@@ -51,7 +41,16 @@ async function updateEntity({ entityId, name, eid }) {
     return (await entity.update(update)).get();
 }
 
-async function attachProperty({ entityId, property, value }) {
+export async function attachProperty({
+    collectionId,
+    entityId,
+    property,
+    value,
+}) {
+    let entity = await getEntity({ id: entityId, collectionId });
+    if (!entity) {
+        throw new Error(`You don't have permission to access that entity`);
+    }
     return await models.property.create({
         name: property,
         value,
@@ -59,27 +58,61 @@ async function attachProperty({ entityId, property, value }) {
     });
 }
 
-async function associate({ entityId, property, tgtEntityId }) {
-    await sequelize.transaction(async (t) => {
-        let properties = [
-            {
-                name: property,
-                tgtEntityId: tgtEntityId,
-                direction: "F",
-                entityId,
-            },
-            {
-                name: property,
-                tgtEntityId: entityId,
-                direction: "R",
-                entityId: tgtEntityId,
-            },
-        ];
-        await models.property.bulkCreate(properties, { transaction: t });
+export async function updateProperty({
+    collectionId,
+    entityId,
+    propertyId,
+    value,
+}) {
+    let entity = await getEntity({ id: entityId, collectionId });
+    if (!entity) {
+        throw new Error(`You don't have permission to access that entity`);
+    }
+    let property = await models.property.findOne({
+        where: { id: propertyId },
+    });
+    property.value = value;
+    return await property.save();
+}
+
+export async function removeProperty({ collectionId, entityId, propertyId }) {
+    let entity = await getEntity({ id: entityId, collectionId });
+    if (!entity) {
+        throw new Error(`You don't have permission to access that entity`);
+    }
+    let property = await models.property.destroy({
+        where: { id: propertyId },
     });
 }
 
-async function removeEntity({ id }) {
+export async function associate({
+    collectionId,
+    entityId,
+    property,
+    tgtEntityId,
+}) {
+    let entity = await getEntity({ id: entityId, collectionId });
+    if (!entity) {
+        throw new Error(`You don't have permission to access that entity`);
+    }
+    let properties = [
+        {
+            name: property,
+            tgtEntityId: tgtEntityId,
+            direction: "F",
+            entityId,
+        },
+        {
+            name: property,
+            tgtEntityId: entityId,
+            direction: "R",
+            entityId: tgtEntityId,
+        },
+    ];
+    await models.property.bulkCreate(properties);
+}
+
+export async function removeEntity({ id }) {
     await sequelize.transaction(async (t) => {
         await models.entity.destroy({
             where: { id },
@@ -99,7 +132,8 @@ async function removeEntity({ id }) {
     });
 }
 
-async function findEntity({ "@id": eid, "@type": etype, collectionId }) {
+export async function findEntity({ eid, etype, collectionId }) {
+    // TODO - add pagination!
     let where = {};
     if (collectionId) where.collectionId = collectionId;
     if (eid) where.eid = eid;
@@ -107,7 +141,7 @@ async function findEntity({ "@id": eid, "@type": etype, collectionId }) {
     return (await models.entity.findAll({ where })).map((e) => e.get());
 }
 
-async function getEntity({ id, collectionId }) {
+export async function getEntity({ id, collectionId }) {
     return await models.entity.findOne({
         where: { id, collectionId },
         include: [

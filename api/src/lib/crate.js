@@ -179,6 +179,7 @@ export class Crate {
                 for (let value of data) {
                     if (isString(value)) {
                         await attachProperty({
+                            collectionId: collection.id,
                             entityId: entity.uuid,
                             property,
                             value,
@@ -190,6 +191,7 @@ export class Crate {
                         if (tgtEntityId.length) {
                             tgtEntityId = tgtEntityId.pop().uuid;
                             await associate({
+                                collectionId: collection.id,
                                 entityId: entity.uuid,
                                 property,
                                 tgtEntityId,

@@ -9,7 +9,7 @@ import Chance from "chance";
 const chance = new Chance();
 
 const api = "http://localhost:8080";
-describe("Test entity route operations", () => {
+describe("Test entity and property route operations", () => {
     let sessionId, user;
     beforeEach(async () => {
         ({ user, sessionId } = await createSessionForTest());
@@ -68,6 +68,51 @@ describe("Test entity route operations", () => {
         ({ entity } = await response.json());
         expect(entity.eid).toEqual("person1");
         expect(entity.etype).toEqual("Person");
+
+        await removeCollection({ id: collection.id });
+        await removeUser({ email: user.email });
+    });
+    test("it should be able to find an entity by id", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+
+        // lookup an id
+        let response = await fetch(`${api}/entity/lookup`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ eid: "person1" }),
+        });
+        let { entity } = await response.json();
+        expect(entity.length).toBe(1);
+
+        // lookup a type
+        response = await fetch(`${api}/entity/lookup`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ etype: "Dataset" }),
+        });
+        ({ entity } = await response.json());
+        expect(entity.length).toBe(1);
+
+        // lookup all in collectionId
+        response = await fetch(`${api}/entity/lookup`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await response.json());
+        expect(entity.length).toBe(2);
 
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
@@ -187,6 +232,221 @@ describe("Test entity route operations", () => {
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
     });
+    test("it should be able to add a simple property with a value", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+
+        let response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        let { entity } = await response.json();
+
+        let property = {
+            property: "collaborator",
+            value: chance.name(),
+        };
+        response = await fetch(`${api}/entity/${entity.id}/property`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(property),
+        });
+        expect(response.status).toBe(200);
+        ({ property } = await response.json());
+
+        response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await response.json());
+        let p = entity.properties.filter((p) => p.name === property.name);
+        expect(p.length).toBe(1);
+        expect(p[0].value).toBe(property.value);
+
+        await removeCollection({ id: collection.id });
+        await removeProperty({ id: property.id });
+        await removeUser({ email: user.email });
+    });
+    test("it should be able to update a simple property with a value", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        let { entity } = await response.json();
+        let property = {
+            property: "collaborator",
+            value: chance.name(),
+        };
+        response = await fetch(`${api}/entity/${entity.id}/property`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(property),
+        });
+        expect(response.status).toBe(200);
+        ({ property } = await response.json());
+        let update = {
+            value: chance.name(),
+        };
+        response = await fetch(
+            `${api}/entity/${entity.id}/property/${property.id}`,
+            {
+                method: "PUT",
+                headers: {
+                    Authorization: `sid ${sessionId}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(update),
+            }
+        );
+        expect(response.status).toBe(200);
+        ({ property } = await response.json());
+        response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await response.json());
+        let p = entity.properties.filter((p) => p.name === property.name);
+        expect(p.length).toBe(1);
+        expect(p[0].value).toBe(property.value);
+        await removeCollection({ id: collection.id });
+        await removeProperty({ id: property.id });
+        await removeUser({ email: user.email });
+    });
+    test("it should be able to remove a property", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        let { entity } = await response.json();
+        let property = {
+            property: "collaborator",
+            value: chance.name(),
+        };
+        response = await fetch(`${api}/entity/${entity.id}/property`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(property),
+        });
+        expect(response.status).toBe(200);
+        ({ property } = await response.json());
+
+        response = await fetch(
+            `${api}/entity/${entity.id}/property/${property.id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    Authorization: `sid ${sessionId}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        expect(response.status).toBe(200);
+
+        response = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await response.json());
+        let p = entity.properties.filter((p) => p.name === property.name);
+        expect(p.length).toBe(0);
+
+        await removeCollection({ id: collection.id });
+        await removeProperty({ id: property.id });
+        await removeUser({ email: user.email });
+    });
+    test("it should associate two entities", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let entity = await fetch(`${api}/entity/RootDataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await entity.json());
+
+        let entityB = await fetch(`${api}/entity/lookup`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ eid: "person1" }),
+        });
+        entityB = await entityB.json();
+
+        let association = {
+            property: "collaborator",
+            tgtEntityId: entityB.entity[0].id,
+        };
+        let response = await fetch(`${api}/entity/${entity.id}/associate`, {
+            method: "PUT",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(association),
+        });
+        expect(response.status).toBe(200);
+
+        entity = await fetch(`${api}/entity/${entity.id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        ({ entity } = await entity.json());
+        let p = entity.properties.filter((p) => p.name === "collaborator");
+        expect(p.length).toBe(1);
+
+        await removeCollection({ id: collection.id });
+        await removeUser({ email: user.email });
+    });
 });
 
 async function loadData({ name }) {
@@ -227,4 +487,7 @@ async function loadData({ name }) {
 
 async function removeUser({ email }) {
     await models.user.destroy({ where: { email } });
+}
+async function removeProperty({ id }) {
+    await models.property.destroy({ where: { id } });
 }
