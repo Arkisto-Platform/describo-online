@@ -1,21 +1,42 @@
-import { getProfile, createProfile, updateProfile } from "../lib/profile";
+import {
+    getProfile,
+    createProfile,
+    updateProfile,
+    lookupProfile,
+    getTypeDefinition,
+} from "../lib/profile";
 import { BadRequestError, InternalServerError } from "restify-errors";
 import { getLogger } from "../common";
 const log = getLogger();
 
 export async function getProfileRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    console.log(collectionId);
     const profileId = req.params.profileId;
     if (!profileId) {
         log.error(`getProfileRouteHandler: profileId not provided`);
         return next(new BadRequestError());
     }
     try {
-        let profile = await getProfile({ profileId });
+        let profile = await getProfile({ collectionId, profileId });
         res.send({ profile });
         return next();
     } catch (error) {
         log.error(`getProfileRouteHandler: ${error.message}`);
         return next(new InternalServerError());
+    }
+}
+
+export async function lookupProfileRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    try {
+        let { query } = req.query;
+        let matches = await lookupProfile({ collectionId, query });
+        res.send({ matches });
+        return next(0);
+    } catch (error) {
+        log.error(`lookupProfileRouteHandler: ${error.message}`);
+        return next(new BadRequestError());
     }
 }
 
@@ -55,4 +76,17 @@ export async function updateProfileRouteHandler(req, res, next) {
     }
     res.send({ profile });
     return next();
+}
+
+export async function getTypeDefinitionRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    try {
+        let name = req.params.name;
+        let definition = await getTypeDefinition({ collectionId, name });
+        res.send({ definition });
+        return next(0);
+    } catch (error) {
+        log.error(`getTypeDefinition: ${error.message}`);
+        return next(new BadRequestError());
+    }
 }

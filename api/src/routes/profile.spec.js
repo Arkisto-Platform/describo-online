@@ -3,6 +3,8 @@ import fetch from "node-fetch";
 import path from "path";
 import { createSessionForTest } from "../common";
 import { insertCollection } from "../lib/collections";
+import { updateUserSession } from "../lib/user";
+
 const chance = require("chance").Chance();
 const api = "http://localhost:8080";
 
@@ -68,6 +70,10 @@ describe("Test profile handling routes", () => {
     test("it should be able to retrieve a profile", async () => {
         const name = chance.word();
         let collection = await insertCollection({ name });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
         let response = await fetch(`${api}/profile`, {
             method: "POST",
             headers: {
@@ -127,5 +133,38 @@ describe("Test profile handling routes", () => {
         response = await response.json();
         expect(response.profile.name).toEqual(name);
         expect(response.profile.profile).toEqual({ key: "value" });
+    });
+    test("it should be able to lookup profile entities", async () => {
+        let collection = await insertCollection({ name: chance.word() });
+
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let response = await fetch(`${api}/definition/lookup?query=Airline`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        let { matches } = await response.json();
+        expect(matches.length).toBe(3);
+    });
+    test("it should be able to get a type definition", async () => {
+        let collection = await insertCollection({ name: chance.name() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let response = await fetch(`${api}/definition/Airline`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        let { definition } = await response.json();
+        expect(definition.metadata.name).toBe("Airline");
     });
 });

@@ -1,20 +1,83 @@
 const models = require("../models");
+import { readJSON } from "fs-extra";
+import { cloneDeep, flattenDeep, orderBy } from "lodash";
+import path from "path";
+const typeDefinitions = path.join(
+    __dirname,
+    "..",
+    "common",
+    "type-definitions.json"
+);
+const typeDefinitionsLookup = path.join(
+    __dirname,
+    "..",
+    "common",
+    "type-definitions-lookup.json"
+);
 
-module.exports = {
-    getProfile,
-    createProfile,
-    updateProfile,
-};
-
-async function getProfile({ profileId }) {
+export async function getProfile({ collectionId }) {
     return (
         await models.profile.findOne({
-            where: { id: profileId },
+            where: { collectionId },
         })
     ).get();
 }
 
-async function createProfile({ name, profile, collectionId }) {
+export async function lookupProfile({ collectionId, query }) {
+    let profile;
+    if (collectionId) {
+        profile = await models.profile.findOne({
+            where: { collectionId },
+        });
+    }
+    if (!profile) {
+        profile = await readJSON(typeDefinitionsLookup);
+    }
+    let re = new RegExp(query, "i");
+    let matches = profile.filter((e) => {
+        return re.exec(e.name) || re.exec(e.help);
+    });
+    return matches;
+}
+
+export async function getTypeDefinition({ collectionId, name }) {
+    let profile, definitions;
+    if (collectionId) {
+        profile = await models.profile.findOne({
+            where: { collectionId },
+        });
+        definitions = {};
+    }
+    if (!profile) {
+        definitions = await readJSON(typeDefinitions);
+    }
+
+    let typeDefinition = definitions[name];
+    if (!typeDefinition) return undefined;
+    let inputs = cloneDeep(typeDefinition.inputs);
+
+    inputs = typeDefinition.metadata.subClassOf.map((name) => {
+        return (inputs = joinInputs(inputs, definitions, name));
+    });
+    inputs = flattenDeep(inputs);
+    inputs = orderBy(inputs, "property");
+
+    typeDefinition.inputs = inputs;
+    return typeDefinition;
+
+    function joinInputs(inputs, definitions, name) {
+        let def = definitions[name];
+        inputs = [...inputs, ...def.inputs];
+        if (def.metadata.subClassOf.length) {
+            return def.metadata.subClassOf.map((name) => {
+                return joinInputs(inputs, definitions, name);
+            });
+        }
+        return inputs;
+    }
+}
+
+export async function createProfile({ name, profile, collectionId }) {
     return (
         await models.profile.create({
             name,
@@ -24,7 +87,7 @@ async function createProfile({ name, profile, collectionId }) {
     ).get();
 }
 
-async function updateProfile({ profileId, name, profile }) {
+export async function updateProfile({ profileId, name, profile }) {
     let update = {};
     if (name) update.name = name;
     if (profile) update.profile = profile;

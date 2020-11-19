@@ -12,8 +12,10 @@ import {
 
 import {
     getProfileRouteHandler,
+    lookupProfileRouteHandler,
     createProfileRouteHandler,
     updateProfileRouteHandler,
+    getTypeDefinitionRouteHandler,
 } from "./profile";
 import {
     getEntityRouteHandler,
@@ -47,6 +49,16 @@ export function setupRoutes({ server }) {
     server.post("/folder/read", demandKnownUser, readFolderRouteHandler);
     server.post("/folder/delete", demandKnownUser, deleteFolderRouteHandler);
 
+    server.get(
+        "/definition/:name",
+        demandKnownUser,
+        getTypeDefinitionRouteHandler
+    );
+    server.get(
+        "/definition/lookup",
+        demandKnownUser,
+        lookupProfileRouteHandler
+    );
     server.get("/profile/:profileId", demandKnownUser, getProfileRouteHandler);
     server.post("/profile", demandKnownUser, createProfileRouteHandler);
     server.put(

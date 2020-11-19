@@ -1,5 +1,11 @@
 import "regenerator-runtime";
-import { getProfile, createProfile, updateProfile } from "./profile";
+import {
+    getProfile,
+    createProfile,
+    updateProfile,
+    lookupProfile,
+    getTypeDefinition,
+} from "./profile";
 import { insertCollection } from "./collections";
 import models from "../models";
 const chance = require("chance").Chance();
@@ -28,7 +34,7 @@ describe("Test profile operations", () => {
             ...profile,
             collectionId: collection.id,
         });
-        profile = await getProfile({ profileId: profile.id });
+        profile = await getProfile({ collectionId: collection.id });
         expect(profile.name).toEqual(name);
     });
     test("it should be able to create a profile", async () => {
@@ -99,5 +105,13 @@ describe("Test profile operations", () => {
         });
         expect(profile.name).toEqual(name);
         expect(profile.profile).toEqual({ key: "value" });
+    });
+    test("it should be able to lookup the default profile for matching type definitions", async () => {
+        let types = await lookupProfile({ query: "Airline" });
+        expect(types.length).toBe(3);
+    });
+    test("it should be able to get a type definition", async () => {
+        let type = await getTypeDefinition({ name: "Airline" });
+        expect(type.metadata.name).toBe("Airline");
     });
 });
