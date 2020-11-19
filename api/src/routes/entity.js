@@ -99,8 +99,6 @@ async function putEntityRouteHandler(req, res, next) {
         log.error(`putEntityRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }
-    res.send({});
-    next();
 }
 
 async function delEntityRouteHandler(req, res, next) {

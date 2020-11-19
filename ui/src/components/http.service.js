@@ -38,4 +38,13 @@ export default class HTTPService {
         });
         return response;
     }
+
+    async put({ route, body }) {
+        let response = await fetch(`/api${route}`, {
+            method: "PUT",
+            headers: await this.getHeaders(),
+            body: JSON.stringify(body),
+        });
+        return response;
+    }
 }
