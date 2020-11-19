@@ -9,7 +9,8 @@ import {
     attachProperty,
 } from "./entities";
 import models from "../models";
-import { flattenDeep } from "lodash";
+import Chance from "chance";
+const chance = new Chance();
 
 describe("Test entity and property management operations", () => {
     beforeEach(async () => {
@@ -75,7 +76,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to create a property attached to an entity", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entity = {
             "@id": "1",
@@ -87,6 +88,7 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         let property = await attachProperty({
+            collectionId: collection.id,
             entityId: entity.id,
             property: "author",
             value: "something",
@@ -99,7 +101,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to attach the same property multiple time with different values", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entity = {
             "@id": "1",
@@ -111,11 +113,13 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         let property = await attachProperty({
+            collectionId: collection.id,
             entityId: entity.id,
             property: "author",
             value: "something",
         });
         property = await attachProperty({
+            collectionId: collection.id,
             entityId: entity.id,
             property: "author",
             value: "something else",
@@ -128,7 +132,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to link two entities", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entityA = {
             "@id": "A",
@@ -149,6 +153,7 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         await associate({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             tgtEntityId: entityB.id,
@@ -170,7 +175,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to get an entity with all properties", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entityA = {
             "@id": "A",
@@ -191,16 +196,19 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         let property = await attachProperty({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             value: "something",
         });
         property = await attachProperty({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             value: "something else",
         });
         await associate({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             tgtEntityId: entityB.id,
@@ -217,7 +225,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to remove an entity and all associated properties", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entity = {
             "@id": "A",
@@ -230,6 +238,7 @@ describe("Test entity and property management operations", () => {
         });
         const entityId = entity.id;
         let property = await attachProperty({
+            collectionId: collection.id,
             entityId: entity.id,
             property: "author",
             value: "something",
@@ -244,7 +253,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to remove an entity and all associations - forward and reverse 1", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entityA = {
             "@id": "A",
@@ -265,6 +274,7 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         await associate({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             tgtEntityId: entityB.id,
@@ -278,7 +288,7 @@ describe("Test entity and property management operations", () => {
     });
     test("it should be able to remove an entity and all associations - forward and reverse 2", async () => {
         const collection = await models.collection.create({
-            name: "test",
+            name: chance.name(),
         });
         let entityA = {
             "@id": "A",
@@ -308,11 +318,13 @@ describe("Test entity and property management operations", () => {
             collectionId: collection.id,
         });
         await associate({
+            collectionId: collection.id,
             entityId: entityA.id,
             property: "author",
             tgtEntityId: entityB.id,
         });
         await associate({
+            collectionId: collection.id,
             entityId: entityB.id,
             property: "author",
             tgtEntityId: entityC.id,
