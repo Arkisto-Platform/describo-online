@@ -110,6 +110,7 @@ const selectDataTypes = ["Boolean"];
     });
 
     // order class inputs and write to file
+    let searchableIndex = [];
     let index = {};
     Object.keys(classes).forEach(async (c) => {
         const item = classes[c];
@@ -121,16 +122,25 @@ const selectDataTypes = ["Boolean"];
             stripSchemaPath(item.metadata["@id"])
         );
         index[stripSchemaPath(item.metadata["@id"])] = item;
+
+        searchableIndex.push({
+            name: c,
+            help: item.metadata.help,
+        });
         // await writeFile(
         //     `${typeDefinition}.json`,
         //     JSON.stringify(item, null, 2)
         // );
     });
     await writeFile(
-        path.join("types", "index.json"),
+        path.join("types", "type-definitions.json"),
         JSON.stringify(index, null, 2)
     );
     // console.log(JSON.stringify(index, null, 2));
+    await writeFile(
+        path.join("types", "type-definitions-lookup.json"),
+        JSON.stringify(searchableIndex)
+    );
 })();
 
 function stripSchemaPath(text) {
