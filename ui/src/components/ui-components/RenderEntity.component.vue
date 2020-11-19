@@ -1,15 +1,15 @@
 <template>
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <!-- <div class="my-8">
+        <div class="my-8">
             <el-button @click="getEntity">get entity</el-button>
-        </div> -->
+        </div>
         <div v-if="entity && entity.eid">
             <!-- render entity name and id -->
             <render-entity-header-component :entity="entity" class="my-1" />
 
             <!-- render entity properties -->
-            <render-entity-forward-properties-component
+            <render-entity-properties-component
                 :properties="entity.forwardProperties"
             />
 
@@ -29,14 +29,14 @@ import { isUUID } from "validator";
 import TextComponent from "./Text.component.vue";
 import EntityIdComponent from "./EntityId.component.vue";
 import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
-import RenderEntityForwardPropertiesComponent from "./RenderEntityForwardProperties.component.vue";
+import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.vue";
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
         RenderEntityHeaderComponent,
-        RenderEntityForwardPropertiesComponent,
+        RenderEntityPropertiesComponent,
         RenderEntityReversePropertiesComponent,
         EntityIdComponent,
         TextComponent,
@@ -72,6 +72,7 @@ export default {
     },
     methods: {
         async getEntity() {
+            this.error = undefined;
             this.loading = true;
             this.entity = {};
             try {
