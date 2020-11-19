@@ -1,4 +1,3 @@
-import { demandKnownUser } from "../middleware";
 import { BadRequestError, ConflictError } from "restify-errors";
 import {
     listFolder,
@@ -37,11 +36,7 @@ const crateMetadata = {
     ],
 };
 
-export function setupLoadRoutes({ server }) {
-    server.post("/load", demandKnownUser, loadRouteHandler);
-}
-
-async function loadRouteHandler(req, res, next) {
+export async function loadRouteHandler(req, res, next) {
     req.io.emit("loadRouteHandler", {
         msg: "loading crate",
         stage: 1,

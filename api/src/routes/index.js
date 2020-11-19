@@ -1,13 +1,28 @@
 import { demandKnownUser } from "../middleware";
 import { loadConfiguration } from "../common";
-import { postSession as postSessionController } from "../lib/session";
+import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, ForbiddenError } from "restify-errors";
-import { setupOnedriveRoutes } from "./onedrive";
-import { setupFileBrowserRoutes } from "./file-browser";
-import { setupProfileHandlingRoutes } from "./profile";
-import { setupLoadRoutes } from "./load";
-import { setupEntityRoutes } from "./entity";
+import { saveUserOnedriveConfiguration } from "./onedrive";
+import {
+    readFolderRouteHandler,
+    createFolderRouteHandler,
+    deleteFolderRouteHandler,
+} from "./file-browser";
+
+import {
+    getProfileRouteHandler,
+    createProfileRouteHandler,
+    updateProfileRouteHandler,
+} from "./profile";
+import {
+    getEntityRouteHandler,
+    postEntityRouteHandler,
+    putEntityRouteHandler,
+    delEntityRouteHandler,
+} from "./entity";
+import { loadRouteHandler } from "./load";
+
 import { getLogger } from "../common";
 const log = getLogger();
 
@@ -16,11 +31,31 @@ export function setupRoutes({ server }) {
     server.get("/authenticated", demandKnownUser, isAuthenticated);
     server.post("/session/okta", createOktaSession);
     server.post("/session/application", createApplicationSession);
-    setupOnedriveRoutes({ server });
-    setupFileBrowserRoutes({ server });
-    setupProfileHandlingRoutes({ server });
-    setupLoadRoutes({ server });
-    setupEntityRoutes({ server });
+
+    server.post(
+        "/onedrive/configuration",
+        demandKnownUser,
+        saveUserOnedriveConfiguration
+    );
+
+    server.post("/folder/create", demandKnownUser, createFolderRouteHandler);
+    server.post("/folder/read", demandKnownUser, readFolderRouteHandler);
+    server.post("/folder/delete", demandKnownUser, deleteFolderRouteHandler);
+
+    server.get("/profile/:profileId", demandKnownUser, getProfileRouteHandler);
+    server.post("/profile", demandKnownUser, createProfileRouteHandler);
+    server.put(
+        "/profile/:profileId",
+        demandKnownUser,
+        updateProfileRouteHandler
+    );
+
+    server.post("/load", demandKnownUser, loadRouteHandler);
+
+    server.get("/entity/:entityId", demandKnownUser, getEntityRouteHandler);
+    server.post("/entity", demandKnownUser, postEntityRouteHandler);
+    server.put("/entity/:entityId", demandKnownUser, putEntityRouteHandler);
+    server.del("/entity/:entityId", demandKnownUser, delEntityRouteHandler);
 }
 
 async function getConfiguration(req, res, next) {
@@ -70,7 +105,7 @@ async function createApplicationSession(req, res, next) {
     }
 
     try {
-        let sessionId = await postSessionController({
+        let sessionId = await postSession({
             authorization,
             email,
             name,

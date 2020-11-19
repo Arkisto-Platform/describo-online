@@ -1,4 +1,3 @@
-import { demandKnownUser } from "../middleware";
 import { BadRequestError, ForbiddenError } from "restify-errors";
 import {
     getEntity,
@@ -10,14 +9,7 @@ import {
 import { getLogger } from "../common";
 const log = getLogger();
 
-export function setupEntityRoutes({ server }) {
-    server.get("/entity/:entityId", demandKnownUser, getEntityRouteHandler);
-    server.post("/entity", demandKnownUser, postEntityRouteHandler);
-    server.put("/entity/:entityId", demandKnownUser, putEntityRouteHandler);
-    server.del("/entity/:entityId", demandKnownUser, delEntityRouteHandler);
-}
-
-async function getEntityRouteHandler(req, res, next) {
+export async function getEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     if (!collectionId) {
         return next(new ForbiddenError());
@@ -61,7 +53,7 @@ async function getEntityRouteHandler(req, res, next) {
     }
 }
 
-async function postEntityRouteHandler(req, res, next) {
+export async function postEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     if (!collectionId) {
         return next(new ForbiddenError());
@@ -77,7 +69,7 @@ async function postEntityRouteHandler(req, res, next) {
     }
 }
 
-async function putEntityRouteHandler(req, res, next) {
+export async function putEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     if (!collectionId) {
         return next(new ForbiddenError());
@@ -101,7 +93,7 @@ async function putEntityRouteHandler(req, res, next) {
     }
 }
 
-async function delEntityRouteHandler(req, res, next) {
+export async function delEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     if (!collectionId) {
         return next(new ForbiddenError());

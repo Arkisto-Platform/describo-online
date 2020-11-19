@@ -1,16 +1,9 @@
-import { demandKnownUser } from "../middleware";
 import { listFolder, createFolder, deleteFolder } from "../lib/file-browser";
 import { BadRequestError } from "restify-errors";
 import { getLogger } from "../common";
 const log = getLogger();
 
-export function setupFileBrowserRoutes({ server }) {
-    server.post("/folder/create", demandKnownUser, createFolderRouteHandler);
-    server.post("/folder/read", demandKnownUser, readFolderRouteHandler);
-    server.post("/folder/delete", demandKnownUser, deleteFolderRouteHandler);
-}
-
-async function readFolderRouteHandler(req, res, next) {
+export async function readFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource) {
         log.error(`readFolderRouterHandler: resource not provided`);
@@ -32,7 +25,7 @@ async function readFolderRouteHandler(req, res, next) {
     return next();
 }
 
-async function createFolderRouteHandler(req, res, next) {
+export async function createFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
         log.error(
@@ -55,7 +48,7 @@ async function createFolderRouteHandler(req, res, next) {
     return next();
 }
 
-async function deleteFolderRouteHandler(req, res, next) {
+export async function deleteFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
         log.error(
