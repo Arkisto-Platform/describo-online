@@ -1,86 +1,25 @@
 <template>
-    <el-card
-        class="flex flex-col space-y-4"
-        :class="{ 'pb-16': loading }"
-        v-loading="loading"
-    >
+    <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="my-8">
+        <!-- <div class="my-8">
             <el-button @click="getEntity">get entity</el-button>
-        </div>
-        <div v-if="entity && entity.eid" class="flex flex-col space-y-2">
-            <span v-if="entity.eid !== './'">
-                <div
-                    class="flex flex-row"
-                    :class="{
-                        'bg-green-200 p-1 rounded': success === 'eid',
-                        'bg-red-200 p-1 rounded': error === 'eid',
-                    }"
-                >
-                    <div class="w-64 pt-1">
-                        @id:
-                    </div>
-                    <entity-id-component
-                        :value.sync="entity.eid"
-                        @save:property="saveEntityProperty"
-                    />
-                </div>
-                <div class="flex flex-row">
-                    <div class="w-64 pt-1">@type:</div>
-                    <div>{{ entity.etype }}</div>
-                </div>
-            </span>
-            <div
-                class="flex flex-row"
-                :class="{
-                    'bg-green-200 p-1 rounded': success === 'name',
-                    'bg-red-200 p-1 rounded': error === 'name',
-                }"
-            >
-                <div class="w-64">name:</div>
-
-                <text-component
-                    property="name"
-                    :value.sync="entity.name"
-                    @save:property="saveEntityProperty"
-                />
-            </div>
+        </div> -->
+        <div v-if="entity && entity.eid">
+            <!-- render entity name and id -->
+            <render-entity-header-component :entity="entity" class="my-1" />
 
             <!-- render entity properties -->
-            <div
-                v-for="(properties, name) of entity.forwardProperties"
-                :key="generateKey('forward', name)"
-                class="flex flex-row"
-            >
-                <div class="w-64">{{ name }}</div>
-                <div class="flex flex-col space-y-1">
-                    <render-entity-property-component
-                        v-for="property of properties"
-                        :key="property.id"
-                        :property="property"
-                    />
-                </div>
-            </div>
+            <render-entity-forward-properties-component
+                :properties="entity.forwardProperties"
+            />
 
             <!--render entities it links to  -->
-            <div class="mt-4 text-lg">This entity is referenced by:</div>
-            <div
-                v-for="(properties, name) of entity.reverseProperties"
-                :key="generateKey('reverse', name)"
-                class="flex flex-row"
-            >
-                <div class="flex flex-col">
-                    <render-entity-reverse-property-component
-                        v-for="property of properties"
-                        :key="property.id"
-                        :linkingPropertyName="name"
-                        :property="property"
-                    />
-                </div>
-            </div>
-            <!-- <div>
-                <pre>{{ entity }}</pre>
-            </div> -->
+            <render-entity-reverse-properties-component
+                :properties="entity.reverseProperties"
+            />
+        </div>
+        <div v-if="error" class="bg-red-200 p-2 text-center rounded">
+            {{ error }}
         </div>
     </el-card>
 </template>
@@ -89,14 +28,16 @@
 import { isUUID } from "validator";
 import TextComponent from "./Text.component.vue";
 import EntityIdComponent from "./EntityId.component.vue";
-import RenderEntityPropertyComponent from "./RenderEntityProperty.component.vue";
-import RenderEntityReversePropertyComponent from "./RenderEntityReverseProperty.component.vue";
+import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
+import RenderEntityForwardPropertiesComponent from "./RenderEntityForwardProperties.component.vue";
+import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
-        RenderEntityPropertyComponent,
-        RenderEntityReversePropertyComponent,
+        RenderEntityHeaderComponent,
+        RenderEntityForwardPropertiesComponent,
+        RenderEntityReversePropertiesComponent,
         EntityIdComponent,
         TextComponent,
     },
@@ -114,8 +55,7 @@ export default {
             loading: false,
             dataService: undefined,
             entity: undefined,
-            error: false,
-            success: false,
+            error: undefined,
         };
     },
     watch: {
@@ -134,31 +74,19 @@ export default {
         async getEntity() {
             this.loading = true;
             this.entity = {};
-            this.entity = await this.dataService.getEntity({ id: this.id });
-            this.loading = false;
-        },
-        async saveEntityProperty(data) {
             try {
-                await this.dataService.updateEntityProperty({
-                    id: this.entity.id,
-                    property: data.property,
-                    value: data.value,
-                });
-                this.success = data.property;
-                setTimeout(() => {
-                    this.success = false;
-                }, 1500);
+                this.entity = await this.dataService.getEntity({ id: this.id });
             } catch (error) {
-                this.error = data.property;
-                setTimeout(() => {
-                    this.error = false;
-                    this.getEntity();
-                }, 1500);
+                this.error = error.message;
             }
-        },
-        generateKey(direction, name) {
-            return `${direction}-${name}`;
+            this.loading = false;
         },
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.style-panel {
+    min-height: 200px;
+}
+</style>

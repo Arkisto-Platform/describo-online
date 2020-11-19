@@ -10,7 +10,7 @@ export default class DataService {
             route: `/entity/${id}`,
         });
         if (response.status !== 200) {
-            this.handleError({ response });
+            return this.handleError({ response });
         } else {
             let { entity } = await response.json();
             const forwardProperties = entity.properties.filter(
@@ -40,7 +40,7 @@ export default class DataService {
             },
         });
         if (response.status !== 200) {
-            this.handleError({ response });
+            return this.handleError({ response });
         } else {
             return await response.json();
         }
@@ -56,7 +56,9 @@ export default class DataService {
         console.log("delete property", id);
     }
 
-    handleError({ response }) {
-        this.$log(response.status, response.message);
+    async handleError({ response }) {
+        let error = await response.json();
+        // this.$log.error(response.status, error.message);
+        throw new Error(error.message);
     }
 }

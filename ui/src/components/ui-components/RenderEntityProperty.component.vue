@@ -1,10 +1,11 @@
 <template>
     <div class="flex flex-row">
+        <!-- <pre>{{ property }}</pre> -->
         <div v-if="property.value">
             <text-component
                 :property="property.name"
                 :value.sync="property.value"
-                @save:property="saveProperty"
+                @save:property="savePropertyValue"
             />
         </div>
         <div v-else>
@@ -21,6 +22,7 @@
 import RenderLinkedItemComponent from "./RenderLinkedItem.component.vue";
 import RenderReverseItemLinkComponent from "./RenderReverseItemLink.component.vue";
 import TextComponent from "./Text.component.vue";
+import DataService from "./data.service.js";
 
 export default {
     components: {
@@ -41,6 +43,7 @@ export default {
         };
     },
     mounted() {
+        this.dataService = new DataService({ $http: this.$http });
         if (this.property.tgtEntityId) {
             this.loadTgtEntity();
         }
@@ -58,13 +61,12 @@ export default {
             this.tgtEntity = entity;
             this.loading = false;
         },
-        async saveProperty(data) {
-            console.log(
-                this.property.id,
-                this.property.entityId,
-                data.property,
-                data.value
-            );
+        async savePropertyValue(data) {
+            await this.dataService.updateProperty({
+                id: this.property.id,
+                property: data.property,
+                value: data.value,
+            });
         },
     },
 };
