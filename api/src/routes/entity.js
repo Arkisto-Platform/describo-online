@@ -1,4 +1,4 @@
-import { BadRequestError, ForbiddenError } from "restify-errors";
+import { BadRequestError, NotFoundError, ForbiddenError } from "restify-errors";
 import {
     getEntity,
     findEntity,
@@ -12,7 +12,7 @@ const log = getLogger();
 export async function getEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     if (!collectionId) {
-        return next(new ForbiddenError());
+        return next(new ForbiddenError("No collection loaded"));
     }
 
     if (!req.params.entityId) {
@@ -33,6 +33,9 @@ export async function getEntityRouteHandler(req, res, next) {
                     collectionId,
                 })
             ).pop();
+            if (!entity) {
+                return next(new NotFoundError(`Root dataset not found`));
+            }
             entity = await getEntity({ id: entity.id, collectionId });
         } else {
             entity = await getEntity({ id: req.params.entityId, collectionId });
@@ -47,7 +50,6 @@ export async function getEntityRouteHandler(req, res, next) {
         res.send({ entity });
         next();
     } catch (error) {
-        console.log(error);
         log.error(`getEntityRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
