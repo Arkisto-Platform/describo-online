@@ -2,6 +2,9 @@ import "regenerator-runtime";
 import { loadTypeDefinition } from "./types";
 
 describe("Test type definitions", () => {
+    afterAll(async () => {
+        await models.sequelize.close();
+    });
     test("it should not find an input of type DontKnow", async () => {
         let definition = await loadTypeDefinition({ name: "DontKnow" });
         expect(definition).toBeUndefined;

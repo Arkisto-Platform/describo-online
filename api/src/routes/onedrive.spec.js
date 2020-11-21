@@ -12,6 +12,7 @@ describe("Test onedrive api routes", () => {
     });
     afterAll(async () => {
         await models.user.destroy({ where: { email: user.email } });
+        await models.sequelize.close();
     });
     test("it should be able to save a onedrive rclone configuration", async () => {
         const rcloneConfig = {

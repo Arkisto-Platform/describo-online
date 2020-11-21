@@ -15,6 +15,7 @@ describe("Test profile handling routes", () => {
     });
     afterAll(async () => {
         await models.user.destroy({ where: { email: user.email } });
+        await models.sequelize.close();
     });
     test("it should be able to create a profile", async () => {
         const name = chance.word();

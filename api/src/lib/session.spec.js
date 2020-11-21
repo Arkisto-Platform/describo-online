@@ -10,6 +10,10 @@ import models from "../models";
 describe("test session creation from stash", () => {
     const api = "http://localhost:8080";
 
+    afterAll(async () => {
+        await models.sequelize.close();
+    });
+
     test("it should not be allowed to access this server", async () => {
         const origConfig = await loadConfiguration();
 

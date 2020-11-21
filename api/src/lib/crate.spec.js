@@ -16,6 +16,7 @@ describe("Test loading a crate from a file", () => {
     });
     afterAll(async () => {
         await remove(testFiles);
+        await models.sequelize.close();
     });
     test("it does not have a describo identifier so one will be added - no identifier prop", async () => {
         let crate = {

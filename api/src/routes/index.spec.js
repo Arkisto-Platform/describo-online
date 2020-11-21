@@ -8,6 +8,9 @@ import { getUserSession } from "../lib/user";
 
 describe("Test routes - index.js", () => {
     const api = "http://localhost:8080";
+    afterAll(async () => {
+        await models.sequelize.close();
+    });
 
     test("it should be able get the UI configuration", async () => {
         let response = await fetch(`${api}/configuration`);
