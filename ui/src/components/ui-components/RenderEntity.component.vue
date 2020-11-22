@@ -1,8 +1,10 @@
 <template>
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="my-8">
-            <el-button @click="getEntity">get entity</el-button>
+        <div class="flex flex-row my-8">
+            <el-button @click="loadRootDataset" size="small"
+                >Load Root Dataset</el-button
+            >
         </div>
         <div v-if="entity && entity.eid">
             <!-- render entity name and id -->
@@ -73,6 +75,9 @@ export default {
         this.getEntity();
     },
     methods: {
+        loadRootDataset() {
+            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+        },
         async getEntity() {
             this.error = undefined;
             this.loading = true;
