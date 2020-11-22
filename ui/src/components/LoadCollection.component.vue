@@ -6,7 +6,7 @@
                     load folder
                 </el-button>
             </div> -->
-            <div class="ml-2 pt-2">Loading collection: {{ msg }}</div>
+            <div class="ml-2 pt-2">{{ msg }}</div>
         </div>
     </el-card>
 </template>
@@ -28,7 +28,7 @@ export default {
     },
     mounted() {
         this.$socket.on("loadRouteHandler", (response) => {
-            this.msg = response.msg;
+            this.msg = `Loading collection: ${response.msg}`;
         });
         this.loadFolder();
     },
