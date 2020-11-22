@@ -11,6 +11,7 @@
             <!-- render entity properties -->
             <render-entity-properties-component
                 :properties="entity.forwardProperties"
+                :inputs="definition.inputs"
             />
 
             <!--render entities it links to  -->
@@ -55,6 +56,7 @@ export default {
             loading: false,
             dataService: undefined,
             entity: undefined,
+            definition: {},
             error: undefined,
         };
     },
@@ -76,7 +78,11 @@ export default {
             this.loading = true;
             this.entity = {};
             try {
-                this.entity = await this.dataService.getEntity({ id: this.id });
+                let { entity, definition } = await this.dataService.getEntity({
+                    id: this.id,
+                });
+                this.entity = entity;
+                this.definition = definition;
             } catch (error) {
                 this.error = error.message;
             }
