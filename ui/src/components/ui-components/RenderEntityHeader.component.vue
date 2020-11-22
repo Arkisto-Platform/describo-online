@@ -10,9 +10,10 @@
             v-if="entity.eid !== './'"
         >
             <div class="w-64 pt-1">
-                @id:
+                @id
             </div>
             <entity-id-component
+                class="w-full"
                 :value.sync="entity.eid"
                 @save:property="saveEntityProperty"
                 v-if="!['Dataset', 'File'].includes(entity.etype)"
@@ -24,8 +25,8 @@
 
         <!-- entity type -->
         <div class="flex flex-row" v-if="entity.eid !== './'">
-            <div class="w-64 pt-1">@type:</div>
-            <div>{{ entity.etype }}</div>
+            <div class="w-64 pt-1">@type</div>
+            <div class="w-full">{{ entity.etype }}</div>
         </div>
 
         <!-- entity name -->
@@ -36,9 +37,10 @@
                 'bg-red-200 p-1 rounded': update.error === 'name',
             }"
         >
-            <div class="w-64">name:</div>
+            <div class="w-64">name</div>
 
             <text-component
+                class="w-full"
                 property="name"
                 :value.sync="entity.name"
                 @save:property="saveEntityProperty"
