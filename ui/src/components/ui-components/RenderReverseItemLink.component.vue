@@ -7,16 +7,26 @@
             {{ tgtEntity.id }}
         </div> -->
         <div class="text-sm">
-            <span class="text-gray-800 mr-2"
-                >{{ tgtEntity.etype }} - {{ tgtEntity.name }}:</span
-            >
-            {{ linkingPropertyName }}
+            <span class="text-gray-800 mr-2 flex flex-row">
+                <type-icon-component
+                    class="mr-2 text-gray-700"
+                    :type="tgtEntity.etype"
+                />
+                {{ tgtEntity.etype }}
+                - {{ tgtEntity.name }}:
+                {{ linkingPropertyName }}
+            </span>
         </div>
     </div>
 </template>
 
 <script>
+import TypeIconComponent from "./TypeIcon.component.vue";
+
 export default {
+    components: {
+        TypeIconComponent,
+    },
     props: {
         linkingPropertyName: {
             type: String,

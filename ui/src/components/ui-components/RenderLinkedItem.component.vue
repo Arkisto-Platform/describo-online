@@ -6,15 +6,25 @@
         <!-- <div class="text-xs text-gray-600">
             {{ tgtEntity.id }}
         </div> -->
-        <div class="text-sm">
-            <span class="text-gray-800 mr-2">{{ tgtEntity.etype }}:</span
-            >{{ tgtEntity.name }}
+        <div class="text-sm flex flex-row">
+            <!-- <span class="text-gray-800 mr-2">{{ tgtEntity.etype }}:</span -->
+            <type-icon-component
+                class="mr-2 text-gray-700"
+                :type="tgtEntity.etype"
+            />
+            {{ tgtEntity.etype }}:
+            {{ tgtEntity.name }}
         </div>
     </div>
 </template>
 
 <script>
+import TypeIconComponent from "./TypeIcon.component.vue";
+
 export default {
+    components: {
+        TypeIconComponent,
+    },
     props: {
         tgtEntity: {
             type: Object,
