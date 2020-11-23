@@ -14,8 +14,8 @@
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
             <render-linked-item-component
-                :tgtEntity="tgtEntity"
-                v-if="tgtEntity"
+                :property="property"
+                @refresh="$emit('refresh')"
             />
         </div>
     </div>
@@ -44,28 +44,10 @@ export default {
     data() {
         return {
             loading: false,
-            tgtEntity: undefined,
         };
     },
-    mounted() {
-        this.dataService = new DataService({ $http: this.$http });
-        if (this.property.tgtEntityId) {
-            this.loadTgtEntity();
-        }
-    },
+
     methods: {
-        async loadTgtEntity() {
-            this.loading = true;
-            let response = await this.$http.get({
-                route: `/entity/${this.property.tgtEntityId}?simple=true`,
-            });
-            if (response.status !== 200) {
-                // handle error
-            }
-            let { entity } = await response.json();
-            this.tgtEntity = entity;
-            this.loading = false;
-        },
         async savePropertyValue(data) {
             this.$emit("save:property", {
                 entityId: this.property.entityId,
