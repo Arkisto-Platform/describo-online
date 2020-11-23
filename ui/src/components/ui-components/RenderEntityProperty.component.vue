@@ -1,7 +1,14 @@
 <template>
     <div>
         <div v-if="property.value" class="flex flex-row">
+            <date-component
+                :property="property.name"
+                :value.sync="property.value"
+                @save:property="savePropertyValue"
+                v-if="isDate(property.value)"
+            />
             <text-component
+                v-else
                 :property="property.name"
                 :value.sync="property.value"
                 @save:property="savePropertyValue"
@@ -26,7 +33,9 @@ import RenderLinkedItemComponent from "./RenderLinkedItem.component.vue";
 import RenderReverseItemLinkComponent from "./RenderReverseItemLink.component.vue";
 import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import TextComponent from "./Text.component.vue";
+import DateComponent from "./Date.component.vue";
 import DataService from "./data.service.js";
+import { parse, parseISO, isDate } from "date-fns";
 
 export default {
     components: {
@@ -34,6 +43,7 @@ export default {
         RenderReverseItemLinkComponent,
         DeletePropertyComponent,
         TextComponent,
+        DateComponent,
     },
     props: {
         property: {
@@ -55,6 +65,10 @@ export default {
                 property: data.property,
                 value: data.value,
             });
+        },
+        isDate(string) {
+            const date = parseISO(string);
+            return isDate(date);
         },
     },
 };

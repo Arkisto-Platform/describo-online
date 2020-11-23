@@ -46,6 +46,12 @@
                         @save:property="saveProperty"
                     />
                 </div>
+                <div v-if="addType === 'Date'">
+                    <date-component
+                        :property="property"
+                        @save:property="saveProperty"
+                    />
+                </div>
             </div>
         </div>
     </el-dialog>
@@ -55,11 +61,13 @@
 import DataService from "./data.service.js";
 import AddControlComponent from "./AddControl.component.vue";
 import TextComponent from "./Text.component.vue";
+import DateComponent from "./Date.component.vue";
 
 export default {
     components: {
         AddControlComponent,
         TextComponent,
+        DateComponent,
     },
     props: {
         inputs: {
@@ -97,6 +105,7 @@ export default {
             )[0];
         },
         add({ type }) {
+            console.log("add type", type);
             this.addType = type;
         },
         saveProperty(value) {
