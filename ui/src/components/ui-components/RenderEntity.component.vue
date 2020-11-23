@@ -19,6 +19,7 @@
 
             <!-- render entity properties -->
             <render-entity-properties-component
+                :entity="entity"
                 :properties="entity.forwardProperties"
                 :inputs="definition.inputs"
                 @refresh="getEntity"
@@ -37,7 +38,7 @@
             :visible="addPropertyDialogVisible"
             :inputs="definition.inputs"
             @close="addPropertyDialogVisible = false"
-            @save:property="saveEntityProperty"
+            @create:property="createProperty"
         />
     </el-card>
 </template>
@@ -114,7 +115,7 @@ export default {
         async showAddPropertyDialog() {
             this.addPropertyDialogVisible = true;
         },
-        async saveEntityProperty({ property, value }) {
+        async createProperty({ property, value }) {
             await this.dataService.createProperty({
                 srcEntityId: this.entity.id,
                 property,
