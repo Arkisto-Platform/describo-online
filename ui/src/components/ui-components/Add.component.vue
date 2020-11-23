@@ -6,17 +6,37 @@
             @add="add"
         />
 
-        <div v-if="addType" class="p-6 bg-gray-200">
+        <div v-if="addType" class="p-6 bg-gray-200 mt-2">
             <div v-if="addType === 'Text'">
                 <text-component
                     :property="property"
                     @save:property="createProperty"
                 />
             </div>
-            <div v-if="addType === 'Date'">
+            <div v-else-if="addType === 'Date'">
                 <date-component
                     :property="property"
                     @save:property="createProperty"
+                />
+            </div>
+            <div v-else class="flex flex-col">
+                <div class="flex flex-row">
+                    <div class="flex-grow"></div>
+                    <div>
+                        <el-button @click="addType = undefined" size="small">
+                            <i class="fas fa-times"></i>
+                        </el-button>
+                    </div>
+                </div>
+                <div>
+                    Provide a name to create and associate a new entity of type
+                    '{{ addType }}'
+                </div>
+                <text-component
+                    class="flex-grow"
+                    type="text"
+                    :property="property"
+                    @save:property="createEntityAndLink"
                 />
             </div>
         </div>
@@ -51,8 +71,15 @@ export default {
         add({ type }) {
             this.addType = type;
         },
-        createProperty(value) {
-            this.$emit("create:property", value);
+        createProperty(data) {
+            this.$emit("create:property", data);
+        },
+        createEntityAndLink(data) {
+            this.$emit("create:entity", {
+                etype: this.addType,
+                property: data.property,
+                entityName: data.value,
+            });
         },
     },
 };
