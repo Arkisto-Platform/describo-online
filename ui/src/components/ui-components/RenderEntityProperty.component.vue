@@ -1,14 +1,13 @@
 <template>
-    <div class="flex flex-row">
-        <!-- <pre>{{ property }}</pre> -->
-        <div v-if="property.value">
+    <div>
+        <div v-if="property.value" class="flex flex-row">
             <text-component
                 :property="property.name"
                 :value.sync="property.value"
                 @save:property="savePropertyValue"
             />
         </div>
-        <div v-else>
+        <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
             <render-linked-item-component
                 :tgtEntity="tgtEntity"
@@ -62,8 +61,9 @@ export default {
             this.loading = false;
         },
         async savePropertyValue(data) {
-            await this.dataService.updateProperty({
-                id: this.property.id,
+            this.$emit("save:property", {
+                entityId: this.property.entityId,
+                propertyId: this.property.id,
                 property: data.property,
                 value: data.value,
             });
