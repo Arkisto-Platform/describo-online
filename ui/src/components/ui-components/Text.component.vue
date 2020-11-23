@@ -1,7 +1,7 @@
 <template>
     <el-input
         class="w-full"
-        type="textarea"
+        :type="type"
         @input="debouncedSave"
         v-model="internalValue"
         resize="vertical"
@@ -13,6 +13,13 @@ import { debounce } from "lodash";
 
 export default {
     props: {
+        type: {
+            type: String,
+            default: "textarea",
+            validator: (val) => {
+                return ["text", "textarea"].includes(val);
+            },
+        },
         property: {
             type: String,
             required: true,
