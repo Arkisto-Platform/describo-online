@@ -14,11 +14,6 @@
             </div>
             <div class="w-full flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
-                    <add-component
-                        :property="name"
-                        :definition="definition(name)"
-                        @create:property="createProperty"
-                    />
                     <div v-if="help(name)">
                         <el-button
                             @click="toggleHelp(name)"
@@ -28,6 +23,13 @@
                             <i class="fas fa-question-circle"></i>
                         </el-button>
                     </div>
+                    <add-component
+                        class="flex-grow"
+                        :property="name"
+                        :definition="definition(name)"
+                        @create:property="createProperty"
+                        @create:entity="createEntityAndLink"
+                    />
                 </div>
                 <div
                     class="text-sm text-gray-600 p-4 bg-green-100 rounded flex flex-row"
@@ -100,8 +102,10 @@ export default {
         help(name) {
             return this.definition(name)?.help;
         },
+        toggleHelp(name) {
+            this.showHelp = this.showHelp !== name ? name : false;
+        },
         async saveProperty(data) {
-            console.log(data);
             try {
                 await this.dataService.updateProperty(data);
                 this.update.success = data.property;
@@ -123,8 +127,17 @@ export default {
             });
             this.$emit("refresh");
         },
-        toggleHelp(name) {
-            this.showHelp = this.showHelp !== name ? name : false;
+        async createEntityAndLink({ property, entityName, etype }) {
+            let { entity } = await this.dataService.createEntity({
+                name: entityName,
+                etype,
+            });
+            await this.dataService.associate({
+                srcEntityId: this.entity.id,
+                property,
+                tgtEntityId: entity.id,
+            });
+            this.$emit("refresh");
         },
     },
 };
