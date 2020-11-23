@@ -34,7 +34,7 @@ export default {
         save() {
             this.$emit("save:property", {
                 property: this.property,
-                value: startOfDay(this.value).toISOString(),
+                value: startOfDay(this.internalValue).toISOString(),
             });
         },
     },
