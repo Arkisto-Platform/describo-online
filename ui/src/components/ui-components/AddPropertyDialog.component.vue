@@ -33,25 +33,11 @@
                 <div class="text-sm text-gray-600">
                     {{ selectedProperty.help }}
                 </div>
-
-                <add-control-component
-                    class="my-6"
-                    :types="selectedProperty['@type']"
-                    @add="add"
+                <add-component
+                    :property="property"
+                    :definition="selectedProperty"
+                    @create:property="createProperty"
                 />
-
-                <div v-if="addType === 'Text'">
-                    <text-component
-                        :property="property"
-                        @save:property="saveProperty"
-                    />
-                </div>
-                <div v-if="addType === 'Date'">
-                    <date-component
-                        :property="property"
-                        @save:property="saveProperty"
-                    />
-                </div>
             </div>
         </div>
     </el-dialog>
@@ -59,15 +45,11 @@
 
 <script>
 import DataService from "./data.service.js";
-import AddControlComponent from "./AddControl.component.vue";
-import TextComponent from "./Text.component.vue";
-import DateComponent from "./Date.component.vue";
+import AddComponent from "./Add.component.vue";
 
 export default {
     components: {
-        AddControlComponent,
-        TextComponent,
-        DateComponent,
+        AddComponent,
     },
     props: {
         inputs: {
@@ -87,12 +69,6 @@ export default {
         };
     },
     methods: {
-        addProperty() {
-            this.dataService = new DataService({
-                $http: this.$http,
-                $log: this.$log,
-            });
-        },
         close() {
             this.property = undefined;
             this.selectedProperty = undefined;
@@ -108,8 +84,8 @@ export default {
             console.log("add type", type);
             this.addType = type;
         },
-        saveProperty(value) {
-            this.$emit("save:property", value);
+        createProperty(value) {
+            this.$emit("create:property", value);
             this.close();
         },
     },
