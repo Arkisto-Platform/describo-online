@@ -1,9 +1,9 @@
 <template>
-    <div class="flex flex-col space-y-1">
+    <div class="flex flex-col space-y-2 divide-y divide-grey-200">
         <div
             v-for="(properties, name) of properties"
             :key="generateKey('forward', name)"
-            class="flex flex-row"
+            class="flex flex-row pt-2"
             :class="{
                 'bg-green-200 my-1 p-1 rounded': update.success === name,
                 'bg-red-200 my-1 p-1 rounded': update.erro === name,
@@ -12,27 +12,31 @@
             <div class="w-64">
                 {{ name }}
             </div>
-            <div class="w-full flex flex-col space-y-1">
+            <div class="w-full flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
                     <add-component
                         :property="name"
                         :definition="definition(name)"
                         @create:property="createProperty"
                     />
-                    <div>
+                    <div v-if="help(name)">
                         <el-button
                             @click="toggleHelp(name)"
                             type="primary"
                             size="mini"
-                            ><i class="fas fa-question-circle"></i
-                        ></el-button>
+                        >
+                            <i class="fas fa-question-circle"></i>
+                        </el-button>
                     </div>
-                    <div
-                        class="text-sm text-gray-600 p-4 bg-green-100 rounded w-full"
-                        v-if="showHelp === name"
-                    >
-                        {{ help(name) }}
+                </div>
+                <div
+                    class="text-sm text-gray-600 p-4 bg-green-100 rounded flex flex-row"
+                    v-if="showHelp === name"
+                >
+                    <div class="text-2xl mr-2">
+                        <i class="fas fa-info-circle"></i>
                     </div>
+                    <div class="pt-1">{{ help(name) }}</div>
                 </div>
                 <render-entity-property-component
                     v-for="property of properties"

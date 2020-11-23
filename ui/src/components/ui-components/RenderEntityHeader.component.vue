@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col space-y-1">
+    <div class="flex flex-col space-y-1 border-b pb-2">
         <!-- entity id -->
         <div
             class="flex flex-row"
