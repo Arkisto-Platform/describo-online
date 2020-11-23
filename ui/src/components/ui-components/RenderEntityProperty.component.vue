@@ -14,6 +14,7 @@
                 @save:property="savePropertyValue"
             />
             <delete-property-component
+                class="-mt-1"
                 :property="property"
                 @refresh="$emit('refresh')"
             />
@@ -35,7 +36,7 @@ import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import TextComponent from "./Text.component.vue";
 import DateComponent from "./Date.component.vue";
 import DataService from "./data.service.js";
-import { parse, parseISO, isDate } from "date-fns";
+import { parse, parseISO, isDate, isValid } from "date-fns";
 
 export default {
     components: {
@@ -68,7 +69,7 @@ export default {
         },
         isDate(string) {
             const date = parseISO(string);
-            return isDate(date);
+            return isValid(date);
         },
     },
 };
