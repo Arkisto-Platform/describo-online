@@ -13,8 +13,26 @@
                 {{ name }}
             </div>
             <div class="w-full flex flex-col space-y-1">
-                <div class="text-sm text-gray-600">
-                    {{ help(name) }}
+                <div class="flex flex-row space-x-2">
+                    <add-component
+                        :property="name"
+                        :definition="definition(name)"
+                        @create:property="createProperty"
+                    />
+                    <div>
+                        <el-button
+                            @click="toggleHelp(name)"
+                            type="primary"
+                            size="mini"
+                            ><i class="fas fa-question-circle"></i
+                        ></el-button>
+                    </div>
+                    <div
+                        class="text-sm text-gray-600 p-4 bg-green-100 rounded w-full"
+                        v-if="showHelp === name"
+                    >
+                        {{ help(name) }}
+                    </div>
                 </div>
                 <render-entity-property-component
                     v-for="property of properties"
@@ -30,13 +48,19 @@
 
 <script>
 import RenderEntityPropertyComponent from "./RenderEntityProperty.component.vue";
+import AddComponent from "./Add.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
         RenderEntityPropertyComponent,
+        AddComponent,
     },
     props: {
+        entity: {
+            type: Object,
+            required: true,
+        },
         properties: {
             type: Object,
             required: true,
@@ -47,6 +71,7 @@ export default {
     },
     data() {
         return {
+            showHelp: false,
             update: {
                 error: false,
                 success: false,
@@ -54,7 +79,10 @@ export default {
         };
     },
     mounted() {
-        this.dataService = new DataService({ $http: this.$http });
+        this.dataService = new DataService({
+            $http: this.$http,
+            $log: this.$log,
+        });
     },
     methods: {
         generateKey(direction, name) {
@@ -69,6 +97,7 @@ export default {
             return this.definition(name)?.help;
         },
         async saveProperty(data) {
+            console.log(data);
             try {
                 await this.dataService.updateProperty(data);
                 this.update.success = data.property;
@@ -81,6 +110,17 @@ export default {
                     this.update.error = false;
                 }, 1500);
             }
+        },
+        async createProperty({ property, value }) {
+            await this.dataService.createProperty({
+                srcEntityId: this.entity.id,
+                property,
+                value,
+            });
+            this.$emit("refresh");
+        },
+        toggleHelp(name) {
+            this.showHelp = this.showHelp !== name ? name : false;
         },
     },
 };
