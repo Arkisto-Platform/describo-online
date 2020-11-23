@@ -35,7 +35,7 @@
                 </div>
 
                 <add-control-component
-                    class="mt-6"
+                    class="my-6"
                     :types="selectedProperty['@type']"
                     @add="add"
                 />
@@ -100,8 +100,8 @@ export default {
             this.addType = type;
         },
         saveProperty(value) {
-            console.log(JSON.stringify(value, null, 2));
             this.$emit("save:property", value);
+            this.close();
         },
     },
 };
