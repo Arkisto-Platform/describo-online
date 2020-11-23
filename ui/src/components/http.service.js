@@ -47,4 +47,12 @@ export default class HTTPService {
         });
         return response;
     }
+
+    async delete({ route }) {
+        let response = await fetch(`/api${route}`, {
+            method: "delete",
+            headers: await this.getHeaders(),
+        });
+        return response;
+    }
 }
