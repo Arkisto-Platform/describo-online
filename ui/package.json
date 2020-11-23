@@ -13,6 +13,7 @@
         "@okta/okta-signin-widget": "^4.5.1",
         "@okta/okta-vue": "^2.1.1",
         "core-js": "^3.7.0",
+        "date-fns": "^2.16.1",
         "element-ui": "^2.14.1",
         "loglevel": "^1.7.0",
         "loglevel-plugin-prefix": "^0.8.4",
