@@ -1,13 +1,11 @@
 <template>
-    <div class="flex flex-col">
-        <div class="flex flex-row">
-            <el-input
-                class="w-full style-element"
-                @input="debouncedSave"
-                v-model="internalValue"
-            ></el-input>
-        </div>
-    </div>
+    <el-input
+        class="w-full"
+        type="textarea"
+        @input="debouncedSave"
+        v-model="internalValue"
+        resize="vertical"
+    ></el-input>
 </template>
 
 <script>
@@ -40,8 +38,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.style-element {
-    min-width: 400px;
-}
-</style>
+<style lang="scss" scoped></style>
