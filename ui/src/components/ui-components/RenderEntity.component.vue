@@ -1,10 +1,17 @@
 <template>
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="flex flex-row my-8">
-            <el-button @click="loadRootDataset" size="small"
-                >Load Root Dataset</el-button
-            >
+        <div class="flex flex-row space-x-4 my-8">
+            <div>
+                <el-button @click="loadRootDataset" size="small">
+                    Load Root Dataset
+                </el-button>
+            </div>
+            <div>
+                <el-button @click="showAddPropertyDialog" size="small">
+                    <i class="fas fa-code"></i> Add Property
+                </el-button>
+            </div>
         </div>
         <div v-if="entity && entity.eid">
             <!-- render entity name and id -->
@@ -24,6 +31,13 @@
         <div v-if="error" class="bg-red-200 p-2 text-center rounded">
             {{ error }}
         </div>
+        <add-property-dialog-component
+            v-if="definition.inputs && definition.inputs.length"
+            :visible="addPropertyDialogVisible"
+            :inputs="definition.inputs"
+            @close="addPropertyDialogVisible = false"
+            @save:property="saveEntityProperty"
+        />
     </el-card>
 </template>
 
@@ -34,6 +48,7 @@ import EntityIdComponent from "./EntityId.component.vue";
 import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
 import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.vue";
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
+import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
 import DataService from "./data.service.js";
 
 export default {
@@ -41,6 +56,7 @@ export default {
         RenderEntityHeaderComponent,
         RenderEntityPropertiesComponent,
         RenderEntityReversePropertiesComponent,
+        AddPropertyDialogComponent,
         EntityIdComponent,
         TextComponent,
     },
@@ -60,6 +76,7 @@ export default {
             entity: undefined,
             definition: {},
             error: undefined,
+            addPropertyDialogVisible: false,
         };
     },
     watch: {
@@ -92,6 +109,17 @@ export default {
                 this.error = error.message;
             }
             this.loading = false;
+        },
+        async showAddPropertyDialog() {
+            this.addPropertyDialogVisible = true;
+        },
+        async saveEntityProperty({ property, value }) {
+            await this.dataService.createProperty({
+                srcEntityId: this.entity.id,
+                property,
+                value,
+            });
+            this.getEntity();
         },
     },
 };
