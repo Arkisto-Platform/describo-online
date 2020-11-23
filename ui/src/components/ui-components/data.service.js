@@ -43,11 +43,29 @@ export default class DataService {
             };
         }
     }
-    async createEntity({ name, description }) {
-        console.log("create new entity", name, description);
+
+    async createEntity(entity) {
+        console.log("create new entity", entity);
+        let response = await this.$http.post({
+            route: `/entity`,
+            body: { entity },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
     }
     async deleteEntity({ id }) {
         console.log("delete entity", id);
+        let response = await this.$http.delete({
+            route: `/entity/${id}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
     }
     async updateEntityProperty({ id, property, value }) {
         this.$log.debug("update entity property", id, property, value);
@@ -63,7 +81,7 @@ export default class DataService {
             return await response.json();
         }
     }
-    async createProperty({ srcEntityId, property, value, tgtEntityId }) {
+    async createProperty({ srcEntityId, property, value }) {
         this.$log.debug(
             "create property",
             srcEntityId,
@@ -76,6 +94,21 @@ export default class DataService {
             body: {
                 property,
                 value,
+            },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+    async associate({ srcEntityId, property, tgtEntityId }) {
+        this.$log.debug("associate ", srcEntityId, property, tgtEntityId);
+        let response = await this.$http.put({
+            route: `/entity/${srcEntityId}/associate`,
+            body: {
+                property,
+                tgtEntityId,
             },
         });
         if (response.status !== 200) {
