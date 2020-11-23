@@ -64,7 +64,7 @@ export default class DataService {
         }
     }
     async createProperty({ srcEntityId, property, value, tgtEntityId }) {
-        console.log(
+        this.$log.debug(
             "create property",
             srcEntityId,
             property,
@@ -85,7 +85,7 @@ export default class DataService {
         }
     }
     async updateProperty({ entityId, propertyId, property, value }) {
-        console.log("update property", propertyId, property, value);
+        this.$log.debug("update property", propertyId, property, value);
         let response = await this.$http.put({
             route: `/entity/${entityId}/property/${propertyId}`,
             body: {
@@ -99,8 +99,14 @@ export default class DataService {
             return await response.json();
         }
     }
-    async deleteProperty({ id }) {
-        console.log("delete property", id);
+    async deleteProperty({ entityId, propertyId }) {
+        this.$log.debug("delete property", propertyId);
+        let response = await this.$http.delete({
+            route: `/entity/${entityId}/property/${propertyId}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        }
     }
 
     async handleError({ response }) {

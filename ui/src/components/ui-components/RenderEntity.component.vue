@@ -21,6 +21,7 @@
             <render-entity-properties-component
                 :properties="entity.forwardProperties"
                 :inputs="definition.inputs"
+                @refresh="getEntity"
             />
 
             <!--render entities it links to  -->

@@ -6,6 +6,10 @@
                 :value.sync="property.value"
                 @save:property="savePropertyValue"
             />
+            <delete-property-component
+                :property="property"
+                @refresh="$emit('refresh')"
+            />
         </div>
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
@@ -20,6 +24,7 @@
 <script>
 import RenderLinkedItemComponent from "./RenderLinkedItem.component.vue";
 import RenderReverseItemLinkComponent from "./RenderReverseItemLink.component.vue";
+import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import TextComponent from "./Text.component.vue";
 import DataService from "./data.service.js";
 
@@ -27,6 +32,7 @@ export default {
     components: {
         RenderLinkedItemComponent,
         RenderReverseItemLinkComponent,
+        DeletePropertyComponent,
         TextComponent,
     },
     props: {

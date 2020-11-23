@@ -21,6 +21,7 @@
                     :key="property.id"
                     :property="property"
                     @save:property="saveProperty"
+                    @refresh="$emit('refresh')"
                 />
             </div>
         </div>
