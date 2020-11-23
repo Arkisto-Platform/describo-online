@@ -63,12 +63,41 @@ export default class DataService {
             return await response.json();
         }
     }
-    async createProperty({ srcEntityId, name, value, tgtEntityId }) {
-        console.log("create property", srcEntityId, name, value, tgtEntityId);
+    async createProperty({ srcEntityId, property, value, tgtEntityId }) {
+        console.log(
+            "create property",
+            srcEntityId,
+            property,
+            value,
+            tgtEntityId
+        );
+        let response = await this.$http.post({
+            route: `/entity/${srcEntityId}/property`,
+            body: {
+                property,
+                value,
+            },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
     }
-    async updateProperty({ id, property, value }) {
-        console.log("update property", id, property, value);
-        // await this.$http.put({ route: `/entity/${id}`, body: { name } });
+    async updateProperty({ entityId, propertyId, property, value }) {
+        console.log("update property", propertyId, property, value);
+        let response = await this.$http.put({
+            route: `/entity/${entityId}/property/${propertyId}`,
+            body: {
+                property,
+                value,
+            },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
     }
     async deleteProperty({ id }) {
         console.log("delete property", id);
