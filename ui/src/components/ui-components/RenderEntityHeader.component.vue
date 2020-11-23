@@ -18,7 +18,10 @@
                 @save:property="saveEntityProperty"
                 v-if="!['Dataset', 'File'].includes(entity.etype)"
             />
-            <div v-if="['Dataset', 'File'].includes(entity.etype)">
+            <div
+                v-if="['Dataset', 'File'].includes(entity.etype)"
+                class="w-full"
+            >
                 {{ entity.eid }}
             </div>
         </div>
