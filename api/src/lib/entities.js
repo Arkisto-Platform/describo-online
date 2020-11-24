@@ -154,6 +154,12 @@ export async function findEntity({ eid, etype, name, collectionId }) {
 export async function getEntity({ id, collectionId }) {
     return await models.entity.findOne({
         where: { id, collectionId },
+    });
+}
+
+export async function getEntityProperties({ id, collectionId }) {
+    let entity = await models.entity.findOne({
+        where: { id, collectionId },
         include: [
             {
                 model: models.property,
@@ -161,4 +167,5 @@ export async function getEntity({ id, collectionId }) {
             },
         ],
     });
+    return { properties: entity.properties };
 }
