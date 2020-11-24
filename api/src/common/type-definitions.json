@@ -7953,18 +7953,6 @@
     },
     "inputs": [
       {
-        "property": {
-          "@language": "en",
-          "@value": "materialExtent"
-        },
-        "help": "The quantity of the materials being described or an expression of the physical space they occupy.",
-        "multiple": true,
-        "@type": [
-          "QuantitativeValue",
-          "Text"
-        ]
-      },
-      {
         "property": "about",
         "help": "The subject matter of the content.",
         "multiple": true,
@@ -8539,6 +8527,15 @@
         "@type": [
           "URL",
           "Product",
+          "Text"
+        ]
+      },
+      {
+        "property": "materialExtent",
+        "help": "The quantity of the materials being described or an expression of the physical space they occupy.",
+        "multiple": true,
+        "@type": [
+          "QuantitativeValue",
           "Text"
         ]
       },
@@ -18679,37 +18676,28 @@
       "allowAdditionalProperties": false,
       "help": "An intangible type to be applied to any archive content, carrying with it a set of properties required to describe archival items and collections.",
       "@id": "http://schema.org/ArchiveComponent",
-      "name": {
-        "@language": "en",
-        "@value": "ArchiveComponent"
-      },
+      "name": "ArchiveComponent",
       "subClassOf": [
         "CreativeWork"
       ]
     },
     "inputs": [
       {
-        "property": {
-          "@language": "en",
-          "@value": "itemLocation"
-        },
+        "property": "holdingArchive",
+        "help": "<a class=\"localLink\" href=\"http://schema.org/ArchiveOrganization\">ArchiveOrganization</a> that holds, keeps or maintains the <a class=\"localLink\" href=\"http://schema.org/ArchiveComponent\">ArchiveComponent</a>.",
+        "multiple": true,
+        "@type": [
+          "ArchiveOrganization"
+        ]
+      },
+      {
+        "property": "itemLocation",
         "help": "Current location of the item.",
         "multiple": true,
         "@type": [
           "PostalAddress",
           "Place",
           "Text"
-        ]
-      },
-      {
-        "property": {
-          "@language": "en",
-          "@value": "holdingArchive"
-        },
-        "help": "<a class=\"localLink\" href=\"http://schema.org/ArchiveOrganization\">ArchiveOrganization</a> that holds, keeps or maintains the <a class=\"localLink\" href=\"http://schema.org/ArchiveComponent\">ArchiveComponent</a>.",
-        "multiple": true,
-        "@type": [
-          "ArchiveOrganization"
         ]
       }
     ],
@@ -21320,20 +21308,14 @@
       "allowAdditionalProperties": false,
       "help": "An organization with archival holdings. An organization which keeps and preserves archival material and typically makes it accessible to the public.",
       "@id": "http://schema.org/ArchiveOrganization",
-      "name": {
-        "@language": "en",
-        "@value": "ArchiveOrganization"
-      },
+      "name": "ArchiveOrganization",
       "subClassOf": [
         "LocalBusiness"
       ]
     },
     "inputs": [
       {
-        "property": {
-          "@language": "en",
-          "@value": "archiveHeld"
-        },
+        "property": "archiveHeld",
         "help": "Collection, <a href=\"https://en.wikipedia.org/wiki/Fonds\">fonds</a>, or item held, kept or maintained by an <a class=\"localLink\" href=\"http://schema.org/ArchiveOrganization\">ArchiveOrganization</a>.",
         "multiple": true,
         "@type": [
@@ -29056,10 +29038,7 @@
     },
     "inputs": [
       {
-        "property": {
-          "@language": "en",
-          "@value": "collectionSize"
-        },
+        "property": "collectionSize",
         "help": "The number of items in the <a class=\"localLink\" href=\"http://schema.org/Collection\">Collection</a>.",
         "multiple": true,
         "@type": [
