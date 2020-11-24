@@ -37,6 +37,7 @@
                     :property="property"
                     :definition="selectedProperty"
                     @create:property="createProperty"
+                    @link:entity="linkEntity"
                 />
             </div>
         </div>
@@ -81,11 +82,17 @@ export default {
             )[0];
         },
         add({ type }) {
-            console.log("add type", type);
             this.addType = type;
         },
         createProperty(value) {
             this.$emit("create:property", value);
+            this.close();
+        },
+        linkEntity({ property, tgtEntityId }) {
+            this.$emit("link:entity", {
+                property,
+                tgtEntityId,
+            });
             this.close();
         },
     },

@@ -29,6 +29,7 @@
                         :definition="definition(name)"
                         @create:property="createProperty"
                         @create:entity="createEntityAndLink"
+                        @link:entity="linkEntity"
                     />
                 </div>
                 <div
@@ -136,6 +137,14 @@ export default {
                 srcEntityId: this.entity.id,
                 property,
                 tgtEntityId: entity.id,
+            });
+            this.$emit("refresh");
+        },
+        async linkEntity({ property, tgtEntityId }) {
+            await this.dataService.associate({
+                srcEntityId: this.entity.id,
+                property,
+                tgtEntityId,
             });
             this.$emit("refresh");
         },

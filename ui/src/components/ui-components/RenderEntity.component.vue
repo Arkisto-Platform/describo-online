@@ -39,6 +39,7 @@
             :inputs="definition.inputs"
             @close="addPropertyDialogVisible = false"
             @create:property="createProperty"
+            @link:entity="linkEntity"
         />
     </el-card>
 </template>
@@ -120,6 +121,14 @@ export default {
                 srcEntityId: this.entity.id,
                 property,
                 value,
+            });
+            this.getEntity();
+        },
+        async linkEntity({ property, tgtEntityId }) {
+            await this.dataService.associate({
+                srcEntityId: this.entity.id,
+                property,
+                tgtEntityId,
             });
             this.getEntity();
         },
