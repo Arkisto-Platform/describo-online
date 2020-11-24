@@ -19,6 +19,7 @@ import {
 } from "./profile";
 import {
     getEntityRouteHandler,
+    getEntityPropertiesRouteHandler,
     findEntityRouteHandler,
     postEntityRouteHandler,
     putEntityRouteHandler,
@@ -71,6 +72,11 @@ export function setupRoutes({ server }) {
 
     server.post("/entity/lookup", demandKnownUser, findEntityRouteHandler);
     server.get("/entity/:entityId", demandKnownUser, getEntityRouteHandler);
+    server.get(
+        "/entity/:entityId/properties",
+        demandKnownUser,
+        getEntityPropertiesRouteHandler
+    );
     server.post("/entity", demandKnownUser, postEntityRouteHandler);
     server.put("/entity/:entityId", demandKnownUser, putEntityRouteHandler);
     server.del("/entity/:entityId", demandKnownUser, delEntityRouteHandler);

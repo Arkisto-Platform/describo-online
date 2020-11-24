@@ -1,6 +1,7 @@
 import { BadRequestError, NotFoundError, ForbiddenError } from "restify-errors";
 import {
     getEntity,
+    getEntityProperties,
     findEntity,
     insertEntity,
     updateEntity,
@@ -45,13 +46,60 @@ export async function getEntityRouteHandler(req, res, next) {
             entity = await getEntity({ id: req.params.entityId, collectionId });
         }
 
-        const properties = entity.properties.map((p) => p.get());
-        entity = entity.get();
-        entity.properties = properties;
-        if (req.query?.simple) {
-            delete entity.properties;
-        }
+        // const properties = entity.properties.map((p) => p.get());
+        // entity = entity.get();
+        // entity.properties = properties;
+        // if (req.query?.simple) {
+        //     delete entity.properties;
+        // }
         res.send({ entity });
+        next();
+    } catch (error) {
+        log.error(`getEntityRouteHandler: ${error.message}`);
+        return next(new ForbiddenError());
+    }
+}
+
+export async function getEntityPropertiesRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError("No collection loaded"));
+    }
+
+    if (!req.params.entityId) {
+        return next(
+            new BadRequestError(
+                `You must provide an entityId to lookup or the special value 'RootDataset'`
+            )
+        );
+    }
+
+    let entity, properties;
+    try {
+        if (req.params.entityId === "RootDataset") {
+            entity = (
+                await findEntity({
+                    eid: "./",
+                    etype: "Dataset",
+                    collectionId,
+                })
+            ).pop();
+            if (!entity) {
+                return next(new NotFoundError(`Root dataset not found`));
+            }
+            ({ properties } = await getEntityProperties({
+                id: entity.id,
+                collectionId,
+            }));
+        } else {
+            ({ entity } = await getEntityProperties({
+                id: req.params.entityId,
+                collectionId,
+            }));
+        }
+
+        properties = properties.map((p) => p.get());
+        res.send({ properties });
         next();
     } catch (error) {
         log.error(`getEntityRouteHandler: ${error.message}`);
