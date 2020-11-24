@@ -56,6 +56,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async deleteEntity({ id }) {
         console.log("delete entity", id);
         let response = await this.$http.delete({
@@ -67,6 +68,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async updateEntityProperty({ id, property, value }) {
         this.$log.debug("update entity property", id, property, value);
         let response = await this.$http.put({
@@ -81,6 +83,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async createProperty({ srcEntityId, property, value }) {
         this.$log.debug(
             "create property",
@@ -102,6 +105,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async associate({ srcEntityId, property, tgtEntityId }) {
         this.$log.debug("associate ", srcEntityId, property, tgtEntityId);
         let response = await this.$http.put({
@@ -117,6 +121,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async updateProperty({ entityId, propertyId, property, value }) {
         this.$log.debug("update property", propertyId, property, value);
         let response = await this.$http.put({
@@ -132,6 +137,7 @@ export default class DataService {
             return await response.json();
         }
     }
+
     async deleteProperty({ entityId, propertyId }) {
         this.$log.debug("delete property", propertyId);
         let response = await this.$http.delete({
@@ -139,6 +145,19 @@ export default class DataService {
         });
         if (response.status !== 200) {
             return this.handleError({ response });
+        }
+    }
+
+    async findEntity({ etype, eid, name }) {
+        this.$log.debug("lookup entity");
+        let response = await this.$http.post({
+            route: `/entity/lookup`,
+            body: { etype, eid, name },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
         }
     }
 
