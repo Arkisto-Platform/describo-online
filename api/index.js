@@ -18,7 +18,6 @@ const log = getLogger();
     await models.sequelize.sync();
     const io = require("socket.io")(server.server, {});
 
-    setupRoutes({ server, io });
     const cors = corsMiddleware({
         preflightMaxAge: 5, //Optional
         origins: ["*"],
@@ -30,7 +29,6 @@ const log = getLogger();
         ],
     });
 
-    server.pre(restify.plugins.pre.dedupeSlashes());
     server.pre(cors.preflight);
     server.use(cors.actual);
     if (process.env.NODE_ENV === "development") {
@@ -43,7 +41,10 @@ const log = getLogger();
         req.io = io;
         return next();
     });
-    server.use(restify.plugins.queryParser({ mapParams: false }));
+    server.use(restify.plugins.dateParser());
+    server.use(restify.plugins.queryParser());
+    server.use(restify.plugins.jsonp());
+    server.use(restify.plugins.gzipResponse());
     server.use(
         restify.plugins.bodyParser({
             maxBodySize: 0,
@@ -58,6 +59,8 @@ const log = getLogger();
             maxFieldsSize: 2 * 1024 * 1024,
         })
     );
+    setupRoutes({ server });
+
     const app = server.listen(configuration.api.port, function () {
         console.log("ready on %s", server.url);
     });
