@@ -6,7 +6,7 @@
             @add="add"
         />
 
-        <div v-if="addType" class="p-6 bg-gray-200 mt-2">
+        <div v-if="addType" class="p-2 bg-gray-200 mt-2">
             <div v-if="addType === 'Text'">
                 <text-component
                     :property="property"
@@ -23,21 +23,36 @@
                 <div class="flex flex-row">
                     <div class="flex-grow"></div>
                     <div>
-                        <el-button @click="addType = undefined" size="small">
+                        <el-button @click="addType = undefined" size="mini">
                             <i class="fas fa-times"></i>
                         </el-button>
                     </div>
                 </div>
-                <div>
-                    Provide a name to create and associate a new entity of type
-                    '{{ addType }}'
+                <div class="flex flex-row space-x-4 divide-x divide-gray-800">
+                    <div class="w-1/2">
+                        <div class="text-sm text-gray-600">
+                            Provide a name to create and associate a new entity
+                            of type '{{ addType }}'
+                        </div>
+                        <text-component
+                            class="flex-grow"
+                            type="text"
+                            :property="property"
+                            @save:property="createEntityAndLink"
+                        />
+                    </div>
+
+                    <div class="pl-2 w-1/2">
+                        <div class="text-sm text-gray-600">
+                            Associate an existing entity - lookup by name or @id
+                        </div>
+                        <autocomplete-component
+                            :type="addType"
+                            by="name"
+                            @link:entity="linkEntity"
+                        />
+                    </div>
                 </div>
-                <text-component
-                    class="flex-grow"
-                    type="text"
-                    :property="property"
-                    @save:property="createEntityAndLink"
-                />
             </div>
         </div>
     </div>
@@ -47,12 +62,15 @@
 import AddControlComponent from "./AddControl.component.vue";
 import TextComponent from "./Text.component.vue";
 import DateComponent from "./Date.component.vue";
+import DataService from "./data.service.js";
+import AutocompleteComponent from "./AutoComplete.component.vue";
 
 export default {
     components: {
         AddControlComponent,
         TextComponent,
         DateComponent,
+        AutocompleteComponent,
     },
     props: {
         property: {
@@ -67,6 +85,12 @@ export default {
     data() {
         return { addType: undefined };
     },
+    mounted() {
+        this.dataService = new DataService({
+            $http: this.$http,
+            $log: this.$log,
+        });
+    },
     methods: {
         add({ type }) {
             this.addType = type;
@@ -77,8 +101,14 @@ export default {
         createEntityAndLink(data) {
             this.$emit("create:entity", {
                 etype: this.addType,
-                property: data.property,
+                property: this.property,
                 entityName: data.value,
+            });
+        },
+        linkEntity({ entity }) {
+            this.$emit("link:entity", {
+                property: this.property,
+                tgtEntityId: entity.id,
             });
         },
     },
