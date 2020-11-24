@@ -1,5 +1,12 @@
 const { readJson, writeFile, ensureDir } = require("fs-extra");
-const { flattenDeep, orderBy, has, isArray, uniq } = require("lodash");
+const {
+    flattenDeep,
+    orderBy,
+    has,
+    isArray,
+    uniq,
+    isString,
+} = require("lodash");
 const path = require("path");
 
 const schema = "schema.org.jsonld";
@@ -30,7 +37,9 @@ const selectDataTypes = ["Boolean"];
                     allowAdditionalProperties: false,
                     help: entry["rdfs:comment"],
                     "@id": entry["@id"],
-                    name: entry["rdfs:label"],
+                    name: isString(entry["rdfs:label"])
+                        ? entry["rdfs:label"]
+                        : entry["rdfs:label"]["@value"],
                     subClassOf,
                 },
                 inputs: [],
@@ -65,7 +74,9 @@ const selectDataTypes = ["Boolean"];
 
                 // link this property to the relevant class
                 const definition = {
-                    property: property["rdfs:label"],
+                    property: isString(property["rdfs:label"])
+                        ? property["rdfs:label"]
+                        : property["rdfs:label"]["@value"],
                     help: property["rdfs:comment"],
                 };
 
