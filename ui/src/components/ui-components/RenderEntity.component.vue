@@ -19,6 +19,7 @@
 
             <!-- render entity properties -->
             <render-entity-properties-component
+                v-if="definition"
                 :entity="entity"
                 :properties="entity.forwardProperties"
                 :inputs="definition.inputs"
@@ -34,7 +35,7 @@
             {{ error }}
         </div>
         <add-property-dialog-component
-            v-if="definition.inputs && definition.inputs.length"
+            v-if="definition && definition.inputs.length"
             :visible="addPropertyDialogVisible"
             :inputs="definition.inputs"
             @close="addPropertyDialogVisible = false"
@@ -77,7 +78,7 @@ export default {
             loading: false,
             dataService: undefined,
             entity: undefined,
-            definition: {},
+            definition: undefined,
             error: undefined,
             addPropertyDialogVisible: false,
         };
@@ -99,16 +100,26 @@ export default {
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
         async getEntity() {
+            this.entity = undefined;
+            this.definition = undefined;
             this.error = undefined;
             this.loading = true;
             this.entity = {};
             try {
-                let { entity, definition } = await this.dataService.getEntity({
+                let { entity } = await this.dataService.getEntity({
                     id: this.id,
                 });
                 this.entity = entity;
+                this.loading = false;
+
+                let {
+                    definition,
+                } = await this.dataService.getEntityTypeDefinition({
+                    type: entity.etype,
+                });
                 this.definition = definition;
             } catch (error) {
+                console.log(error);
                 this.error = error.message;
             }
             this.loading = false;

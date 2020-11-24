@@ -44,6 +44,7 @@
 
             <text-component
                 class="w-full"
+                type="text"
                 property="name"
                 :value.sync="entity.name"
                 @save:property="saveEntityProperty"

@@ -13,10 +13,6 @@ export default class DataService {
             return this.handleError({ response });
         } else {
             let { entity } = await response.json();
-            let { definition } = await this.getEntityTypeDefinition({
-                type: entity.etype,
-            });
-
             const forwardProperties = entity.properties.filter(
                 (p) => p.direction !== "R"
             );
@@ -26,7 +22,7 @@ export default class DataService {
             entity.forwardProperties = groupBy(forwardProperties, "name");
             entity.reverseProperties = groupBy(reverseProperties, "name");
             delete entity.properties;
-            return { entity, definition };
+            return { entity };
         }
     }
 
