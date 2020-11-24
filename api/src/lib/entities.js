@@ -1,5 +1,5 @@
 const models = require("../models");
-const { cloneDeep, isString, isArray, isPlainObject } = require("lodash");
+const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 
 export async function insertEntity({ entity, collectionId }) {
@@ -132,13 +132,23 @@ export async function removeEntity({ id }) {
     });
 }
 
-export async function findEntity({ eid, etype, collectionId }) {
-    // TODO - add pagination!
+export async function findEntity({ eid, etype, name, collectionId }) {
     let where = {};
     if (collectionId) where.collectionId = collectionId;
-    if (eid) where.eid = eid;
     if (etype) where.etype = etype;
-    return (await models.entity.findAll({ where })).map((e) => e.get());
+    where[Op.or] = [];
+    if (eid)
+        where[Op.or].push({
+            eid: {
+                [Op.substring]: eid,
+            },
+        });
+    if (name)
+        where[Op.or].push({
+            name: { [Op.substring]: name },
+        });
+    let entities = await models.entity.findAll({ where, limit: 10 });
+    return entities.map((e) => e.get());
 }
 
 export async function getEntity({ id, collectionId }) {
