@@ -113,6 +113,14 @@ export default {
                 this.loading = false;
 
                 let {
+                    properties,
+                } = await this.dataService.getEntityProperties({ id: this.id });
+                this.entity = {
+                    ...this.entity,
+                    ...properties,
+                };
+
+                let {
                     definition,
                 } = await this.dataService.getEntityTypeDefinition({
                     type: entity.etype,
