@@ -13,16 +13,29 @@ export default class DataService {
             return this.handleError({ response });
         } else {
             let { entity } = await response.json();
-            const forwardProperties = entity.properties.filter(
+            entity.properties = [];
+            return { entity };
+        }
+    }
+    async getEntityProperties({ id }) {
+        let response = await this.$http.get({
+            route: `/entity/${id}/properties`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            let { properties } = await response.json();
+            const forwardProperties = properties.filter(
                 (p) => p.direction !== "R"
             );
-            const reverseProperties = entity.properties.filter(
+            const reverseProperties = properties.filter(
                 (p) => p.direction === "R"
             );
-            entity.forwardProperties = groupBy(forwardProperties, "name");
-            entity.reverseProperties = groupBy(reverseProperties, "name");
-            delete entity.properties;
-            return { entity };
+            properties = {
+                forwardProperties: groupBy(forwardProperties, "name"),
+                reverseProperties: groupBy(reverseProperties, "name"),
+            };
+            return { properties };
         }
     }
 
