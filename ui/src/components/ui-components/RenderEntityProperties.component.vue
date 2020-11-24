@@ -90,6 +90,7 @@ export default {
             $http: this.$http,
             $log: this.$log,
         });
+        this.loadTgtEntityData();
     },
     methods: {
         generateKey(direction, name) {
@@ -105,6 +106,29 @@ export default {
         },
         toggleHelp(name) {
             this.showHelp = this.showHelp !== name ? name : false;
+        },
+        async loadTgtEntityData() {
+            for (let property of Object.keys(this.properties)) {
+                for (let [idx, entry] of this.properties[property].entries()) {
+                    if (entry.tgtEntityId) {
+                        let response = await this.$http.get({
+                            route: `/entity/${entry.tgtEntityId}`,
+                        });
+                        if (response.status !== 200) {
+                            // handle error
+                        }
+                        let { entity } = await response.json();
+                        this.properties[property][idx] = {
+                            ...this.properties[property][idx],
+                            tgtEntityName: entity.name,
+                            tgtEntityType: entity.etype,
+                        };
+                        this.properties[property] = [
+                            ...this.properties[property],
+                        ];
+                    }
+                }
+            }
         },
         async saveProperty(data) {
             try {

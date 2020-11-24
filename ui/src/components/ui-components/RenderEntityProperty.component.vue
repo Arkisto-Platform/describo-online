@@ -22,7 +22,7 @@
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
             <render-linked-item-component
-                :property="property"
+                :entity="property"
                 @refresh="$emit('refresh')"
             />
         </div>
