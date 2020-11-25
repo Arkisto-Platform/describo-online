@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
                 defaultValue: DataTypes.UUIDV4,
             },
             name: {
-                type: DataTypes.STRING,
+                type: DataTypes.TEXT,
                 allowNull: false,
                 defaultValue: "",
             },
