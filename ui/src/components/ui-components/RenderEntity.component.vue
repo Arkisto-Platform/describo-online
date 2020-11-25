@@ -28,6 +28,7 @@
 
             <!--render entities it links to  -->
             <render-entity-reverse-properties-component
+                v-if="entity.reverseProperties"
                 :properties="entity.reverseProperties"
             />
         </div>

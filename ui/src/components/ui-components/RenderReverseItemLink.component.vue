@@ -3,18 +3,16 @@
         class="flex flex-col bg-red-200 p-4 cursor-pointer rounded"
         @click="loadEntity"
     >
-        <!-- <div class="text-xs text-gray-600">
-            {{ tgtEntity.id }}
-        </div> -->
         <div class="text-sm">
             <span class="text-gray-800 mr-2 flex flex-row">
                 <type-icon-component
                     class="mr-2 text-gray-700"
-                    :type="tgtEntity.etype"
+                    :type="entity.tgtEntityType"
+                    v-if="entity.tgtEntityType"
                 />
-                {{ tgtEntity.etype }}
-                - {{ tgtEntity.name }}:
-                {{ linkingPropertyName }}
+                {{ entity.tgtEntityType }}
+                - {{ entity.tgtEntityName }}:
+                {{ entity.name }}
             </span>
         </div>
     </div>
@@ -28,11 +26,7 @@ export default {
         TypeIconComponent,
     },
     props: {
-        linkingPropertyName: {
-            type: String,
-            required: true,
-        },
-        tgtEntity: {
+        entity: {
             type: Object,
             required: true,
         },
@@ -42,7 +36,9 @@ export default {
     },
     methods: {
         loadEntity() {
-            this.$store.commit("setSelectedEntity", { id: this.tgtEntity.id });
+            this.$store.commit("setSelectedEntity", {
+                id: this.entity.tgtEntityId,
+            });
         },
     },
 };

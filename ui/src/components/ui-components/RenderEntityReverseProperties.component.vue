@@ -7,11 +7,10 @@
             class="flex flex-row"
         >
             <div class="flex flex-col">
-                <render-entity-reverse-property-component
+                <render-reverse-item-link-component
                     v-for="property of properties"
                     :key="property.id"
-                    :linkingPropertyName="name"
-                    :property="property"
+                    :entity="property"
                 />
             </div>
         </div>
@@ -19,11 +18,11 @@
 </template>
 
 <script>
-import RenderEntityReversePropertyComponent from "./RenderEntityReverseProperty.component.vue";
+import RenderReverseItemLinkComponent from "./RenderReverseItemLink.component.vue";
 
 export default {
     components: {
-        RenderEntityReversePropertyComponent,
+        RenderReverseItemLinkComponent,
     },
     props: {
         properties: {
@@ -34,9 +33,34 @@ export default {
     data() {
         return {};
     },
+    mounted() {
+        this.loadTgtEntityData();
+    },
     methods: {
         generateKey(direction, name) {
             return `${direction}-${name}`;
+        },
+        async loadTgtEntityData() {
+            for (let property of Object.keys(this.properties)) {
+                for (let [idx, entry] of this.properties[property].entries()) {
+                    let response = await this.$http.get({
+                        route: `/entity/${entry.tgtEntityId}`,
+                    });
+                    if (response.status !== 200) {
+                        // handle error
+                    }
+                    let { entity } = await response.json();
+                    this.properties[property][idx] = {
+                        ...this.properties[property][idx],
+                        tgtEntityName: entity.name,
+                        tgtEntityType: entity.etype,
+                    };
+                    console.log(
+                        JSON.stringify(this.properties[property][idx], null, 2)
+                    );
+                    this.properties[property] = [...this.properties[property]];
+                }
+            }
         },
     },
 };
