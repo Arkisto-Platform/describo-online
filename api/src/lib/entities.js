@@ -80,10 +80,12 @@ export async function removeProperty({ collectionId, entityId, propertyId }) {
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
     }
-    let property = await models.property.destroy({
+    await models.property.destroy({
         where: { id: propertyId },
     });
-    // TODO remove property reverse link
+    await models.property.destroy({
+        where: { tgtEntityId: entityId },
+    });
 }
 
 export async function associate({
