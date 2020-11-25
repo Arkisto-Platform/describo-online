@@ -27,7 +27,7 @@
 
             <!-- render entity properties -->
             <render-entity-properties-component
-                v-if="definition"
+                v-if="definition && entity.forwardProperties"
                 :entity="entity"
                 :properties="entity.forwardProperties"
                 :inputs="definition.inputs"
@@ -101,16 +101,15 @@ export default {
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
         async getEntity() {
-            this.entity = undefined;
+            // this.entity = undefined;
             this.definition = undefined;
             this.error = undefined;
             this.loading = true;
-            this.entity = {};
             try {
                 let { entity } = await this.dataService.getEntity({
                     id: this.id,
                 });
-                this.entity = entity;
+                this.entity = { ...entity };
                 this.loading = false;
 
                 let {
@@ -118,7 +117,8 @@ export default {
                 } = await this.dataService.getEntityProperties({ id: this.id });
                 this.entity = {
                     ...this.entity,
-                    ...properties,
+                    forwardProperties: { ...properties.forwardProperties },
+                    reverseProperties: { ...properties.reverseProperties },
                 };
 
                 let {

@@ -71,7 +71,6 @@ export default {
     },
     data() {
         return {
-            loading: false,
             dataService: undefined,
             update: {
                 error: false,
