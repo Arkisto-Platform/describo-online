@@ -136,23 +136,31 @@ export async function removeEntity({ id }) {
 }
 
 export async function findEntity({ eid, etype, name, collectionId }) {
+    // TODO add pagination and ordering
     let nameClause, eidClause;
+    let andClause = [{ collectionId }];
+    const orClause = [];
+    if (etype) {
+        andClause.push({ etype });
+    }
     if (eid) {
         eidClause = {
             eid: { [Op.iLike]: `%${eid}%` },
         };
+        orClause.push(eidClause);
     }
     if (name) {
         nameClause = {
             name: { [Op.iLike]: `%${name}%` },
         };
+        orClause.push(nameClause);
     }
+    if (orClause.length) {
+        andClause.push({ [Op.or]: orClause });
+    }
+
     let where = {
-        [Op.and]: [
-            { collectionId },
-            { etype },
-            { [Op.or]: [nameClause, eidClause] },
-        ],
+        [Op.and]: andClause,
     };
 
     let entities = await models.entity.findAll({ where, limit: 10 });
