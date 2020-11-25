@@ -2,6 +2,7 @@ import "regenerator-runtime";
 import {
     findEntity,
     getEntity,
+    getEntityProperties,
     insertEntity,
     updateEntity,
     removeEntity,
@@ -173,7 +174,7 @@ describe("Test entity and property management operations", () => {
         expect(propsB.tgtEntityId).toEqual(entityA.id);
         expect(propsB.direction).toEqual("R");
     });
-    test("it should be able to get an entity with all properties", async () => {
+    test("it should be able to get all entity properties", async () => {
         const collection = await models.collection.create({
             name: chance.name(),
         });
@@ -213,7 +214,7 @@ describe("Test entity and property management operations", () => {
             property: "author",
             tgtEntityId: entityB.id,
         });
-        let entity = await getEntity({
+        let entity = await getEntityProperties({
             id: entityA.id,
             collectionId: collection.id,
         });

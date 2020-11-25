@@ -1,7 +1,13 @@
 import { readJSON, writeJSON } from "fs-extra";
 import { flattenDeep, isPlainObject, groupBy, isString } from "lodash";
 import { insertCollection, findCollection } from "./collections";
-import { insertEntity, attachProperty, associate, getEntity } from "./entities";
+import {
+    insertEntity,
+    attachProperty,
+    associate,
+    getEntity,
+    getEntityProperties,
+} from "./entities";
 import models from "../models";
 
 import { getLogger } from "../common";
@@ -234,9 +240,13 @@ export class Crate {
                 id: entity.id,
                 collectionId: collection.id,
             });
-            let properties = this.assembleProperties({
+            let { properties } = await getEntityProperties({
+                id: entity.id,
+                collectionId: collection.id,
+            });
+            properties = this.assembleProperties({
                 idToEidMapping,
-                properties: entity.properties,
+                properties,
             });
             entity = {
                 "@id": entity.eid,

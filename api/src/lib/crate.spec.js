@@ -4,7 +4,12 @@ import { removeCollection, insertCollection } from "./collections";
 import path from "path";
 import { Crate } from "./crate";
 import { isPlainObject, isMatch, flattenDeep } from "lodash";
-import { attachProperty, associate, getEntity } from "./entities";
+import {
+    attachProperty,
+    associate,
+    getEntity,
+    getEntityProperties,
+} from "./entities";
 import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
@@ -542,9 +547,10 @@ describe("Test loading a crate from a file", () => {
         // let properties = await models.property.findAll({
         //     where: { entityId: entityA.id },
         // })   ;
-        let properties = (
-            await getEntity({ id: entityA.id, collectionId: collection.id })
-        ).properties;
+        let { properties } = await getEntityProperties({
+            id: entityA.id,
+            collectionId: collection.id,
+        });
         let entities = await models.entity.findAll({
             raw: true,
             attributes: ["id", "eid"],
@@ -569,7 +575,7 @@ describe("Test loading a crate from a file", () => {
             property: "author",
             tgtEntityId: entityB.id,
         });
-        ({ properties } = await getEntity({
+        ({ properties } = await getEntityProperties({
             id: entityA.id,
             collectionId: collection.id,
         }));
@@ -592,7 +598,7 @@ describe("Test loading a crate from a file", () => {
             properties.forward.author.filter((e) => isPlainObject(e)).length
         ).toEqual(1);
 
-        ({ properties } = await getEntity({
+        ({ properties } = await getEntityProperties({
             id: entityB.id,
             collectionId: collection.id,
         }));

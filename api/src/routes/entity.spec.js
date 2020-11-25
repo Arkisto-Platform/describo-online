@@ -46,15 +46,15 @@ describe("Test entity and property route operations", () => {
             data: { current: { collectionId: collection.id } },
         });
 
-        let response = await fetch(`${api}/entity/RootDataset`, {
+        let response = await fetch(`${api}/entity/RootDataset/properties`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        let { entity } = await response.json();
-        let properties = entity.properties;
+        let entity;
+        let { properties } = await response.json();
 
         const target = properties.filter((p) => p.tgtEntityId).pop()
             .tgtEntityId;
@@ -86,10 +86,13 @@ describe("Test entity and property route operations", () => {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ eid: "person1" }),
+            body: JSON.stringify({
+                etype: "Person",
+                eid: "person",
+            }),
         });
-        let { entity } = await response.json();
-        expect(entity.length).toBe(1);
+        let { entities } = await response.json();
+        expect(entities.length).toBe(1);
 
         // lookup a type
         response = await fetch(`${api}/entity/lookup`, {
@@ -100,8 +103,8 @@ describe("Test entity and property route operations", () => {
             },
             body: JSON.stringify({ etype: "Dataset" }),
         });
-        ({ entity } = await response.json());
-        expect(entity.length).toBe(1);
+        ({ entities } = await response.json());
+        expect(entities.length).toBe(1);
 
         // lookup all in collectionId
         response = await fetch(`${api}/entity/lookup`, {
@@ -111,8 +114,8 @@ describe("Test entity and property route operations", () => {
                 "Content-Type": "application/json",
             },
         });
-        ({ entity } = await response.json());
-        expect(entity.length).toBe(2);
+        ({ entities } = await response.json());
+        expect(entities.length).toBe(2);
 
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
@@ -263,15 +266,15 @@ describe("Test entity and property route operations", () => {
         expect(response.status).toBe(200);
         ({ property } = await response.json());
 
-        response = await fetch(`${api}/entity/RootDataset`, {
+        response = await fetch(`${api}/entity/RootDataset/properties`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        ({ entity } = await response.json());
-        let p = entity.properties.filter((p) => p.name === property.name);
+        let { properties } = await response.json();
+        let p = properties.filter((p) => p.name === property.name);
         expect(p.length).toBe(1);
         expect(p[0].value).toBe(property.value);
 
@@ -323,15 +326,15 @@ describe("Test entity and property route operations", () => {
         );
         expect(response.status).toBe(200);
         ({ property } = await response.json());
-        response = await fetch(`${api}/entity/RootDataset`, {
+        response = await fetch(`${api}/entity/RootDataset/properties`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        ({ entity } = await response.json());
-        let p = entity.properties.filter((p) => p.name === property.name);
+        let { properties } = await response.json();
+        let p = properties.filter((p) => p.name === property.name);
         expect(p.length).toBe(1);
         expect(p[0].value).toBe(property.value);
         await removeCollection({ id: collection.id });
@@ -379,15 +382,15 @@ describe("Test entity and property route operations", () => {
         );
         expect(response.status).toBe(200);
 
-        response = await fetch(`${api}/entity/RootDataset`, {
+        response = await fetch(`${api}/entity/RootDataset/properties`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        ({ entity } = await response.json());
-        let p = entity.properties.filter((p) => p.name === property.name);
+        let { properties } = await response.json();
+        let p = properties.filter((p) => p.name === property.name);
         expect(p.length).toBe(0);
 
         await removeCollection({ id: collection.id });
@@ -417,11 +420,12 @@ describe("Test entity and property route operations", () => {
             },
             body: JSON.stringify({ eid: "person1" }),
         });
-        entityB = await entityB.json();
+        let { entities } = await entityB.json();
+        entityB = entities.pop();
 
         let association = {
             property: "collaborator",
-            tgtEntityId: entityB.entity[0].id,
+            tgtEntityId: entityB.id,
         };
         let response = await fetch(`${api}/entity/${entity.id}/associate`, {
             method: "PUT",
@@ -433,15 +437,15 @@ describe("Test entity and property route operations", () => {
         });
         expect(response.status).toBe(200);
 
-        entity = await fetch(`${api}/entity/${entity.id}`, {
+        entity = await fetch(`${api}/entity/${entity.id}/properties`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        ({ entity } = await entity.json());
-        let p = entity.properties.filter((p) => p.name === "collaborator");
+        let { properties } = await entity.json();
+        let p = properties.filter((p) => p.name === "collaborator");
         expect(p.length).toBe(1);
 
         await removeCollection({ id: collection.id });

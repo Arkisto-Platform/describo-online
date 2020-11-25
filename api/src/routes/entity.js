@@ -107,8 +107,11 @@ export async function findEntityRouteHandler(req, res, next) {
         return next(new ForbiddenError("No collection loaded"));
     }
 
-    let { eid, etype, name } = req.body;
-    let find = { collectionId, eid, etype, name };
+    let find = { collectionId };
+    try {
+        let { eid, etype, name } = req.body;
+        find = { collectionId, eid, etype, name };
+    } catch (error) {}
     try {
         let entities = await findEntity(find);
         res.send({ entities });
