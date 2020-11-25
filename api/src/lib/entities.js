@@ -83,6 +83,7 @@ export async function removeProperty({ collectionId, entityId, propertyId }) {
     let property = await models.property.destroy({
         where: { id: propertyId },
     });
+    // TODO remove property reverse link
 }
 
 export async function associate({
@@ -133,20 +134,25 @@ export async function removeEntity({ id }) {
 }
 
 export async function findEntity({ eid, etype, name, collectionId }) {
-    let where = {};
-    if (collectionId) where.collectionId = collectionId;
-    if (etype) where.etype = etype;
-    where[Op.or] = [];
-    if (eid)
-        where[Op.or].push({
-            eid: {
-                [Op.substring]: eid,
-            },
-        });
-    if (name)
-        where[Op.or].push({
-            name: { [Op.substring]: name },
-        });
+    let nameClause, eidClause;
+    if (eid) {
+        eidClause = {
+            eid: { [Op.iLike]: `%${eid}%` },
+        };
+    }
+    if (name) {
+        nameClause = {
+            name: { [Op.iLike]: `%${name}%` },
+        };
+    }
+    let where = {
+        [Op.and]: [
+            { collectionId },
+            { etype },
+            { [Op.or]: [nameClause, eidClause] },
+        ],
+    };
+
     let entities = await models.entity.findAll({ where, limit: 10 });
     return entities.map((e) => e.get());
 }
