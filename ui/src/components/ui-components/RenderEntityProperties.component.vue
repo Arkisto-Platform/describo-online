@@ -86,6 +86,11 @@ export default {
             },
         };
     },
+    watch: {
+        properties: function() {
+            this.loadTgtEntityData();
+        },
+    },
     mounted() {
         this.dataService = new DataService({
             $http: this.$http,
