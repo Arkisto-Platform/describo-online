@@ -1,7 +1,7 @@
 <template>
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="flex flex-row space-x-4 my-8">
+        <div class="flex flex-row space-x-4">
             <div>
                 <el-button @click="loadRootDataset" size="small">
                     Load Root Dataset
@@ -13,6 +13,14 @@
                 </el-button>
             </div>
         </div>
+        <add-property-dialog-component
+            v-if="definition && definition.inputs.length"
+            :visible="addPropertyDialogVisible"
+            :inputs="definition.inputs"
+            @close="addPropertyDialogVisible = false"
+            @create:property="createProperty"
+            @link:entity="linkEntity"
+        />
         <div v-if="entity && entity.eid">
             <!-- render entity name and id -->
             <render-entity-header-component :entity="entity" class="my-1" />
@@ -35,14 +43,6 @@
         <div v-if="error" class="bg-red-200 p-2 text-center rounded">
             {{ error }}
         </div>
-        <add-property-dialog-component
-            v-if="definition && definition.inputs.length"
-            :visible="addPropertyDialogVisible"
-            :inputs="definition.inputs"
-            @close="addPropertyDialogVisible = false"
-            @create:property="createProperty"
-            @link:entity="linkEntity"
-        />
     </el-card>
 </template>
 

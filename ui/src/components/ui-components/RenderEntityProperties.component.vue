@@ -27,6 +27,7 @@
                         class="flex-grow"
                         :property="name"
                         :definition="definition(name)"
+                        :embedded="false"
                         @create:property="createProperty"
                         @create:entity="createEntityAndLink"
                         @link:entity="linkEntity"

@@ -6,7 +6,19 @@
             @add="add"
         />
 
-        <div v-if="addType" class="p-2 bg-gray-200 mt-2">
+        <div
+            v-if="addType"
+            class="mt-2"
+            :class="{ 'bg-indigo-100 p-4': !embedded }"
+        >
+            <div class="flex flex-row" v-if="!embedded">
+                <div class="flex-grow"></div>
+                <div>
+                    <el-button @click="addType = undefined" size="mini">
+                        <i class="fas fa-times"></i>
+                    </el-button>
+                </div>
+            </div>
             <div v-if="addType === 'Text'">
                 <text-component
                     :property="property"
@@ -20,14 +32,6 @@
                 />
             </div>
             <div v-else class="flex flex-col">
-                <div class="flex flex-row">
-                    <div class="flex-grow"></div>
-                    <div>
-                        <el-button @click="addType = undefined" size="mini">
-                            <i class="fas fa-times"></i>
-                        </el-button>
-                    </div>
-                </div>
                 <div class="flex flex-row space-x-4 divide-x divide-gray-800">
                     <div class="w-1/2">
                         <div class="text-sm text-gray-600">
@@ -73,6 +77,10 @@ export default {
         AutocompleteComponent,
     },
     props: {
+        embedded: {
+            type: Boolean,
+            default: true,
+        },
         property: {
             type: String,
             required: true,
