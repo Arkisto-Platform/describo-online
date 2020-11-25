@@ -1,8 +1,7 @@
 import { ForbiddenError } from "restify-errors";
-import { readJSON } from "fs-extra";
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { loadConfiguration } from "../common";
-import { createUser, getUserSession, createUserSession } from "../lib/user";
+import { getUserSession, updateUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
 import { getLogger } from "../common";
 const log = getLogger();
@@ -31,20 +30,34 @@ export async function demandKnownUser(req, res, next) {
             }
         } else if (authType === "okta") {
             let config = (await loadConfiguration()).ui;
-            const oktaJwtVerifier = new OktaJwtVerifier({
-                issuer: config.services.okta.issuer,
-                clientId: config.services.okta.clientId,
-                assertClaims: {
-                    cid: config.services.okta.clientId,
-                },
-            });
-            const jwt = await oktaJwtVerifier.verifyAccessToken(
-                token,
-                "api://default"
-            );
-            let { session, user } = await getUserSession({
-                email: jwt.claims.sub,
-            });
+
+            let session, user;
+            try {
+                ({ session, user } = await getUserSession({
+                    oktaToken: token,
+                }));
+            } catch (error) {
+                const oktaJwtVerifier = new OktaJwtVerifier({
+                    issuer: config.services.okta.issuer,
+                    clientId: config.services.okta.clientId,
+                    assertClaims: {
+                        cid: config.services.okta.clientId,
+                    },
+                });
+                const jwt = await oktaJwtVerifier.verifyAccessToken(
+                    token,
+                    "api://default"
+                );
+                ({ session, user } = await getUserSession({
+                    email: jwt.claims.sub,
+                }));
+                await updateUserSession({
+                    sessionId: session.id,
+                    oktaToken: token,
+                    oktaExpiry: jwt.claims.exp,
+                });
+            }
+
             if (session?.id && user?.email) {
                 req.user = user;
                 req.session = session;

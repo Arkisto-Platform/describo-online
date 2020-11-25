@@ -18,7 +18,7 @@ export async function createUser({ email, name }) {
         .get();
 }
 
-export async function getUserSession({ sessionId, email }) {
+export async function getUserSession({ sessionId, oktaToken, email }) {
     try {
         if (sessionId) {
             let session = await models.session.findOne({
@@ -32,6 +32,28 @@ export async function getUserSession({ sessionId, email }) {
                 ],
             });
             if (session) {
+                let user = session.user.get({ plain: true });
+                session = session.get({ plain: true });
+                delete session.user;
+                return { user, session };
+            }
+        } else if (oktaToken) {
+            let session = await models.session.findOne({
+                where: { oktaToken },
+                attributes: ["id", "data", "oktaExpiry"],
+                include: [
+                    {
+                        model: models.user,
+                        attributes: ["id", "name", "email"],
+                    },
+                ],
+            });
+            if (session) {
+                if (new Date().valueOf() / 1000 > session.oktaExpiry) {
+                    // okta session has expired!
+                    await models.session.destroy({ where: { id: session.id } });
+                    throw new Error("Session expired");
+                }
                 let user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
@@ -77,13 +99,21 @@ export async function createUserSession({ email, data }) {
     return user.session.get();
 }
 
-export async function updateUserSession({ sessionId, data }) {
+export async function updateUserSession({
+    sessionId,
+    data,
+    oktaToken,
+    oktaExpiry,
+}) {
     let session = await models.session.findOne({ where: { id: sessionId } });
-    return (
-        await session.update({
-            data: { ...session.data, ...data },
-        })
-    ).get();
+    let update = {};
+    if (data) update.data = { ...session.data, ...data };
+    if (oktaToken) {
+        update.oktaToken = oktaToken;
+        update.oktaExpiry = oktaExpiry;
+    }
+
+    return (await session.update(update)).get();
 }
 
 export async function destroyUserSession({ email }) {

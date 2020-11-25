@@ -10,12 +10,23 @@ module.exports = function (sequelize, DataTypes) {
                 allowNull: false,
                 defaultValue: DataTypes.UUIDV4,
             },
+            oktaToken: {
+                type: DataTypes.TEXT,
+            },
+            oktaExpiry: {
+                type: DataTypes.STRING,
+            },
             data: {
                 type: DataTypes.JSON,
             },
         },
         {
             timestamps: true,
+            indexes: [
+                {
+                    fields: ["oktaToken"],
+                },
+            ],
         }
     );
     Session.associate = function (models) {
