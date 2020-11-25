@@ -47,7 +47,7 @@ export default {
                         route: `/entity/${entry.tgtEntityId}`,
                     });
                     if (response.status !== 200) {
-                        // handle error
+                        //TODO handle error
                     }
                     let { entity } = await response.json();
                     this.properties[property][idx] = {
@@ -55,9 +55,6 @@ export default {
                         tgtEntityName: entity.name,
                         tgtEntityType: entity.etype,
                     };
-                    console.log(
-                        JSON.stringify(this.properties[property][idx], null, 2)
-                    );
                     this.properties[property] = [...this.properties[property]];
                 }
             }

@@ -115,7 +115,7 @@ export default {
                             route: `/entity/${entry.tgtEntityId}`,
                         });
                         if (response.status !== 200) {
-                            // handle error
+                            //TODO handle error
                         }
                         let { entity } = await response.json();
                         this.properties[property][idx] = {
