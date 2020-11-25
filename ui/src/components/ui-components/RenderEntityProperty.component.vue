@@ -14,7 +14,7 @@
                 @save:property="savePropertyValue"
             />
             <delete-property-component
-                class="-mt-1"
+                class="pl-2"
                 :property="property"
                 @refresh="$emit('refresh')"
             />
