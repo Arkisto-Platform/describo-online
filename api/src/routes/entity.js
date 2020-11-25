@@ -86,7 +86,7 @@ export async function getEntityPropertiesRouteHandler(req, res, next) {
                 collectionId,
             }));
         } else {
-            ({ entity } = await getEntityProperties({
+            ({ properties } = await getEntityProperties({
                 id: req.params.entityId,
                 collectionId,
             }));
@@ -96,7 +96,7 @@ export async function getEntityPropertiesRouteHandler(req, res, next) {
         res.send({ properties });
         next();
     } catch (error) {
-        log.error(`getEntityRouteHandler: ${error.message}`);
+        log.error(`getEntityPropertiesRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
 }
