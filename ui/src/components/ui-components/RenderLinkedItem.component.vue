@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-row">
         <div
-            class="flex flex-col bg-yellow-200 p-4 cursor-pointer rounded-l"
+            class="flex flex-col bg-yellow-200 p-3 cursor-pointer rounded-l"
             @click="loadEntity"
         >
             <div class="text-sm flex flex-row">
@@ -15,7 +15,7 @@
             </div>
         </div>
         <delete-property-component
-            class="bg-yellow-200 cursor-pointer rounded-r"
+            class="bg-yellow-200 cursor-pointer rounded-r pl-4 pt-2 pr-1"
             :property="entity"
             @refresh="$emit('refresh')"
         />

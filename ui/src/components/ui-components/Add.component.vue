@@ -31,11 +31,15 @@
                     @save:property="createProperty"
                 />
             </div>
-            <div v-else class="flex flex-col">
-                <div class="flex flex-row space-x-4 divide-x divide-gray-800">
-                    <div class="pl-2 w-1/2">
-                        <div class="text-sm text-gray-600">
-                            Associate an existing entity - lookup by name or @id
+            <div v-else class="flex flex-col mt-4">
+                <div
+                    class="flex flex-row space-x-4 divide-x divide-gray-800 text-xs text-gray-600"
+                >
+                    <div class="w-1/2">
+                        <div class="">
+                            Associate an existing entity - lookup '{{
+                                addType
+                            }}' by name or @id
                         </div>
                         <autocomplete-component
                             :type="addType"
@@ -43,8 +47,8 @@
                             @link:entity="linkEntity"
                         />
                     </div>
-                    <div class="w-1/2">
-                        <div class="text-sm text-gray-600">
+                    <div class="w-1/2 pl-2">
+                        <div class="">
                             Provide a name to create and associate a new entity
                             of type '{{ addType }}'
                         </div>

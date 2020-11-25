@@ -6,7 +6,7 @@
             :key="generateKey('reverse', name)"
             class="flex flex-row"
         >
-            <div class="flex flex-col">
+            <div class="flex flex-col space-y-2">
                 <render-reverse-item-link-component
                     v-for="property of properties"
                     :key="property.id"

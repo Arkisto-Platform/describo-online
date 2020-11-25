@@ -1,6 +1,6 @@
 <template>
-    <div class="p-2">
-        <el-button @click="deleteProperty" type="danger" size="small">
+    <div class="">
+        <el-button @click="deleteProperty" type="danger" size="mini">
             <i class="fas fa-trash"></i>
         </el-button>
     </div>

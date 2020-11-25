@@ -1,9 +1,13 @@
 <template>
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="flex flex-row space-x-4">
+        <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
             <div>
-                <el-button @click="loadRootDataset" size="small">
+                <el-button
+                    @click="loadRootDataset"
+                    size="small"
+                    :disabled="entity && entity.eid === './'"
+                >
                     Load Root Dataset
                 </el-button>
             </div>
@@ -21,7 +25,7 @@
             @create:property="createProperty"
             @link:entity="linkEntity"
         />
-        <div v-if="entity && entity.eid">
+        <div v-if="entity && entity.eid" class="border-t my-4 border-gray-200">
             <!-- render entity name and id -->
             <render-entity-header-component :entity="entity" class="my-1" />
 
