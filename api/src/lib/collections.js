@@ -1,5 +1,4 @@
 const models = require("../models");
-const { cloneDeep, isString, isArray, isPlainObject } = require("lodash");
 const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 
