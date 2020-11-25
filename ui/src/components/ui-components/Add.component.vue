@@ -33,6 +33,16 @@
             </div>
             <div v-else class="flex flex-col">
                 <div class="flex flex-row space-x-4 divide-x divide-gray-800">
+                    <div class="pl-2 w-1/2">
+                        <div class="text-sm text-gray-600">
+                            Associate an existing entity - lookup by name or @id
+                        </div>
+                        <autocomplete-component
+                            :type="addType"
+                            by="name"
+                            @link:entity="linkEntity"
+                        />
+                    </div>
                     <div class="w-1/2">
                         <div class="text-sm text-gray-600">
                             Provide a name to create and associate a new entity
@@ -43,17 +53,6 @@
                             type="text"
                             :property="property"
                             @save:property="createEntityAndLink"
-                        />
-                    </div>
-
-                    <div class="pl-2 w-1/2">
-                        <div class="text-sm text-gray-600">
-                            Associate an existing entity - lookup by name or @id
-                        </div>
-                        <autocomplete-component
-                            :type="addType"
-                            by="name"
-                            @link:entity="linkEntity"
                         />
                     </div>
                 </div>
