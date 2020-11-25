@@ -30,6 +30,11 @@ export default {
             internalValue: this.value,
         };
     },
+    watch: {
+        value: function() {
+            this.internalValue = this.value;
+        },
+    },
     methods: {
         save() {
             this.$emit("save:property", {

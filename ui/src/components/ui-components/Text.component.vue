@@ -34,6 +34,11 @@ export default {
             debouncedSave: debounce(this.save, 1000),
         };
     },
+    watch: {
+        value: function() {
+            this.internalValue = this.value;
+        },
+    },
     methods: {
         save() {
             this.$emit("save:property", {
