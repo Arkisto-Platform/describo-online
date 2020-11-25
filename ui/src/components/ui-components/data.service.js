@@ -17,6 +17,7 @@ export default class DataService {
             return { entity };
         }
     }
+
     async getEntityProperties({ id }) {
         let response = await this.$http.get({
             route: `/entity/${id}/properties`,
@@ -94,13 +95,7 @@ export default class DataService {
     }
 
     async createProperty({ srcEntityId, property, value }) {
-        this.$log.debug(
-            "create property",
-            srcEntityId,
-            property,
-            value,
-            tgtEntityId
-        );
+        this.$log.debug("create property", srcEntityId, property, value);
         let response = await this.$http.post({
             route: `/entity/${srcEntityId}/property`,
             body: {
