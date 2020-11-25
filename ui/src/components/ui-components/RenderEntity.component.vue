@@ -40,6 +40,7 @@
 
             <!--render entities it links to  -->
             <render-entity-reverse-properties-component
+                class="mt-2"
                 v-if="entity.reverseProperties"
                 :properties="entity.reverseProperties"
             />

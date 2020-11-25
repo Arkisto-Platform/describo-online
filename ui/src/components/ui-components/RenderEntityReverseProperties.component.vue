@@ -1,6 +1,8 @@
 <template>
     <div class="flex flex-col space-y-1">
-        <div class="mt-4 text-lg">This entity is referenced by:</div>
+        <div class="mt-4 text-lg" v-if="hasReverseProperties">
+            This entity is referenced by:
+        </div>
         <div
             v-for="(properties, name) of properties"
             :key="generateKey('reverse', name)"
@@ -32,6 +34,11 @@ export default {
     },
     data() {
         return {};
+    },
+    computed: {
+        hasReverseProperties: function() {
+            return Object.keys(this.properties).length;
+        },
     },
     mounted() {
         this.loadTgtEntityData();
