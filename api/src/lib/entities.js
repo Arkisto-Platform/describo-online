@@ -4,16 +4,18 @@ const sequelize = models.sequelize;
 
 export async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
-    try {
-        return await models.entity.create({
-            eid: entity["@id"] ? entity["@id"] : entity.eid,
-            etype: entity["@type"] ? entity["@type"] : entity.etype,
-            name: entity["name"],
-            collectionId,
+    entity = await models.entity.create({
+        eid: entity["@id"] ? entity["@id"] : entity.eid,
+        etype: entity["@type"] ? entity["@type"] : entity.etype,
+        name: entity["name"],
+        collectionId,
+    });
+    if (!entity.eid) {
+        entity = await entity.update({
+            eid: entity.id,
         });
-    } catch (error) {
-        console.log(error);
     }
+    return entity;
 
     function verifyEntity({ entity }) {
         // if (!entity["@id"]) {
@@ -162,7 +164,6 @@ export async function findEntity({ eid, etype, name, collectionId }) {
     let where = {
         [Op.and]: andClause,
     };
-
     let entities = await models.entity.findAll({ where, limit: 10 });
     return entities.map((e) => e.get());
 }
