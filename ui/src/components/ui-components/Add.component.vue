@@ -15,18 +15,19 @@
                 <div class="flex-grow"></div>
                 <div>
                     <el-button @click="addType = undefined" size="mini">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-times fa-fw"></i>
                     </el-button>
                 </div>
             </div>
-            <div v-if="addType === 'Text'">
+            <div v-if="addSimpleType" class="mt-2">
                 <text-component
+                    v-if="addType === 'Text'"
                     :property="property"
+                    :auto-save="false"
                     @save:property="createProperty"
                 />
-            </div>
-            <div v-else-if="addType === 'Date'">
                 <date-component
+                    v-if="addType === 'Date'"
                     :property="property"
                     @save:property="createProperty"
                 />
@@ -94,7 +95,15 @@ export default {
         },
     },
     data() {
-        return { addType: undefined };
+        return {
+            simpleTypes: ["Text", "Date"],
+            addType: undefined,
+        };
+    },
+    computed: {
+        addSimpleType() {
+            return this.simpleTypes.includes(this.addType);
+        },
     },
     mounted() {
         this.dataService = new DataService({
