@@ -23,6 +23,7 @@
             :inputs="definition.inputs"
             @close="addPropertyDialogVisible = false"
             @create:property="createProperty"
+            @create-and-link:entity="createAndLinkEntity"
             @link:entity="linkEntity"
         />
         <div v-if="entity && entity.eid" class="border-t my-4 border-gray-200">
@@ -147,6 +148,13 @@ export default {
                 value,
             });
             this.getEntity();
+        },
+        async createAndLinkEntity({ property, etype, entityName }) {
+            let { entity } = await this.dataService.createEntity({
+                name: entityName,
+                etype,
+            });
+            this.linkEntity({ property, tgtEntityId: entity.id });
         },
         async linkEntity({ property, tgtEntityId }) {
             await this.dataService.associate({

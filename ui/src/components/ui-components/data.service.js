@@ -55,7 +55,7 @@ export default class DataService {
     }
 
     async createEntity(entity) {
-        console.log("create new entity", entity);
+        this.$log.debug("create new entity", entity);
         let response = await this.$http.post({
             route: `/entity`,
             body: { entity },
@@ -68,7 +68,7 @@ export default class DataService {
     }
 
     async deleteEntity({ id }) {
-        console.log("delete entity", id);
+        this.$log.debug("delete entity", id);
         let response = await this.$http.delete({
             route: `/entity/${id}`,
         });
