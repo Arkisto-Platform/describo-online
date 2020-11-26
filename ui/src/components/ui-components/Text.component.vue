@@ -11,7 +11,7 @@
         </div>
         <div v-if="!autoSave">
             <el-button @click="save" type="success" size="mini">
-                <i class="fas fa-check"></i>
+                <i class="fas fa-check fa-fw"></i>
             </el-button>
         </div>
     </div>
