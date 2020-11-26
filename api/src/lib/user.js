@@ -90,21 +90,27 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
     }
 }
 
-export async function createUserSession({ email, data }) {
+export async function createUserSession({
+    email,
+    data,
+    oktaToken,
+    oktaExpiry,
+}) {
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],
     });
-    if (user) {
-        if (user.session) return user.session.get();
-
-        await models.session.create({ userId: user.id, data });
+    if (user?.session) {
+        await models.session.destroy({ where: { id: user.session.id } });
     }
-    user = await models.user.findOne({
-        where: { email },
-        include: [{ model: models.session }],
+
+    let session = await models.session.create({
+        userId: user.id,
+        data,
+        oktaToken,
+        oktaExpiry,
     });
-    return user.session.get();
+    return session.get();
 }
 
 export async function updateUserSession({
