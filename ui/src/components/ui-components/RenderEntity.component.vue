@@ -26,7 +26,7 @@
             @create-and-link:entity="createAndLinkEntity"
             @link:entity="linkEntity"
         />
-        <div v-if="entity && entity.eid" class="border-t my-4 border-gray-200">
+        <div v-if="entity && entity.id" class="border-t my-4 border-gray-200">
             <!-- render entity name and id -->
             <render-entity-header-component :entity="entity" class="my-1" />
 
