@@ -1,8 +1,13 @@
 import { demandKnownUser } from "../middleware";
 import { loadConfiguration } from "../common";
+import OktaJwtVerifier from "@okta/jwt-verifier";
 import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
-import { BadRequestError, ForbiddenError } from "restify-errors";
+import {
+    BadRequestError,
+    UnauthorizedError,
+    ForbiddenError,
+} from "restify-errors";
 import { saveUserOnedriveConfiguration } from "./onedrive";
 import {
     readFolderRouteHandler,
@@ -114,6 +119,35 @@ async function isAuthenticated(req, res, next) {
 }
 
 async function createOktaSession(req, res, next) {
+    let config = (await loadConfiguration()).ui;
+
+    let token;
+    try {
+        token = req.headers.authorization.split("okta ").pop();
+    } catch (error) {
+        log.error(
+            `createOktaSession: issue with authorization header: ${error.message}`
+        );
+        return next(
+            new UnauthorizedError("Unable to get authorization from header")
+        );
+    }
+    const oktaJwtVerifier = new OktaJwtVerifier({
+        issuer: config.services.okta.issuer,
+        clientId: config.services.okta.clientId,
+        assertClaims: {
+            cid: config.services.okta.clientId,
+        },
+    });
+    let jwt;
+    try {
+        jwt = await oktaJwtVerifier.verifyAccessToken(token, "api://default");
+    } catch (error) {
+        log.error(
+            `createOktaSession: okta token verification failure ${error.message}`
+        );
+        return next(new UnauthorizedError("Okta token verification failed"));
+    }
     const email = req.body.email;
     const name = req.body.name;
     if (!email || !name) {
@@ -122,7 +156,13 @@ async function createOktaSession(req, res, next) {
     }
 
     await createUser({ name, email });
-    await createUserSession({ email, data: {} });
+    let session = await createUserSession({
+        email,
+        data: {},
+        oktaToken: token,
+        oktaExpiry: jwt.claims.exp,
+    });
+    console.log(session);
     res.send({});
     return next();
 }

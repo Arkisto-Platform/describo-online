@@ -1,7 +1,5 @@
-import { ForbiddenError, UnauthorizedError } from "restify-errors";
-import OktaJwtVerifier from "@okta/jwt-verifier";
-import { loadConfiguration } from "../common";
-import { getUserSession, updateUserSession } from "../lib/user";
+import { UnauthorizedError } from "restify-errors";
+import { getUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
 import { getLogger } from "../common";
 const log = getLogger();
@@ -27,32 +25,10 @@ export async function demandKnownUser(req, res, next) {
                 sessionId: token,
             }));
         } else if (authType === "okta") {
-            try {
-                ({ session, user, expiresAt } = await getUserSession({
-                    oktaToken: token,
-                }));
-            } catch (error) {
-                let config = (await loadConfiguration()).ui;
-                const oktaJwtVerifier = new OktaJwtVerifier({
-                    issuer: config.services.okta.issuer,
-                    clientId: config.services.okta.clientId,
-                    assertClaims: {
-                        cid: config.services.okta.clientId,
-                    },
-                });
-                const jwt = await oktaJwtVerifier.verifyAccessToken(
-                    token,
-                    "api://default"
-                );
-                await updateUserSession({
-                    sessionId: session.id,
-                    oktaToken: token,
-                    oktaExpiry: jwt.claims.exp,
-                });
-                ({ session, user, expiresAt } = await getUserSession({
-                    oktaToken: token,
-                }));
-            }
+            // try {
+            ({ session, user, expiresAt } = await getUserSession({
+                oktaToken: token,
+            }));
         }
 
         if (session?.id && user?.email) {
