@@ -1,4 +1,5 @@
 const models = require("../models");
+const sessionLifetimeInSeconds = 86400;
 
 export async function getUser({ id, email }) {
     let where = {};
@@ -19,11 +20,12 @@ export async function createUser({ email, name }) {
 }
 
 export async function getUserSession({ sessionId, oktaToken, email }) {
+    let user, session, expiresAt;
     try {
         if (sessionId) {
-            let session = await models.session.findOne({
+            session = await models.session.findOne({
                 where: { id: sessionId },
-                attributes: ["id", "data"],
+                attributes: ["id", "data", "createdAt"],
                 include: [
                     {
                         model: models.user,
@@ -32,13 +34,14 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (session) {
-                let user = session.user.get({ plain: true });
+                expiresAt = session.createdAt / 1000 + sessionLifetimeInSeconds;
+                user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
-                return { user, session };
+                // return { user, session };
             }
         } else if (oktaToken) {
-            let session = await models.session.findOne({
+            session = await models.session.findOne({
                 where: { oktaToken },
                 attributes: ["id", "data", "oktaExpiry"],
                 include: [
@@ -49,32 +52,38 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (session) {
-                if (new Date().valueOf() / 1000 > session.oktaExpiry) {
-                    // okta session has expired!
-                    await models.session.destroy({ where: { id: session.id } });
-                    throw new Error("Session expired");
-                }
-                let user = session.user.get({ plain: true });
+                expiresAt = session.oktaExpire;
+                user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
-                return { user, session };
+                // return { user, session };
             }
         } else if (email) {
-            let user = await models.user.findOne({
+            user = await models.user.findOne({
                 where: { email },
                 attributes: ["id", "name", "email"],
                 include: [
-                    { model: models.session, attributes: ["id", "data"] },
+                    {
+                        model: models.session,
+                        attributes: ["id", "data", "createdAt"],
+                    },
                 ],
             });
             if (user) {
+                expiresAt = session.createdAt / 1000 + sessionLifetimeInSeconds;
                 user = user.get({ plain: true });
-                let session = user.session
+                session = user.session
                     ? user.session
                     : { id: null, data: null };
                 delete user.session;
-                return { user, session };
+                // return { user, session };
             }
+        }
+
+        if (session && user) {
+            return { user, session, expiresAt };
+        } else {
+            return { session: null, user: null };
         }
     } catch (error) {
         return { session: null, user: null };
@@ -82,7 +91,6 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
 }
 
 export async function createUserSession({ email, data }) {
-    // TODO set session lifetime
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],

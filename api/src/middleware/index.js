@@ -1,4 +1,4 @@
-import { ForbiddenError } from "restify-errors";
+import { ForbiddenError, UnauthorizedError } from "restify-errors";
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { loadConfiguration } from "../common";
 import { getUserSession, updateUserSession } from "../lib/user";
@@ -11,32 +11,28 @@ export async function demandKnownUser(req, res, next) {
         log.error(
             `demandKnownUser: Authorization header not preset in request`
         );
-        return next(new ForbiddenError());
+        return next(new UnauthorizedError());
     }
     let [authType, token] = req.headers.authorization.split(" ");
     if (!expectedAuthorizationTypes.includes(authType)) {
         log.error(
             `demandKnownUser: unknown authorization presented: expected okta || sid got authType`
         );
-        return next(new ForbiddenError());
+        return next(new UnauthorizedError());
     }
     try {
+        let session, user, expiresAt;
         if (authType === "sid") {
-            let { session, user } = await getUserSession({ sessionId: token });
-            if (session?.id && user?.email) {
-                req.user = user;
-                req.session = session;
-                return next();
-            }
+            ({ session, user, expiresAt } = await getUserSession({
+                sessionId: token,
+            }));
         } else if (authType === "okta") {
-            let config = (await loadConfiguration()).ui;
-
-            let session, user;
             try {
-                ({ session, user } = await getUserSession({
+                ({ session, user, expiresAt } = await getUserSession({
                     oktaToken: token,
                 }));
             } catch (error) {
+                let config = (await loadConfiguration()).ui;
                 const oktaJwtVerifier = new OktaJwtVerifier({
                     issuer: config.services.okta.issuer,
                     clientId: config.services.okta.clientId,
@@ -48,24 +44,35 @@ export async function demandKnownUser(req, res, next) {
                     token,
                     "api://default"
                 );
-                ({ session, user } = await getUserSession({
-                    email: jwt.claims.sub,
-                }));
                 await updateUserSession({
                     sessionId: session.id,
                     oktaToken: token,
                     oktaExpiry: jwt.claims.exp,
                 });
-            }
-
-            if (session?.id && user?.email) {
-                req.user = user;
-                req.session = session;
-                return next();
+                ({ session, user, expiresAt } = await getUserSession({
+                    oktaToken: token,
+                }));
             }
         }
-        return next(new ForbiddenError());
+
+        if (session?.id && user?.email) {
+            if (new Date().valueOf() / 1000 > expiresAt) {
+                // session has expired!
+                await models.session.destroy({ where: { id: session.id } });
+                log.error(`demandKnownUser: session expired`);
+                return next(new UnauthorizedError());
+            }
+            req.user = user;
+            req.session = session;
+            return next();
+        } else {
+            log.error(`demandKnownUser: no session or user retrieved`);
+            return next(new UnauthorizedError());
+        }
     } catch (error) {
-        return next(new ForbiddenError());
+        log.error(
+            `demandKnownUser: something just went wrong ${error.message}`
+        );
+        return next(new UnauthorizedError());
     }
 }
