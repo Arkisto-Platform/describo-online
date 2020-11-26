@@ -1,11 +1,20 @@
 <template>
-    <el-input
-        class="w-full"
-        :type="type"
-        @input="debouncedSave"
-        v-model="internalValue"
-        resize="vertical"
-    ></el-input>
+    <div class="flex flex-row flex-grow space-x-2">
+        <div class="flex-grow">
+            <el-input
+                class="w-full"
+                :type="type"
+                @input="debouncedSave"
+                v-model="internalValue"
+                resize="vertical"
+            ></el-input>
+        </div>
+        <div v-if="!autoSave">
+            <el-button @click="save" type="success" size="mini">
+                <i class="fas fa-check"></i>
+            </el-button>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -27,11 +36,15 @@ export default {
         value: {
             type: String,
         },
+        autoSave: {
+            type: Boolean,
+            default: true,
+        },
     },
     data() {
         return {
             internalValue: this.value,
-            debouncedSave: debounce(this.save, 1000),
+            debouncedSave: this.autoSave ? debounce(this.save, 1000) : () => {},
         };
     },
     watch: {
