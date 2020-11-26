@@ -133,7 +133,6 @@ export default {
                 });
                 this.definition = definition;
             } catch (error) {
-                console.log(error);
                 this.error = error.message;
             }
             this.loading = false;
