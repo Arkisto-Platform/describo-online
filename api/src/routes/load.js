@@ -9,7 +9,7 @@ import {
 import { Crate } from "../lib/crate";
 import { updateUserSession } from "../lib/user";
 import path from "path";
-import { writeJSON } from "fs-extra";
+import { writeJSON, ensureDir } from "fs-extra";
 import { getLogger } from "../common";
 const log = getLogger();
 
@@ -80,6 +80,7 @@ export async function loadRouteHandler(req, res, next) {
                 resource,
             });
             localFile = path.join(cwd, "current", defaultCrateFileName);
+            await ensureDir(path.join(cwd, "current"));
             await writeJSON(localFile, crateMetadata);
 
             crateFile = {
@@ -175,7 +176,7 @@ export async function loadRouteHandler(req, res, next) {
     } catch (error) {
         if (error.message !== "That collection is already loaded.") {
             console.log(error);
-            log.error(`readFolderRouterHandler: ${error.message}`);
+            log.error(`loadRouterHandler: ${error.message}`);
             return next(error);
         }
     }
