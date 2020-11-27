@@ -162,7 +162,6 @@ async function createOktaSession(req, res, next) {
         oktaToken: token,
         oktaExpiry: jwt.claims.exp,
     });
-    console.log(session);
     res.send({});
     return next();
 }
