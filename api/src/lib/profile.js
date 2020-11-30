@@ -33,6 +33,7 @@ export async function lookupProfile({ collectionId, query }) {
     let matches = profile.filter((e) => {
         return re.exec(e.name) || re.exec(e.help);
     });
+    matches = orderBy(matches, "name");
     return matches;
 }
 
