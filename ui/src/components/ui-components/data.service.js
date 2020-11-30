@@ -165,6 +165,18 @@ export default class DataService {
         }
     }
 
+    async lookupType({ query }) {
+        this.$log.debug("lookup type definition", query);
+        let response = await this.$http.get({
+            route: `/definition/lookup?query=${query}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
     async handleError({ response }) {
         let error = await response.json();
         // this.$log.error(response.status, error.message);

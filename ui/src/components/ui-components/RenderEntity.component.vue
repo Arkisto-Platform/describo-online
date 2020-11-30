@@ -2,6 +2,7 @@
     <el-card class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
         <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
+            <!-- navbar : controls -->
             <div>
                 <el-button
                     @click="loadRootDataset"
@@ -16,6 +17,7 @@
                     <i class="fas fa-code"></i> Add Property
                 </el-button>
             </div>
+            <!-- <add-entity-component /> -->
         </div>
         <add-property-dialog-component
             v-if="definition && definition.inputs.length"
@@ -60,6 +62,7 @@ import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
 import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.vue";
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
+import AddEntityComponent from "./AddEntity.component.vue";
 import DataService from "./data.service.js";
 
 export default {
@@ -68,6 +71,7 @@ export default {
         RenderEntityPropertiesComponent,
         RenderEntityReversePropertiesComponent,
         AddPropertyDialogComponent,
+        AddEntityComponent,
         EntityIdComponent,
         TextComponent,
     },
