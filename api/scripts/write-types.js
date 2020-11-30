@@ -10,20 +10,64 @@ const {
 const path = require("path");
 
 const schema = "schema.org.jsonld";
-const classes = {};
-const properties = [];
+const crateContext = "crate-context.jsonld";
 const simpleDataTypes = ["Text", "Date"];
 const selectDataTypes = ["Boolean"];
+let classes = {};
+let properties = [];
 
 (async () => {
     await ensureDir("./types");
+
+    await extractSchemaOrgData();
+    let context = await extractCrateContext();
+    diffSchemaOrgAndCrateContext({ context });
+})();
+
+function stripSchemaPath(text) {
+    return text.replace("http://schema.org/", "");
+}
+
+async function extractSchemaOrgData() {
     const jsonld = await readJson(schema);
 
+    extractClassesAndProperties({ graph: jsonld["@graph"] });
+    mapPropertiesToClasses();
+    await writeTypeDefinitions();
+}
+
+async function extractCrateContext() {
+    const jsonld = await readJson(crateContext);
+    return jsonld["@context"];
+}
+
+function diffSchemaOrgAndCrateContext({ context }) {
+    let classIds = {};
+    Object.keys(classes).forEach((k) => {
+        classIds[classes[k].metadata.id] = true;
+    });
+    // console.log(classIds);
+    // console.log("n classes", Object.keys(classes).length);
+    // console.log("n context", Object.keys(context).length);
+
+    let extraClasses = [];
+    for (let [key, value] of Object.entries(context)) {
+        if (!classIds[value]) extraClasses.push(value);
+    }
+    // console.log(extraClasses.length);
+    // console.log(extraClasses);
+    // console.log(classes["Endocrine"]);
+}
+
+function extractClassesAndProperties({ graph }) {
     // separate classes and properties
-    jsonld["@graph"].forEach((entry) => {
+    graph.forEach((entry) => {
         if (entry["@type"] === "rdf:Property") {
             properties.push(entry);
         } else if (entry["@type"] === "rdfs:Class") {
+            // if (entry["@id"] === "http://schema.org/PhysicalActivityCategory") {
+            //     console.log(JSON.stringify(entry, null, 2));
+            // }
             let subClassOf = [];
             try {
                 subClassOf = isArray(entry["rdfs:subClassOf"])
@@ -36,7 +80,7 @@ const selectDataTypes = ["Boolean"];
                 metadata: {
                     allowAdditionalProperties: false,
                     help: entry["rdfs:comment"],
-                    "@id": entry["@id"],
+                    id: entry["@id"],
                     name: isString(entry["rdfs:label"])
                         ? entry["rdfs:label"]
                         : entry["rdfs:label"]["@value"],
@@ -45,9 +89,16 @@ const selectDataTypes = ["Boolean"];
                 inputs: [],
                 linksTo: [],
             };
+        } else {
+            // if (entry["@id"] === "http://schema.org/AerobicActivity") {
+            //     console.log(JSON.stringify(entry, null, 2));
+            // }
+            // console.log(entry);
         }
     });
+}
 
+function mapPropertiesToClasses() {
     // map properties back in to classes
     properties.forEach((property) => {
         const foundIn = flattenDeep([
@@ -74,7 +125,8 @@ const selectDataTypes = ["Boolean"];
 
                 // link this property to the relevant class
                 const definition = {
-                    property: isString(property["rdfs:label"])
+                    id: property["@id"],
+                    name: isString(property["rdfs:label"])
                         ? property["rdfs:label"]
                         : property["rdfs:label"]["@value"],
                     help: property["rdfs:comment"],
@@ -105,7 +157,7 @@ const selectDataTypes = ["Boolean"];
                     classes[target].inputs.push({
                         ...definition,
                         multiple: true,
-                        "@type": targetTypes.length ? targetTypes : ["Text"],
+                        type: targetTypes.length ? targetTypes : ["Text"],
                     });
                 } else {
                     classes[target].inputs.push(input);
@@ -119,7 +171,9 @@ const selectDataTypes = ["Boolean"];
             }
         });
     });
+}
 
+async function writeTypeDefinitions() {
     // order class inputs and write to file
     let searchableIndex = [];
     let index = {};
@@ -130,18 +184,14 @@ const selectDataTypes = ["Boolean"];
 
         const typeDefinition = path.join(
             "types",
-            stripSchemaPath(item.metadata["@id"])
+            stripSchemaPath(item.metadata["id"])
         );
-        index[stripSchemaPath(item.metadata["@id"])] = item;
+        index[stripSchemaPath(item.metadata["id"])] = item;
 
         searchableIndex.push({
             name: c,
             help: item.metadata.help,
         });
-        // await writeFile(
-        //     `${typeDefinition}.json`,
-        //     JSON.stringify(item, null, 2)
-        // );
     });
     await writeFile(
         path.join("types", "type-definitions.json"),
@@ -152,8 +202,4 @@ const selectDataTypes = ["Boolean"];
         path.join("types", "type-definitions-lookup.json"),
         JSON.stringify(searchableIndex)
     );
-})();
-
-function stripSchemaPath(text) {
-    return text.replace("http://schema.org/", "");
 }
