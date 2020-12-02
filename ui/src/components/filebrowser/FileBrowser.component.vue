@@ -6,24 +6,12 @@
                     You must expand each subfolder to load the child nodes. If you don't you'll only
                     get the folders.
                 </information-component>
-                <div
-                    v-if="mode === 'openDirectory'"
-                    class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
-                >
+                <information-component type="info" v-if="mode === 'openDirectory'">
                     Select a folder to work with.
-                </div>
-                <!-- <div
-                    v-if="selectedFolder"
-                    class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
-                >
-                    Select a folder to work with.
-                </div>-->
-                <div
-                    v-if="mode === 'openFile' && partsAdded"
-                    class="text-center text-xl text-gray-700 font-light bg-green-200 p-4 rounded-lg"
-                >
+                </information-component>
+                <information-component type="success" v-if="mode === 'openFile' && partsAdded">
                     The crate parts list has been updated.
-                </div>
+                </information-component>
                 <div v-if="mode === 'openFile'">
                     <el-checkbox v-model="selectAllChildren">
                         Select all children
@@ -197,7 +185,7 @@ export default {
             this.$emit("selected-nodes", nodes);
             this.loading = false;
             this.partsAdded = true;
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 4000));
             this.partsAdded = false;
         },
     },
