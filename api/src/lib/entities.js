@@ -204,18 +204,19 @@ export async function getEntities({
             ],
         };
     }
-    console.log(where);
-    let results = await models.entity.findAndCountAll({
+    where = {
         where,
         offset: page,
         limit,
-    });
+        order: orderByProperties.map((p) => [p, orderDirection]),
+    };
+    let results = await models.entity.findAndCountAll(where);
     let entities = results.rows.map((e) => e.get());
     entities = entities.map((e) => {
         delete e.collectionId;
         return e;
     });
-    return { total: results.count, entities: orderBy(entities, orderByProperties, orderDirection) };
+    return { total: results.count, entities };
 }
 
 export async function getEntityProperties({ id, collectionId }) {

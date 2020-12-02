@@ -66,7 +66,7 @@ export async function getEntitiesRouteHandler(req, res, next) {
     let page = req.query.page;
     let limit = req.query.limit;
     let orderBy = req.query.orderBy.split(",");
-    let orderDirection = [req.query.direction];
+    let orderDirection = req.query.direction;
 
     try {
         let results = await getEntities({
