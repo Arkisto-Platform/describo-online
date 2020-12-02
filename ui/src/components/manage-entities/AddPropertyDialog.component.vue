@@ -13,9 +13,9 @@
                 >
                     <el-option
                         v-for="item in inputs"
-                        :key="item.property"
-                        :label="item.property"
-                        :value="item.property"
+                        :key="item.name"
+                        :label="item.name"
+                        :value="item.name"
                     >
                         <div class="flex flex-row">
                             <div class="w-64 text-gray-600">
@@ -81,7 +81,7 @@ export default {
             this.$emit("close");
         },
         handlePropertySelection() {
-            this.selectedProperty = this.inputs.filter((i) => i.property === this.property)[0];
+            this.selectedProperty = this.inputs.filter((i) => i.name === this.property)[0];
         },
         add({ type }) {
             this.addType = type;
