@@ -1,5 +1,5 @@
 <template>
-    <el-card class="box-card">
+    <div class="box-card">
         <div class="flex flex-col space-y-2">
             <information-component type="info">
                 Use the controls below to add entries into the collection so you can annotate them.
@@ -13,7 +13,7 @@
                 @selected-nodes="saveSelectedNodes"
             />
         </div>
-    </el-card>
+    </div>
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <template>
-    <el-card class="flex flex-col style-panel" v-loading="loading">
+    <div class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
         <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
             <!-- navbar : controls -->
@@ -63,7 +63,7 @@
         <div v-if="error" class="bg-red-200 p-2 text-center rounded">
             {{ error }}
         </div>
-    </el-card>
+    </div>
 </template>
 
 <script>
