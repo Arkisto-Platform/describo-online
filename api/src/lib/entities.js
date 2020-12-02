@@ -180,7 +180,6 @@ export async function getEntities({
     orderDirection,
 }) {
     let where;
-    console.log(filter);
     if (!filter) {
         where = { collectionId };
     } else {
@@ -206,12 +205,19 @@ export async function getEntities({
     }
     where = {
         where,
+        include: [{ model: models.property }],
+        distinct: true,
         offset: page,
         limit,
         order: orderByProperties.map((p) => [p, orderDirection]),
     };
     let results = await models.entity.findAndCountAll(where);
-    let entities = results.rows.map((e) => e.get());
+    let entities = results.rows.map((e) => {
+        let isConnected = e.properties.filter((p) => p.direction === "R");
+        let data = e.get();
+        delete data.properties;
+        return { ...data, isConnected: isConnected.length ? true : false };
+    });
     entities = entities.map((e) => {
         delete e.collectionId;
         return e;
