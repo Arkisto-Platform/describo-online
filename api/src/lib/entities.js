@@ -171,6 +171,53 @@ export async function getEntity({ id, collectionId }) {
     });
 }
 
+export async function getEntities({
+    collectionId,
+    filter,
+    page,
+    limit,
+    orderByProperties,
+    orderDirection,
+}) {
+    let where;
+    console.log(filter);
+    if (!filter) {
+        where = { collectionId };
+    } else {
+        where = {
+            [Op.and]: [
+                {
+                    collectionId,
+                    [Op.or]: [
+                        {
+                            eid: {
+                                [Op.iLike]: `%${filter}%`,
+                            },
+                        },
+                        {
+                            name: {
+                                [Op.iLike]: `%${filter}%`,
+                            },
+                        },
+                    ],
+                },
+            ],
+        };
+    }
+    console.log(where);
+    let results = await models.entity.findAndCountAll({
+        where,
+        offset: page,
+        limit,
+    });
+    let entities = results.rows.map((e) => e.get());
+    entities = entities.map((e) => {
+        delete e.collectionId;
+        return e;
+    });
+    return { total: results.count, entities: orderBy(entities, orderByProperties, orderDirection) };
+}
+
 export async function getEntityProperties({ id, collectionId }) {
     let entity = await models.entity.findOne({
         where: { id, collectionId },

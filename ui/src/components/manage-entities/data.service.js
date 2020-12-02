@@ -18,6 +18,22 @@ export default class DataService {
         }
     }
 
+    async getEntities({ filter, page, limit, orderBy, orderDirection }) {
+        let response = await this.$http.get({
+            route: `/entity?page=${page}&limit=${limit}&orderBy=${encodeURIComponent(
+                orderBy
+            )}&direction=${encodeURIComponent(orderDirection)}&filter=${encodeURIComponent(
+                filter
+            )}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            let { total, entities } = await response.json();
+            return { total, entities };
+        }
+    }
+
     async getEntityProperties({ id }) {
         let response = await this.$http.get({
             route: `/entity/${id}/properties`,
@@ -26,12 +42,8 @@ export default class DataService {
             return this.handleError({ response });
         } else {
             let { properties } = await response.json();
-            const forwardProperties = properties.filter(
-                (p) => p.direction !== "R"
-            );
-            const reverseProperties = properties.filter(
-                (p) => p.direction === "R"
-            );
+            const forwardProperties = properties.filter((p) => p.direction !== "R");
+            const reverseProperties = properties.filter((p) => p.direction === "R");
             properties = {
                 forwardProperties: groupBy(forwardProperties, "name"),
                 reverseProperties: groupBy(reverseProperties, "name"),

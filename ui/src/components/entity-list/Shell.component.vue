@@ -1,0 +1,98 @@
+<template>
+    <div class="flex flex-col">
+        <div class="flex flex-row">
+            <el-input
+                placeholder="filter by name and @id"
+                v-model="filter"
+                @input="debouncedGetEntities"
+            >
+            </el-input>
+
+            <el-pagination
+                layout="prev, pager, next"
+                :total="total"
+                @current-change="nextPage"
+                v-if="total > pageSize"
+            >
+            </el-pagination>
+        </div>
+        <el-table :data="entities" highlight-current-row>
+            <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
+            <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
+            <el-table-column prop="name" label="Name"> </el-table-column>
+            <el-table-column label="Actions" width="150">
+                <template slot-scope="scope">
+                    <div class="flex flex-row space-x-2">
+                        <div>
+                            <el-button @click="editEntity(scope.row.id)" size="small">
+                                <i class="fas fa-edit"></i>
+                            </el-button>
+                        </div>
+                        <div>
+                            <el-button
+                                @click="deleteEntity(scope.row.id)"
+                                size="small"
+                                type="danger"
+                                v-if="scope.row.eid !== './'"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </el-button>
+                        </div>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+</template>
+
+<script>
+import DataService from "../manage-entities/data.service.js";
+import { debounce } from "lodash";
+
+export default {
+    data() {
+        return {
+            debouncedGetEntities: debounce(this.getEntities, 1000),
+            total: undefined,
+            entities: [],
+            filter: "",
+            page: 0,
+            pageSize: 10,
+            orderBy: ["etype", "name"],
+            orderDirection: ["asc"],
+        };
+    },
+    mounted() {
+        this.dataService = new DataService({
+            $http: this.$http,
+            $log: this.$log,
+        });
+        this.getEntities();
+    },
+    methods: {
+        async getEntities() {
+            let { total, entities } = await this.dataService.getEntities({
+                filter: this.filter,
+                page: this.page * this.pageSize,
+                limit: this.pageSize,
+                orderBy: this.orderBy,
+                orderDirection: this.orderDirection,
+            });
+            this.entities = [...entities];
+            this.total = total;
+        },
+        nextPage(page) {
+            this.page = page - 1;
+            this.getEntities();
+        },
+        editEntity(id) {
+            this.$store.commit("setSelectedEntity", { id });
+            this.$emit("manage-data");
+        },
+        async deleteEntity(id) {
+            await this.dataService.deleteEntity({ id });
+            this.getEntities();
+        },
+    },
+};
+</script>

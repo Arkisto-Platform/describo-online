@@ -1,6 +1,7 @@
 import { BadRequestError, NotFoundError, ForbiddenError } from "restify-errors";
 import {
     getEntity,
+    getEntities,
     getEntityProperties,
     findEntity,
     insertEntity,
@@ -51,6 +52,35 @@ export async function getEntityRouteHandler(req, res, next) {
         next();
     } catch (error) {
         log.error(`getEntityRouteHandler: ${error.message}`);
+        return next(new ForbiddenError());
+    }
+}
+
+export async function getEntitiesRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError("No collection loaded"));
+    }
+
+    let filter = req.query.filter;
+    let page = req.query.page;
+    let limit = req.query.limit;
+    let orderBy = req.query.orderBy.split(",");
+    let orderDirection = [req.query.direction];
+
+    try {
+        let results = await getEntities({
+            collectionId,
+            filter,
+            page,
+            limit,
+            orderByProperties: orderBy,
+            orderDirection,
+        });
+        res.send({ ...results });
+        next();
+    } catch (error) {
+        log.error(`getEntitiesRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
 }
