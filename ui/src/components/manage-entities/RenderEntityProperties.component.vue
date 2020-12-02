@@ -15,11 +15,7 @@
             <div class="w-full flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
                     <div v-if="help(name)">
-                        <el-button
-                            @click="toggleHelp(name)"
-                            type="primary"
-                            size="mini"
-                        >
+                        <el-button @click="toggleHelp(name)" type="primary" size="mini">
                             <i class="fas fa-question-circle"></i>
                         </el-button>
                     </div>
@@ -87,7 +83,7 @@ export default {
         };
     },
     watch: {
-        properties: function() {
+        properties: function () {
             this.loadTgtEntityData();
         },
     },
@@ -103,9 +99,7 @@ export default {
             return `${direction}-${name}`;
         },
         definition(name) {
-            return this.inputs
-                ? this.inputs.filter((i) => i?.property === name)[0]
-                : {};
+            return this.inputs ? this.inputs.filter((i) => i?.name === name)[0] : {};
         },
         help(name) {
             return this.definition(name)?.help;
@@ -129,9 +123,7 @@ export default {
                             tgtEntityName: entity.name,
                             tgtEntityType: entity.etype,
                         };
-                        this.properties[property] = [
-                            ...this.properties[property],
-                        ];
+                        this.properties[property] = [...this.properties[property]];
                     }
                 }
             }

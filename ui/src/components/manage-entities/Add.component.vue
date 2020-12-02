@@ -1,16 +1,8 @@
 <template>
     <div class="flex flex-col">
-        <add-control-component
-            :types="definition['@type']"
-            v-if="definition"
-            @add="add"
-        />
+        <add-control-component :types="definition['type']" v-if="definition" @add="add" />
 
-        <div
-            v-if="addType"
-            class="mt-2"
-            :class="{ 'bg-indigo-100 p-4': !embedded }"
-        >
+        <div v-if="addType" class="mt-2" :class="{ 'bg-indigo-100 p-4': !embedded }">
             <div class="flex flex-row" v-if="!embedded">
                 <div class="flex-grow"></div>
                 <div>
@@ -33,14 +25,10 @@
                 />
             </div>
             <div v-else class="flex flex-col mt-4">
-                <div
-                    class="flex flex-row space-x-4 divide-x divide-gray-800 text-xs text-gray-600"
-                >
+                <div class="flex flex-row space-x-4 divide-x divide-gray-800 text-xs text-gray-600">
                     <div class="w-1/2">
                         <div class="">
-                            Associate an existing entity - lookup '{{
-                                addType
-                            }}' by name or @id
+                            Associate an existing entity - lookup '{{ addType }}' by name or @id
                         </div>
                         <autocomplete-component
                             :type="addType"
@@ -50,8 +38,9 @@
                     </div>
                     <div class="w-1/2 pl-2">
                         <div class="">
-                            Provide a name to create and associate a new entity
-                            of type '{{ addType }}'
+                            Provide a name to create and associate a new entity of type '{{
+                                addType
+                            }}'
                         </div>
                         <text-component
                             class="flex-grow"
