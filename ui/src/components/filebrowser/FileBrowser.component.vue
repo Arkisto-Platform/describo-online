@@ -1,14 +1,11 @@
 <template>
     <div class="flex flex-row">
         <div class="flex flex-col w-full">
-            <div class=" flex flex-col space-y-3 my-2 pb-2 border-b-2" v-if="enableFileSelector">
-                <div
-                    v-if="mode === 'openFile'"
-                    class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
-                >
-                    You must expand each subfolder to load the child nodes.
-                    <br />If you don't you'll only get the folders.
-                </div>
+            <div class=" flex flex-col space-y-4 pb-2 border-b-2" v-if="enableFileSelector">
+                <information-component type="warning" v-if="mode === 'openFile'">
+                    You must expand each subfolder to load the child nodes. If you don't you'll only
+                    get the folders.
+                </information-component>
                 <div
                     v-if="mode === 'openDirectory'"
                     class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
@@ -53,11 +50,13 @@
 </template>
 
 <script>
-// import Worker from "./file-tree.worker";
-// import path from "path";
 import { flattenDeep, uniq, cloneDeep, uniqBy, compact, debounce } from "lodash";
+import InformationComponent from "../Information.component.vue";
 
 export default {
+    components: {
+        InformationComponent,
+    },
     props: {
         resource: {
             type: String,

@@ -1,22 +1,29 @@
 <template>
     <el-card class="box-card">
-        <file-browser-component
-            class="m-4"
-            :resource="resource"
-            :root="folder"
-            mode="openFile"
-            :enable-file-selector="true"
-            @selected-nodes="saveSelectedNodes"
-        />
+        <div class="flex flex-col space-y-2">
+            <information-component type="info">
+                Use the controls below to add entries into the collection so you can annotate them.
+            </information-component>
+
+            <file-browser-component
+                :resource="resource"
+                :root="folder"
+                mode="openFile"
+                :enable-file-selector="true"
+                @selected-nodes="saveSelectedNodes"
+            />
+        </div>
     </el-card>
 </template>
 
 <script>
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
+import InformationComponent from "../Information.component.vue";
 
 export default {
     components: {
         FileBrowserComponent,
+        InformationComponent,
     },
     data() {
         return {
