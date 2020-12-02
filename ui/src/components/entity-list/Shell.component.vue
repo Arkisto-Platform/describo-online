@@ -1,5 +1,8 @@
 <template>
     <div class="flex flex-col">
+        <!-- <div>
+            <el-button @click="getEntities">update</el-button>
+        </div> -->
         <div class="flex flex-row">
             <el-input
                 placeholder="filter by name and @id"
@@ -20,6 +23,18 @@
             <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
             <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
             <el-table-column prop="name" label="Name"> </el-table-column>
+            <el-table-column prop="isConnected" label="Connected" width="100">
+                <template slot-scope="scope">
+                    <div class="flex flex-row justify-center">
+                        <div v-show="scope.row.isConnected" class="text-green-600">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div v-show="!scope.row.isConnected" class="text-red-600">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </template>
+            </el-table-column>
             <el-table-column label="Actions" width="150">
                 <template slot-scope="scope">
                     <div class="flex flex-row space-x-2">
