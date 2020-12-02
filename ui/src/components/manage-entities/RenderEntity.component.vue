@@ -17,6 +17,18 @@
                     <i class="fas fa-code"></i> Add Property
                 </el-button>
             </div>
+            <div class="flex flex-grow"></div>
+            <div>
+                <el-button
+                    @click="deleteEntity"
+                    type="danger"
+                    size="small"
+                    :disabled="entity && entity.eid === './'"
+                >
+                    <i class="fas fa-trash"></i>
+                    Delete Entity
+                </el-button>
+            </div>
             <!-- <add-entity-component /> -->
         </div>
         <add-property-dialog-component
@@ -162,6 +174,10 @@ export default {
                 tgtEntityId,
             });
             this.getEntity();
+        },
+        async deleteEntity() {
+            await this.dataService.deleteEntity({ id: this.entity.id });
+            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
     },
 };
