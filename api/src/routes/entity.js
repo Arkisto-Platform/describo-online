@@ -10,6 +10,7 @@ import {
     updateProperty,
     removeProperty,
     associate,
+    insertFilesAndFolders,
 } from "../lib/entities";
 import { getLogger } from "../common";
 const log = getLogger();
@@ -130,7 +131,7 @@ export async function postEntityRouteHandler(req, res, next) {
     let entity = req.body.entity;
     try {
         entity = await insertEntity({ entity, collectionId });
-        res.send({ entity: entity.get() });
+        res.send({ entity });
         return next();
     } catch (error) {
         log.error(`postEntityRouteHandler: ${error.message}`);
@@ -268,6 +269,26 @@ export async function putEntityAssociateRouteHandler(req, res, next) {
         return next();
     } catch (error) {
         log.error(`putEntityPropertyRouteHandler: ${error.message}`);
+        return next(new BadRequestError(error.message));
+    }
+}
+
+export async function postFilesRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    let files = req.body.files;
+    if (!files) {
+        return next(new BadRequestError("You must provide an array of files to add"));
+    }
+    try {
+        await insertFilesAndFolders({ collectionId, files });
+        res.send({});
+        return next();
+    } catch (error) {
+        console.log(error);
+        log.error(`postFilesRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }
 }

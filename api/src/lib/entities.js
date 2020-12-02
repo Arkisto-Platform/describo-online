@@ -1,6 +1,9 @@
 const models = require("../models");
 const { Op } = require("sequelize");
 const sequelize = models.sequelize;
+import path from "path";
+import { cloneDeep, orderBy, flattenDeep } from "lodash";
+const rootDescriptors = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
 
 export async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
@@ -15,7 +18,7 @@ export async function insertEntity({ entity, collectionId }) {
             eid: entity.id,
         });
     }
-    return entity;
+    return entity.get();
 
     function verifyEntity({ entity }) {
         // if (!entity["@id"]) {
@@ -43,12 +46,7 @@ export async function updateEntity({ entityId, name, eid }) {
     return (await entity.update(update)).get();
 }
 
-export async function attachProperty({
-    collectionId,
-    entityId,
-    property,
-    value,
-}) {
+export async function attachProperty({ collectionId, entityId, property, value }) {
     let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
@@ -60,12 +58,7 @@ export async function attachProperty({
     });
 }
 
-export async function updateProperty({
-    collectionId,
-    entityId,
-    propertyId,
-    value,
-}) {
+export async function updateProperty({ collectionId, entityId, propertyId, value }) {
     let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
@@ -93,12 +86,7 @@ export async function removeProperty({ collectionId, entityId, propertyId }) {
     }
 }
 
-export async function associate({
-    collectionId,
-    entityId,
-    property,
-    tgtEntityId,
-}) {
+export async function associate({ collectionId, entityId, property, tgtEntityId }) {
     let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
@@ -117,7 +105,13 @@ export async function associate({
             entityId: tgtEntityId,
         },
     ];
-    await models.property.bulkCreate(properties);
+    for (let property of properties) {
+        await models.property.findOrCreate({
+            where: property,
+            defaults: property,
+        });
+    }
+    // await models.property.bulkCreate(properties);
 }
 
 export async function removeEntity({ id }) {
@@ -140,7 +134,7 @@ export async function removeEntity({ id }) {
     });
 }
 
-export async function findEntity({ eid, etype, name, collectionId }) {
+export async function findEntity({ eid, etype, name, collectionId, fuzzy = true }) {
     // TODO add pagination and ordering
     let nameClause, eidClause;
     let andClause = [{ collectionId }];
@@ -150,13 +144,13 @@ export async function findEntity({ eid, etype, name, collectionId }) {
     }
     if (eid) {
         eidClause = {
-            eid: { [Op.iLike]: `%${eid}%` },
+            eid: fuzzy ? { [Op.iLike]: `${eid}%` } : { [Op.eq]: eid },
         };
         orClause.push(eidClause);
     }
     if (name) {
         nameClause = {
-            name: { [Op.iLike]: `%${name}%` },
+            name: fuzzy ? { [Op.iLike]: `%${name}%` } : { [Op.eq]: name },
         };
         orClause.push(nameClause);
     }
@@ -188,4 +182,126 @@ export async function getEntityProperties({ id, collectionId }) {
         ],
     });
     return { properties: entity.properties };
+}
+
+export async function insertFilesAndFolders({ collectionId, files }) {
+    files = cloneDeep(files);
+    let entities = [];
+    const propertiesFilter = [
+        "path",
+        "parent",
+        "isDir",
+        "isLeaf",
+        "name",
+        "id",
+        "disabled",
+        "children",
+    ];
+    const datasetFilterProperties = ["contentSize", "encodingFormat"];
+    const propertyMap = {
+        size: "contentSize",
+        modTime: "dateModified",
+        mimeType: "encodingFormat",
+    };
+
+    // let datasets = files.filter((f) => f.isDir);
+    // files = files.filter((f) => !f.isDir);
+
+    // do all datasets (folders) then do the files
+    // files = [...datasets, ...files];
+    files = generateParentPaths({ files });
+
+    for (let file of files) {
+        if (file.parent) file.parent = file.parent.replace(/^\//, "");
+        let clause = {
+            collectionId,
+            eid: file.parent ? path.join(file.parent, file.path) : `${file.path}`,
+            etype: file.isDir ? "Dataset" : "File",
+        };
+        let defaults = {
+            name: file.parent ? path.join(file.parent, file.path) : `${file.path}`,
+        };
+        const entity = (
+            await models.entity.findOrCreate({
+                where: clause,
+                defaults: { ...clause, ...defaults },
+            })
+        )[0];
+
+        let properties = Object.keys(file).filter((p) => {
+            return !propertiesFilter.includes(p);
+        });
+
+        properties = properties.map((p) => ({
+            name: propertyMap[p],
+            value: String(file[p]),
+            entityId: entity.id,
+        }));
+        if (entity.etype === "Dataset") {
+            properties = properties.filter((p) => !datasetFilterProperties.includes(p.name));
+        }
+
+        for (let property of properties) {
+            let clause = {
+                name: property.name,
+                value: property.value,
+                entityId: property.entityId,
+            };
+            await models.property.findOrCreate({ where: clause, defaults: clause });
+        }
+
+        file.entity = entity.get();
+        entities.push(entity.get());
+    }
+
+    // create the hasPart associations
+    for (let file of files) {
+        // find the parent entity
+        let parent;
+        if (!file.parent) {
+            //  if parent is undefined attach it to the root dataset
+            parent = (await findEntity({ collectionId, eid: "./", etype: "Dataset" })).pop();
+        } else {
+            //  otherwise find the parent and associate to that
+            parent = (
+                await findEntity({
+                    collectionId,
+                    eid: file.parent,
+                    etype: "Dataset",
+                    fuzzy: false,
+                })
+            ).pop();
+        }
+        let association = {
+            collectionId,
+            entityId: parent.id,
+            property: "hasPart",
+            tgtEntityId: file.entity.id,
+        };
+        await associate(association);
+    }
+    return entities;
+}
+
+export function generateParentPaths({ files }) {
+    // console.log(files);
+    let folders = [];
+    let paths = files.map((f) => {
+        if (f.parent) {
+            return generatePathComponent(f.parent, folders);
+        }
+    });
+    files = orderBy(flattenDeep([...files, folders]), ["isDir"], ["desc"]);
+    return files;
+
+    function generatePathComponent(pathComponent, accumulator) {
+        accumulator.push({
+            path: path.basename(pathComponent),
+            parent: path.dirname(pathComponent) === "." ? undefined : path.dirname(pathComponent),
+            isDir: true,
+        });
+        if (![".", "/"].includes(path.dirname(pathComponent))) {
+            return generatePathComponent(path.dirname(pathComponent), accumulator);
+        }
+    }
 }

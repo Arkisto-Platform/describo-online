@@ -111,7 +111,6 @@ export default {
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
         async getEntity() {
-            // this.entity = undefined;
             this.definition = undefined;
             this.error = undefined;
             this.loading = true;
@@ -122,18 +121,14 @@ export default {
                 this.entity = { ...entity };
                 this.loading = false;
 
-                let {
-                    properties,
-                } = await this.dataService.getEntityProperties({ id: this.id });
+                let { properties } = await this.dataService.getEntityProperties({ id: this.id });
                 this.entity = {
                     ...this.entity,
                     forwardProperties: { ...properties.forwardProperties },
                     reverseProperties: { ...properties.reverseProperties },
                 };
 
-                let {
-                    definition,
-                } = await this.dataService.getEntityTypeDefinition({
+                let { definition } = await this.dataService.getEntityTypeDefinition({
                     type: entity.etype,
                 });
                 this.definition = definition;

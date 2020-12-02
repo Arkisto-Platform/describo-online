@@ -56,8 +56,7 @@ describe("Test entity and property route operations", () => {
         let entity;
         let { properties } = await response.json();
 
-        const target = properties.filter((p) => p.tgtEntityId).pop()
-            .tgtEntityId;
+        const target = properties.filter((p) => p.tgtEntityId).pop().tgtEntityId;
         response = await fetch(`${api}/entity/${target}`, {
             method: "GET",
             headers: {
@@ -313,17 +312,14 @@ describe("Test entity and property route operations", () => {
         let update = {
             value: chance.name(),
         };
-        response = await fetch(
-            `${api}/entity/${entity.id}/property/${property.id}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `sid ${sessionId}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(update),
-            }
-        );
+        response = await fetch(`${api}/entity/${entity.id}/property/${property.id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(update),
+        });
         expect(response.status).toBe(200);
         ({ property } = await response.json());
         response = await fetch(`${api}/entity/RootDataset/properties`, {
@@ -370,16 +366,13 @@ describe("Test entity and property route operations", () => {
         expect(response.status).toBe(200);
         ({ property } = await response.json());
 
-        response = await fetch(
-            `${api}/entity/${entity.id}/property/${property.id}`,
-            {
-                method: "DELETE",
-                headers: {
-                    Authorization: `sid ${sessionId}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        response = await fetch(`${api}/entity/${entity.id}/property/${property.id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
         expect(response.status).toBe(200);
 
         response = await fetch(`${api}/entity/RootDataset/properties`, {
@@ -448,6 +441,33 @@ describe("Test entity and property route operations", () => {
         let p = properties.filter((p) => p.name === "collaborator");
         expect(p.length).toBe(1);
 
+        await removeCollection({ id: collection.id });
+        await removeUser({ email: user.email });
+    });
+    test("it should be able to create new file and folder entities", async () => {
+        let collection = await loadData({ name: chance.sentence() });
+        await updateUserSession({
+            sessionId,
+            data: { current: { collectionId: collection.id } },
+        });
+        let files = [
+            {
+                path: "filea.mpg",
+                parent: "/test",
+                isDir: false,
+                mimeType: "audio/mpeg",
+                modTime: "2020-10-28T00:01:47Z",
+            },
+        ];
+        let response = await fetch(`${api}/files`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ files }),
+        });
+        expect(response.status).toBe(200);
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
     });

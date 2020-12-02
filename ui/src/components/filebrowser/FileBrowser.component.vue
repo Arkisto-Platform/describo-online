@@ -1,10 +1,7 @@
 <template>
     <div class="flex flex-row">
         <div class="flex flex-col w-full">
-            <div
-                class=" flex flex-col space-y-3 my-2 pb-2 border-b-2"
-                v-if="enableFileSelector"
-            >
+            <div class=" flex flex-col space-y-3 my-2 pb-2 border-b-2" v-if="enableFileSelector">
                 <div
                     v-if="mode === 'openFile'"
                     class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
@@ -23,13 +20,13 @@
                     class="text-lg text-gray-800 bg-yellow-200 text-center p-8"
                 >
                     Select a folder to work with.
-                </div>
+                </div>-->
                 <div
                     v-if="mode === 'openFile' && partsAdded"
                     class="text-center text-xl text-gray-700 font-light bg-green-200 p-4 rounded-lg"
                 >
                     The crate parts list has been updated.
-                </div> -->
+                </div>
                 <div v-if="mode === 'openFile'">
                     <el-checkbox v-model="selectAllChildren">
                         Select all children
@@ -58,7 +55,7 @@
 <script>
 // import Worker from "./file-tree.worker";
 // import path from "path";
-import { flattenDeep, uniq, uniqBy, compact, debounce } from "lodash";
+import { flattenDeep, uniq, cloneDeep, uniqBy, compact, debounce } from "lodash";
 
 export default {
     props: {
@@ -66,6 +63,15 @@ export default {
             type: String,
             required: true,
             validator: (v) => ["onedrive"].includes(v),
+        },
+        root: {
+            type: String,
+        },
+        filterPaths: {
+            type: Array,
+            default: () => {
+                return [];
+            },
         },
         mode: {
             type: String,
@@ -82,6 +88,13 @@ export default {
     },
     data() {
         return {
+            filterFilePaths: [
+                "ro-crate-metadata.json",
+                "ro-crate-metadata.jsonld",
+                "ro-crate-preview.html",
+                ".DS_Store",
+                ...this.filterPaths,
+            ],
             debouncedAddParts: debounce(this.addParts, 1000),
             loading: false,
             partsAdded: false,
@@ -117,7 +130,14 @@ export default {
             let body = {
                 resource: this.resource,
             };
-            if (path) body.path = path;
+            if (this.root && path) {
+                body.path = path;
+            } else if (this.root) {
+                body.path = this.root;
+            } else {
+                body.path = path;
+            }
+
             let response = await this.$http.post({
                 route: "/folder/read",
                 body,
@@ -125,11 +145,11 @@ export default {
             if (response.status === 200) {
                 let content = (await response.json()).content;
                 content = content.map((e) => {
-                    e.disabled =
-                        this.mode === "openDirectory" && e.isLeaf === true
-                            ? true
-                            : false;
+                    e.disabled = this.mode === "openDirectory" && e.isLeaf === true ? true : false;
                     return e;
+                });
+                content = content.filter((e) => {
+                    return !this.filterFilePaths.includes(e.name);
                 });
                 resolve(content);
             } else if (response.status === 401) {
@@ -159,9 +179,7 @@ export default {
             if (this.mode === "openDirectory") {
                 this.loading = true;
                 let node = this.$refs.tree.getCheckedNodes()[0];
-                const path = node.parent
-                    ? `${node.parent}/${node.path}`
-                    : node.path;
+                const path = node.parent ? `${node.parent}/${node.path}` : node.path;
                 const id = node.id;
                 this.$emit("selected-folder", { path: `/${path}`, id });
             } else {
@@ -172,32 +190,16 @@ export default {
             this.loading = true;
             this.partsAdded = false;
             await new Promise((resolve) => setTimeout(resolve, 100));
-            let selectedNodes = this.$refs.tree.getCheckedNodes();
-            selectedNodes = selectedNodes.filter((n) => n.path !== this.target);
-            selectedNodes = selectedNodes.map((node) => node.uuid);
-            selectedNodes = uniq(selectedNodes);
-            selectedNodes = selectedNodes.filter((n) => n != "/");
-            let nodes = [];
-            selectedNodes.forEach((n) => {
-                if (n) getNodeAndParent({ tree: this.$refs.tree, node: n });
+            let nodes = cloneDeep(this.$refs.tree.getCheckedNodes());
+            nodes = nodes.map((n) => {
+                n.parent = n.parent.replace(this.root, "");
+                return n;
             });
-            nodes = flattenDeep(nodes);
-            nodes = uniqBy(nodes, "uuid");
             this.$emit("selected-nodes", nodes);
             this.loading = false;
             this.partsAdded = true;
-            setTimeout(() => {
-                this.partsAdded = false;
-            }, 3000);
-            function getNodeAndParent({ tree, node }) {
-                node = tree.getNode(node).data;
-                nodes.push(node);
-                if (node.parent !== "") {
-                    let parent = tree.getNode(node.parent).data;
-                    nodes.push(parent);
-                    getNodeAndParent({ tree, node: parent });
-                }
-            }
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            this.partsAdded = false;
         },
     },
 };

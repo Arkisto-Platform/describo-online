@@ -14,6 +14,7 @@ import { getLogger } from "../common";
 const log = getLogger();
 
 const rootDescriptorIdPrefix = "#:localid:describo:";
+const rootDescriptors = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
 
 export class Crate {
     constructor() {}
@@ -91,8 +92,8 @@ export class Crate {
 
     getRootDescriptor({ crate }) {
         // return crate['@graph'].filter
-        let rootDescriptor = crate["@graph"].filter(
-            (e) => e["@id"] === "ro-crate-metadata.json"
+        let rootDescriptor = crate["@graph"].filter((e) =>
+            rootDescriptors.includes(e["@id"])
         );
         if (rootDescriptor.length !== 1) {
             throw new Error(

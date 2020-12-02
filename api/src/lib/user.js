@@ -70,7 +70,8 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (user) {
-                expiresAt = session.createdAt / 1000 + sessionLifetimeInSeconds;
+                expiresAt =
+                    user.session.createdAt / 1000 + sessionLifetimeInSeconds;
                 user = user.get({ plain: true });
                 session = user.session
                     ? user.session

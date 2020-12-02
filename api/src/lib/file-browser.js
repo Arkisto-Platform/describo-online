@@ -1,10 +1,6 @@
 import { ensureDir, open, write, close, pathExists, remove } from "fs-extra";
 import { spawn } from "child_process";
-import {
-    NotFoundError,
-    InternalServerError,
-    UnauthorizedError,
-} from "restify-errors";
+import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
 import path from "path";
 import { camelCase } from "lodash";
 import { getLogger } from "../common";
@@ -14,6 +10,7 @@ const localCachePath = "/srv/tmp";
 export async function listFolder({ session, user, resource, folderPath }) {
     let cwd = await setup({ user, session, resource });
 
+    log.debug(`List folder: ${resource} ${folderPath}`);
     try {
         let args = ["lsjson"];
         if (folderPath) {
@@ -61,13 +58,7 @@ export async function deleteFolder({ session, user, resource, folderPath }) {
     }
 }
 
-export async function syncRemoteFileToLocal({
-    session,
-    user,
-    resource,
-    parent,
-    name,
-}) {
+export async function syncRemoteFileToLocal({ session, user, resource, parent, name }) {
     let cwd = await setup({ user, session, resource });
 
     const rcloneSrc = `${resource}:${path.join(parent, name)}`;
@@ -89,13 +80,7 @@ export async function syncRemoteFileToLocal({
     }
 }
 
-export async function syncLocalFileToRemote({
-    session,
-    user,
-    resource,
-    parent,
-    localFile,
-}) {
+export async function syncLocalFileToRemote({ session, user, resource, parent, localFile }) {
     let cwd = await setup({ user, session, resource });
 
     const rcloneSrc = localFile;
@@ -177,11 +162,7 @@ function rclone() {
 }
 
 function handleError(error) {
-    if (
-        error.message.match(
-            "InvalidAuthenticationToken: Access token has expired"
-        )
-    ) {
+    if (error.message.match("InvalidAuthenticationToken: Access token has expired")) {
         throw new UnauthorizedError(error.message);
     } else {
         console.error(error);
