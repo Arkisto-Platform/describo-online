@@ -19,7 +19,7 @@
                     >
                         <div class="flex flex-row">
                             <div class="w-64 text-gray-600">
-                                {{ item.property }}
+                                {{ item.name }}
                             </div>
                             <div class="w-96 text-gray-500">
                                 {{ item.help }}
@@ -29,9 +29,7 @@
                 </el-select>
             </div>
             <div class="">
-                <el-button @click="close"
-                    ><i class="fas fa-times"></i
-                ></el-button>
+                <el-button @click="close"><i class="fas fa-times"></i></el-button>
             </div>
         </div>
         <div v-if="selectedProperty" class="flex flex-col">
@@ -83,9 +81,7 @@ export default {
             this.$emit("close");
         },
         handlePropertySelection() {
-            this.selectedProperty = this.inputs.filter(
-                (i) => i.property === this.property
-            )[0];
+            this.selectedProperty = this.inputs.filter((i) => i.property === this.property)[0];
         },
         add({ type }) {
             this.addType = type;

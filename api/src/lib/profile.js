@@ -57,7 +57,7 @@ export async function getTypeDefinition({ collectionId, name }) {
         return (inputs = joinInputs(inputs, definitions, name));
     });
     inputs = flattenDeep(inputs);
-    inputs = orderBy(inputs, "property");
+    inputs = orderBy(inputs, "name");
 
     typeDefinition.inputs = inputs;
     return typeDefinition;
