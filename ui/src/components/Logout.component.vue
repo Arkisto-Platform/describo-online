@@ -13,6 +13,7 @@ export default {
     },
     mounted() {
         const as = new AuthService({ $auth: this.$auth });
+        window.localStorage.removeItem("vuex");
         as.logout();
     },
 };
