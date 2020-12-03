@@ -1,7 +1,7 @@
 <template>
     <div class="">
         <el-button @click="deleteProperty" type="danger" size="mini">
-            <i class="fas fa-trash"></i>
+            <i class="fas fa-unlink"></i>
         </el-button>
     </div>
 </template>
