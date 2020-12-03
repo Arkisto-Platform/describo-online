@@ -3,21 +3,25 @@
         <!-- <div>
             <el-button @click="getEntities">update</el-button>
         </div> -->
-        <div class="flex flex-row">
-            <el-input
-                placeholder="filter by name and @id"
-                v-model="filter"
-                @input="debouncedGetEntities"
-            >
-            </el-input>
+        <div class="flex flex-col space-y-2">
+            <add-entity-component @add-entity="addNewEntity" />
 
-            <el-pagination
-                class="mt-1 ml-2"
-                layout="total, prev, pager, next"
-                :total="total"
-                @current-change="nextPage"
-            >
-            </el-pagination>
+            <div class="flex flex-row space-x-2">
+                <el-input
+                    placeholder="filter by name and @id"
+                    v-model="filter"
+                    @input="debouncedGetEntities"
+                    size="small"
+                >
+                </el-input>
+                <el-pagination
+                    class="ml-2"
+                    layout="total, prev, pager, next"
+                    :total="total"
+                    @current-change="nextPage"
+                >
+                </el-pagination>
+            </div>
         </div>
         <el-table :data="entities" highlight-current-row>
             <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
@@ -61,10 +65,14 @@
 </template>
 
 <script>
-import DataService from "../manage-entities/data.service.js";
+import AddEntityComponent from "@/components/manage-entities/AddEntity.component.vue";
+import DataService from "@/components/manage-entities/data.service.js";
 import { debounce } from "lodash";
 
 export default {
+    components: {
+        AddEntityComponent,
+    },
     data() {
         return {
             debouncedGetEntities: debounce(this.getEntities, 1000),
@@ -107,6 +115,13 @@ export default {
         async deleteEntity(id) {
             await this.dataService.deleteEntity({ id });
             this.getEntities();
+        },
+        async addNewEntity({ type }) {
+            let { entity } = await this.dataService.createEntity({
+                name: "new entity",
+                etype: type,
+            });
+            this.editEntity(entity.id);
         },
     },
 };
