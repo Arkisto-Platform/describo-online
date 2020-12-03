@@ -29,15 +29,9 @@
                         @link:entity="linkEntity"
                     />
                 </div>
-                <div
-                    class="text-sm text-gray-600 p-4 bg-green-100 rounded flex flex-row"
-                    v-if="showHelp === name"
-                >
-                    <div class="text-2xl mr-2">
-                        <i class="fas fa-info-circle"></i>
-                    </div>
-                    <div class="pt-1">{{ help(name) }}</div>
-                </div>
+                <information-component type="info" align="left" v-if="showHelp === name">
+                    {{ help(name) }}
+                </information-component>
                 <render-entity-property-component
                     v-for="property of properties"
                     :key="property.id"
@@ -54,11 +48,13 @@
 import RenderEntityPropertyComponent from "./RenderEntityProperty.component.vue";
 import AddComponent from "./Add.component.vue";
 import DataService from "./data.service.js";
+import InformationComponent from "../Information.component.vue";
 
 export default {
     components: {
         RenderEntityPropertyComponent,
         AddComponent,
+        InformationComponent,
     },
     props: {
         entity: {
