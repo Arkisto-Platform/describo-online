@@ -7,6 +7,7 @@ This is the source code for the describo-online application.
     - [Get Describo UI plugins](#get-describo-ui-plugins)
     - [Register your application with Microsoft](#register-your-application-with-microsoft)
     - [Create an Okta organisation and setup your application](#create-an-okta-organisation-and-setup-your-application)
+      - [Okta session lifetime](#okta-session-lifetime)
     - [Create a configuration file](#create-a-configuration-file)
   - [Developing the application](#developing-the-application)
     - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
@@ -48,6 +49,16 @@ Check out `https://github.com/UTS-eResearch/describo-ui-plugins` alongside this 
     - Login redirect URIs: `http://localhost:9000/okta-login`
     - Logout redirect URIs: `http://localhost:9000`
     - Grant type allowed: `Authorization Code` and not Implicit
+
+#### Okta session lifetime
+
+By default, an okta session only lasts one hour. To change this do the following
+
+-   navigate to API, Authorization Servers
+-   edit your auth server
+-   Navigate to Access Policies
+-   edit the Default Policy > Default Policy Rule
+-   change `Access token lifetime is` to something more sensible like 8 hours
 
 ### Create a configuration file
 
