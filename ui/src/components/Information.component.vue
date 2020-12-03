@@ -1,7 +1,10 @@
 <template>
     <div
-        class="flex flex-row text-gray-800 justify-center p-4 rounded"
+        class="flex flex-row text-gray-800 p-4 rounded"
         :class="{
+            'justify-left': align === 'left',
+            'justify-center': align === 'center',
+            'justify-right': align === 'right',
             'bg-gray-200': type === 'info',
             'bg-green-200': type === 'success',
             'bg-yellow-200': type === 'warning',
@@ -28,6 +31,13 @@
 <script>
 export default {
     props: {
+        align: {
+            type: String,
+            default: "center",
+            validator: (val) => {
+                return ["left", "center", "right"].includes(val);
+            },
+        },
         type: {
             type: String,
             required: true,
