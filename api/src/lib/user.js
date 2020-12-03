@@ -1,5 +1,5 @@
 const models = require("../models");
-const sessionLifetimeInSeconds = 86400;
+import { defaultSessionLifetime } from "./constants";
 
 export async function getUser({ id, email }) {
     let where = {};
@@ -34,7 +34,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (session) {
-                expiresAt = session.createdAt / 1000 + sessionLifetimeInSeconds;
+                expiresAt = session.createdAt / 1000 + defaultSessionLifetime;
                 user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
@@ -70,12 +70,9 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (user) {
-                expiresAt =
-                    user.session.createdAt / 1000 + sessionLifetimeInSeconds;
+                expiresAt = user.session.createdAt / 1000 + defaultSessionLifetime;
                 user = user.get({ plain: true });
-                session = user.session
-                    ? user.session
-                    : { id: null, data: null };
+                session = user.session ? user.session : { id: null, data: null };
                 delete user.session;
                 // return { user, session };
             }
@@ -91,12 +88,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
     }
 }
 
-export async function createUserSession({
-    email,
-    data,
-    oktaToken,
-    oktaExpiry,
-}) {
+export async function createUserSession({ email, data, oktaToken, oktaExpiry }) {
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],
@@ -114,12 +106,7 @@ export async function createUserSession({
     return session.get();
 }
 
-export async function updateUserSession({
-    sessionId,
-    data,
-    oktaToken,
-    oktaExpiry,
-}) {
+export async function updateUserSession({ sessionId, data, oktaToken, oktaExpiry }) {
     let session = await models.session.findOne({ where: { id: sessionId } });
     let update = {};
     if (data) update.data = { ...session.data, ...data };

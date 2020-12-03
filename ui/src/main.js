@@ -7,7 +7,7 @@ config.autoReplaceSvg = "nest";
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./routes";
-import store from "./store";
+import { store } from "./store";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import OneDrivePlugin from "../../plugins/onedrive";
@@ -21,6 +21,7 @@ prefixer.reg(log);
 prefixer.apply(log);
 import { io } from "socket.io-client";
 import HTTPService from "./components/http.service";
+import { defaultSessionLifetime } from "./constants";
 
 (async () => {
     let response = await fetch("/api/configuration");
@@ -45,6 +46,11 @@ import HTTPService from "./components/http.service";
         Vue.prototype.$http = new HTTPService({ $auth: Vue.prototype.$auth });
         Vue.prototype.$log = log;
         Vue.prototype.$socket = io();
+
+        const sessionCreate = Date.parse(store.state.session.create.valueOf()).valueOf() / 1000;
+        if (new Date().valueOf() / 1000 > sessionCreate + defaultSessionLifetime) {
+            store.commit("setTargetResource", { resource: undefined, folder: undefined });
+        }
 
         new Vue({
             router,
