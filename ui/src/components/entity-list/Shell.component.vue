@@ -12,10 +12,10 @@
             </el-input>
 
             <el-pagination
-                layout="prev, pager, next"
+                class="mt-1 ml-2"
+                layout="total, prev, pager, next"
                 :total="total"
                 @current-change="nextPage"
-                v-if="total > pageSize"
             >
             </el-pagination>
         </div>
