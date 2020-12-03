@@ -1,21 +1,33 @@
 const { readJson, writeFile, ensureDir } = require("fs-extra");
-const {
-    flattenDeep,
-    orderBy,
-    has,
-    isArray,
-    uniq,
-    isString,
-} = require("lodash");
+const { flattenDeep, orderBy, has, isArray, uniq, isString, cloneDeep } = require("lodash");
 const path = require("path");
 
 const schema = "schema.org.jsonld";
 const crateContext = "crate-context.jsonld";
-const simpleDataTypes = ["Text", "Date"];
+const simpleDataTypes = ["Text", "Date", "Number", "Integer"];
 const selectDataTypes = ["Boolean"];
 let classes = {};
 let properties = [];
+let other = [];
 
+const rename = { MediaObject: "File" };
+const addTypesToProperty = {
+    hasPart: {
+        types: [
+            "Dataset",
+            "File",
+            "File, ImageObject",
+            "File, SoftwareSourceCode",
+            "File, SoftwareSourceCode, ComputationalWorkflow",
+            "RepositoryCollection",
+            "RepositoryObject",
+            "RepositoryObject, ImageObject",
+            "ComputerLanguage, SoftwareApplication",
+            "File, SoftwareSourceCode, ComputationalWorkflow",
+            "FormalParameter",
+        ],
+    },
+};
 (async () => {
     await ensureDir("./types");
 
@@ -25,7 +37,7 @@ let properties = [];
 })();
 
 function stripSchemaPath(text) {
-    return text.replace("http://schema.org/", "");
+    return text.replace("schema:", "");
 }
 
 async function extractSchemaOrgData() {
@@ -62,38 +74,45 @@ function diffSchemaOrgAndCrateContext({ context }) {
 function extractClassesAndProperties({ graph }) {
     // separate classes and properties
     graph.forEach((entry) => {
+        entry["@id"] = stripSchemaPath(entry["@id"]);
+        // console.log(entry["@id"]);
         if (entry["@type"] === "rdf:Property") {
+            let range = entry["schema:rangeIncludes"];
+            if (range) {
+                range = flattenDeep([range]);
+                entry.types = range.map((t) => stripSchemaPath(t["@id"]));
+                if (addTypesToProperty[entry["@id"]]) {
+                    entry.types = [...entry.types, ...addTypesToProperty[entry["@id"]].types];
+                }
+            }
             properties.push(entry);
         } else if (entry["@type"] === "rdfs:Class") {
-            // if (entry["@id"] === "http://schema.org/PhysicalActivityCategory") {
-            //     console.log(JSON.stringify(entry, null, 2));
-            // }
             let subClassOf = [];
             try {
-                subClassOf = isArray(entry["rdfs:subClassOf"])
-                    ? entry["rdfs:subClassOf"].map((e) =>
-                          stripSchemaPath(e["@id"])
-                      )
-                    : [stripSchemaPath(entry["rdfs:subClassOf"]["@id"])];
+                subClassOf = flattenDeep([entry["rdfs:subClassOf"]]);
+                subClassOf = subClassOf.map((e) => {
+                    let className = stripSchemaPath(e["@id"]);
+                    if (rename[className]) className = rename[className];
+                    return className;
+                });
             } catch (error) {}
-            classes[stripSchemaPath(entry["@id"])] = {
+            let className = entry["@id"];
+            if (rename[className]) {
+                className = rename[className];
+            }
+            classes[className] = {
                 metadata: {
                     allowAdditionalProperties: false,
                     help: entry["rdfs:comment"],
-                    id: entry["@id"],
-                    name: isString(entry["rdfs:label"])
-                        ? entry["rdfs:label"]
-                        : entry["rdfs:label"]["@value"],
+                    id: `https://schema.org/${className}`,
+                    name: className,
                     subClassOf,
                 },
                 inputs: [],
                 linksTo: [],
             };
         } else {
-            // if (entry["@id"] === "http://schema.org/AerobicActivity") {
-            //     console.log(JSON.stringify(entry, null, 2));
-            // }
-            // console.log(entry);
+            other.push(entry);
         }
     });
 }
@@ -101,20 +120,18 @@ function extractClassesAndProperties({ graph }) {
 function mapPropertiesToClasses() {
     // map properties back in to classes
     properties.forEach((property) => {
-        const foundIn = flattenDeep([
-            property["http://schema.org/domainIncludes"],
-        ]);
+        const foundIn = flattenDeep([property["schema:domainIncludes"]]);
         foundIn.forEach((target) => {
             if (target) {
                 target = stripSchemaPath(target["@id"]);
+                if (rename[target]) target = rename[target];
 
-                const allowedTypes = flattenDeep([
-                    property["http://schema.org/rangeIncludes"],
-                ]).map((t) => stripSchemaPath(t["@id"]));
+                const allowedTypes = property.types;
 
-                const complexTypes = allowedTypes.filter((type) =>
-                    has(classes, type)
-                );
+                const complexTypes = allowedTypes
+                    .filter((type) => !simpleDataTypes.includes(type))
+                    .filter((type) => !selectDataTypes.includes(type));
+
                 const simpleTypes = allowedTypes
                     .filter((type) => !has(classes, type))
                     .filter((type) => simpleDataTypes.includes(type));
@@ -165,9 +182,11 @@ function mapPropertiesToClasses() {
 
                 // use the acceptable types for this property
                 //  to link the class reverse
-                complexTypes.forEach((type) =>
-                    classes[type].linksTo.push(target)
-                );
+                complexTypes.forEach((type) => {
+                    if (classes[type]) {
+                        classes[type].linksTo.push(target);
+                    }
+                });
             }
         });
     });
@@ -182,21 +201,14 @@ async function writeTypeDefinitions() {
         item.linksTo = uniq(item.linksTo);
         item.inputs = orderBy(item.inputs, "property");
 
-        const typeDefinition = path.join(
-            "types",
-            stripSchemaPath(item.metadata["id"])
-        );
-        index[stripSchemaPath(item.metadata["id"])] = item;
+        index[item.metadata.name] = item;
 
         searchableIndex.push({
             name: c,
             help: item.metadata.help,
         });
     });
-    await writeFile(
-        path.join("types", "type-definitions.json"),
-        JSON.stringify(index, null, 2)
-    );
+    await writeFile(path.join("types", "type-definitions.json"), JSON.stringify(index, null, 2));
     // console.log(JSON.stringify(index, null, 2));
     await writeFile(
         path.join("types", "type-definitions-lookup.json"),
