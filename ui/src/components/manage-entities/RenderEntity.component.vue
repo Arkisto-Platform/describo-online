@@ -74,7 +74,6 @@ import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
 import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.vue";
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
-import AddEntityComponent from "./AddEntity.component.vue";
 import DataService from "./data.service.js";
 
 export default {
@@ -83,7 +82,6 @@ export default {
         RenderEntityPropertiesComponent,
         RenderEntityReversePropertiesComponent,
         AddPropertyDialogComponent,
-        AddEntityComponent,
         EntityIdComponent,
         TextComponent,
     },
