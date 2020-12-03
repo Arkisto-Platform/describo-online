@@ -43,9 +43,7 @@ export async function lookupProfileRouteHandler(req, res, next) {
 export async function createProfileRouteHandler(req, res, next) {
     let { name, profile, collectionId } = req.body;
     if (!name || !profile || !collectionId) {
-        log.error(
-            `updateProfileRouteHandler: name || profile || collection not provided`
-        );
+        log.error(`updateProfileRouteHandler: name || profile || collection not provided`);
         return next(new BadRequestError());
     }
     try {

@@ -64,6 +64,7 @@ export async function getTypeDefinition({ collectionId, name }) {
 
     function joinInputs(inputs, definitions, name) {
         let def = definitions[name];
+        if (!def) def = { inputs: [], metadata: { subClassOf: [] } };
         inputs = [...inputs, ...def.inputs];
         if (def.metadata.subClassOf.length) {
             return def.metadata.subClassOf.map((name) => {
