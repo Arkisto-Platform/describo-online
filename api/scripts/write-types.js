@@ -7,8 +7,8 @@ const crateContext = "crate-context.jsonld";
 const simpleDataTypes = ["Text", "Date", "Number", "Integer"];
 const selectDataTypes = ["Boolean"];
 let classes = {};
-let properties = [];
-let other = [];
+let properties = {};
+let other = {};
 
 const rename = { MediaObject: "File" };
 const addTypesToProperty = {
@@ -54,21 +54,26 @@ async function extractCrateContext() {
 }
 
 function diffSchemaOrgAndCrateContext({ context }) {
-    let classIds = {};
-    Object.keys(classes).forEach((k) => {
-        classIds[classes[k].metadata.id] = true;
-    });
-    // console.log(classIds);
-    // console.log("n classes", Object.keys(classes).length);
-    // console.log("n context", Object.keys(context).length);
+    let extra = {};
+    const stats = {
+        classes: Object.keys(classes).length,
+        properties: Object.keys(properties).length,
+        other: Object.keys(other).length,
+        context: Object.keys(context).length,
+    };
+    const diff = stats.context - stats.classes - stats.properties - stats.other;
+    console.log(`n classes ${stats.classes}`);
+    console.log(`n properties: ${stats.properties}`);
+    console.log(`n other things ${stats.other}`);
+    console.log(`n context: ${stats.context}`);
+    console.log(`Entries without definition: ${diff}`);
+    console.log("");
 
-    let extraClasses = [];
     for (let [key, value] of Object.entries(context)) {
-        if (!classIds[value]) extraClasses.push(value);
+        if (!classes[key] && !other[key] && !properties[key]) extra[key] = value;
     }
-    // console.log(extraClasses.length);
-    // console.log(extraClasses);
-    // console.log(classes["Endocrine"]);
+    console.log("Crate context entries without definitions in schema.org");
+    console.log(extra);
 }
 
 function extractClassesAndProperties({ graph }) {
@@ -85,7 +90,7 @@ function extractClassesAndProperties({ graph }) {
                     entry.types = [...entry.types, ...addTypesToProperty[entry["@id"]].types];
                 }
             }
-            properties.push(entry);
+            properties[entry["@id"]] = entry;
         } else if (entry["@type"] === "rdfs:Class") {
             let subClassOf = [];
             try {
@@ -112,14 +117,15 @@ function extractClassesAndProperties({ graph }) {
                 linksTo: [],
             };
         } else {
-            other.push(entry);
+            other[entry["@id"]] = entry;
         }
     });
 }
 
 function mapPropertiesToClasses() {
     // map properties back in to classes
-    properties.forEach((property) => {
+    Object.keys(properties).forEach((property) => {
+        property = properties[property];
         const foundIn = flattenDeep([property["schema:domainIncludes"]]);
         foundIn.forEach((target) => {
             if (target) {
