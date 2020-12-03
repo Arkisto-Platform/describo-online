@@ -1,15 +1,35 @@
 <template>
     <div>
-        <el-button
-            v-for="(type, idx) of allowedTypes"
-            :key="idx"
-            @click="add(type)"
-            type="success"
-            size="mini"
-            class="focus:outline-none focus:border-2 focus:border-green-600"
-        >
-            <i class="fas fa-plus"></i>&nbsp;{{ type }}
-        </el-button>
+        <div class="flex flex-row flex-wrap space-x-1" v-if="allowedTypes.length < 5">
+            <div v-for="(type, idx) of allowedTypes" :key="idx">
+                <el-button
+                    @click="add(type)"
+                    type="success"
+                    size="mini"
+                    class="focus:outline-none focus:border-2 focus:border-green-600"
+                >
+                    <i class="fas fa-plus"></i>&nbsp;{{ type }}
+                </el-button>
+            </div>
+        </div>
+        <div v-else>
+            <el-select
+                v-model="selectedType"
+                placeholder="Select a type to add"
+                @change="add"
+                clearable
+                size="small"
+                class="w-full"
+            >
+                <el-option
+                    v-for="(type, idx) in allowedTypes"
+                    :key="idx"
+                    :label="type"
+                    :value="type"
+                >
+                </el-option>
+            </el-select>
+        </div>
     </div>
 </template>
 
@@ -23,12 +43,14 @@ export default {
     },
     data() {
         return {
+            selectedType: undefined,
             allowedTypes: [],
-            typeExclusions: ["File", "Dataset"],
+            typeExclusions: [],
+            // typeExclusions: ["File", "Dataset"],
         };
     },
     watch: {
-        types: function() {
+        types: function () {
             this.init();
         },
     },
@@ -37,9 +59,7 @@ export default {
     },
     methods: {
         init() {
-            this.allowedTypes = this.types.filter(
-                (type) => !this.typeExclusions.includes(type)
-            );
+            this.allowedTypes = this.types.filter((type) => !this.typeExclusions.includes(type));
         },
         add(type) {
             this.$emit("add", { type });
