@@ -15,16 +15,14 @@
             />
             <delete-property-component
                 class="pl-2"
+                type="delete"
                 :property="property"
                 @refresh="$emit('refresh')"
             />
         </div>
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
-            <render-linked-item-component
-                :entity="property"
-                @refresh="$emit('refresh')"
-            />
+            <render-linked-item-component :entity="property" @refresh="$emit('refresh')" />
         </div>
     </div>
 </template>

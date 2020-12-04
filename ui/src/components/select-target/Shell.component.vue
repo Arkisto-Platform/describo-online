@@ -1,20 +1,13 @@
 <template>
     <el-card class="box-card">
-        <div
-            slot="header"
-            class="flex flex-row"
-            v-if="!target.resource && !target.folder"
-        >
+        <div slot="header" class="flex flex-row" v-if="!target.resource && !target.folder">
             <div class="flex flex-row">
                 Select a resource to work with
                 <div v-if="resource" class="ml-2">:&nbsp;{{ resource }}</div>
             </div>
             <div class="flex-grow"></div>
             <div v-if="resource">
-                <el-button
-                    type="danger"
-                    size="small"
-                    @click="resource = undefined"
+                <el-button type="danger" size="small" @click="resource = undefined"
                     >Change resource</el-button
                 >
             </div>
@@ -38,12 +31,8 @@
             <div class="mr-2">Selected Resource:</div>
             <div>{{ target.resource }}:{{ target.folder.path }}</div>
             <div class="flex-grow"></div>
-            <el-button
-                type="danger"
-                @click="selectNewTargetFolder"
-                size="small"
-            >
-                <i class="fas fa-trash-alt"></i>
+            <el-button type="danger" @click="selectNewTargetFolder" size="small">
+                <i class="fas fa-trash"></i>
             </el-button>
         </div>
     </el-card>

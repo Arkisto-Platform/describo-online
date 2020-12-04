@@ -1,9 +1,6 @@
 <template>
     <div class="flex flex-row">
-        <div
-            class="flex flex-col bg-yellow-200 p-3 cursor-pointer rounded-l"
-            @click="loadEntity"
-        >
+        <div class="flex flex-col bg-yellow-200 p-3 cursor-pointer rounded-l" @click="loadEntity">
             <div class="text-sm flex flex-row">
                 <type-icon-component
                     class="mr-2 text-gray-700"
