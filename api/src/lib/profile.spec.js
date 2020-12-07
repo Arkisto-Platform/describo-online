@@ -73,9 +73,7 @@ describe("Test profile operations", () => {
                 ...profile,
             });
         } catch (error) {
-            expect(error.message).toEqual(
-                "notNull Violation: profile.collectionId cannot be null"
-            );
+            expect(error.message).toEqual("notNull Violation: profile.collectionId cannot be null");
         }
     });
     test("it should be able to update a profile", async () => {
@@ -112,6 +110,6 @@ describe("Test profile operations", () => {
     });
     test("it should be able to get a type definition", async () => {
         let type = await getTypeDefinition({ name: "Airline" });
-        expect(type.metadata.name).toBe("Airline");
+        expect(type.name).toBe("Airline");
     });
 });

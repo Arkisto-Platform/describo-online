@@ -158,7 +158,7 @@ describe("Test profile handling routes", () => {
             sessionId,
             data: { current: { collectionId: collection.id } },
         });
-        let response = await fetch(`${api}/definition/Airline`, {
+        let response = await fetch(`${api}/definition?name=Airline`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
@@ -166,6 +166,6 @@ describe("Test profile handling routes", () => {
             },
         });
         let { definition } = await response.json();
-        expect(definition.metadata.name).toBe("Airline");
+        expect(definition.name).toBe("Airline");
     });
 });

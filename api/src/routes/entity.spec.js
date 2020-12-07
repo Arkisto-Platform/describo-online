@@ -127,7 +127,7 @@ describe("Test entity and property route operations", () => {
                 "Content-Type": "application/json",
             },
         });
-        expect(response.status).toBe(405);
+        expect(response.status).toBe(403);
         await removeUser({ email: user.email });
     });
     test("it should fail - no collection defined in session", async () => {
