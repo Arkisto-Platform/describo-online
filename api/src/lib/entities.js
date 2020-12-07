@@ -2,8 +2,7 @@ const models = require("../models");
 const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 import path from "path";
-import { cloneDeep, orderBy, flattenDeep } from "lodash";
-const rootDescriptors = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
+import { cloneDeep, orderBy, flattenDeep, isArray } from "lodash";
 
 export async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
@@ -27,9 +26,9 @@ export async function insertEntity({ entity, collectionId }) {
         if (!entity["@type"] && !entity.etype) {
             throw new Error(`Entity missing '@type' property`);
         }
-        if (!entity["name"]) {
-            throw new Error(`Entity missing 'name' property`);
-        }
+        // if (!entity["name"]) {
+        //     throw new Error(`Entity missing 'name' property`);
+        // }
     }
 }
 
@@ -46,13 +45,15 @@ export async function updateEntity({ entityId, name, eid }) {
     return (await entity.update(update)).get();
 }
 
-export async function attachProperty({ collectionId, entityId, property, value }) {
+export async function attachProperty({ collectionId, entityId, property, value, typeDefinition }) {
     let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
     }
+    let fqname = typeDefinition?.id ? typeDefinition.id : "";
     return await models.property.create({
         name: property,
+        definition: { id: fqname },
         value,
         entityId,
     });
@@ -86,20 +87,23 @@ export async function removeProperty({ collectionId, entityId, propertyId }) {
     }
 }
 
-export async function associate({ collectionId, entityId, property, tgtEntityId }) {
+export async function associate({ collectionId, entityId, property, tgtEntityId, typeDefinition }) {
     let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
         throw new Error(`You don't have permission to access that entity`);
     }
+    let fqname = typeDefinition?.id ? typeDefinition.id : "";
     let properties = [
         {
             name: property,
+            definition: { id: fqname },
             tgtEntityId: tgtEntityId,
             direction: "F",
             entityId,
         },
         {
             name: property,
+            definition: { id: fqname },
             tgtEntityId: entityId,
             direction: "R",
             entityId: tgtEntityId,
