@@ -79,7 +79,7 @@ export async function updateProfileRouteHandler(req, res, next) {
 export async function getTypeDefinitionRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
     try {
-        let name = req.params.name;
+        let name = req.query.name;
         let definition = await getTypeDefinition({ collectionId, name });
         res.send({ definition });
         return next(0);

@@ -46,6 +46,7 @@ export function setupRoutes({ server }) {
     server.post("/folder/create", route(createFolderRouteHandler));
     server.post("/folder/read", route(readFolderRouteHandler));
     server.post("/folder/delete", route(deleteFolderRouteHandler));
+    server.get("/definition", route(getTypeDefinitionRouteHandler));
     server.get("/definition/:name", route(getTypeDefinitionRouteHandler));
     server.get("/definition/lookup", route(lookupProfileRouteHandler));
     server.get("/profile/:profileId", route(getProfileRouteHandler));
