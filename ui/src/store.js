@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash";
 import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersistence from "vuex-persist";
@@ -21,7 +22,7 @@ Vue.use(Vuex);
 
 const mutations = {
     reset: (state) => {
-        state = { ...resetState() };
+        state = cloneDeep(resetState());
     },
     saveConfiguration: (state, payload) => {
         state.configuration = { ...payload.configuration };
@@ -57,7 +58,7 @@ export const store = new Vuex.Store({
 });
 
 function resetState() {
-    let state = {
+    return {
         session: {
             create: new Date(),
         },
@@ -69,5 +70,4 @@ function resetState() {
         collection: {},
         selectedEntity: { id: "RootDataset" },
     };
-    return state;
 }
