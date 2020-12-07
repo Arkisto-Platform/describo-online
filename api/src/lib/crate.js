@@ -8,6 +8,7 @@ import {
     getEntity,
     getEntityProperties,
 } from "./entities";
+import { getTypeDefinition } from "./profile";
 import models from "../models";
 
 import { getLogger } from "../common";
@@ -167,7 +168,6 @@ export class Crate {
                     msg: `loading entities: completed ${i} / ${total} entities`,
                 });
             }
-            if (!entity.name) entity.name = entity["@id"] ? entity["@id"] : entity["@type"];
             if (isArray(entity["@type"])) entity["@type"] = entity["@type"].join(", ");
             if (isArray(entity.name)) entity.name = entity.name.join(", ");
             entity.uuid = (await insertEntity({ collectionId: collection.id, entity })).id;
@@ -177,6 +177,11 @@ export class Crate {
         const entitiesById = groupBy(entities, "@id");
         i = 0;
         for (let entity of entities) {
+            const typeDefinition = await getTypeDefinition({
+                collectionId: collection.id,
+                name: entity["@type"],
+            });
+
             i += 1;
             if (i % 20 === 0) {
                 io.emit("loadRouteHandler", {
@@ -186,9 +191,12 @@ export class Crate {
             const properties = Object.keys(entity).filter((p) => !filterProperties.includes(p));
             for (let property of properties) {
                 let data = this.asArray(entity[property]);
+                let propertyDefinition = typeDefinition.inputs.filter((i) => i.name === property);
+                propertyDefinition = propertyDefinition.length ? propertyDefinition[0] : {};
                 for (let value of data) {
                     if (isString(value)) {
                         await attachProperty({
+                            typeDefinition: propertyDefinition,
                             collectionId: collection.id,
                             entityId: entity.uuid,
                             property,
@@ -201,6 +209,7 @@ export class Crate {
                         if (tgtEntityId.length) {
                             tgtEntityId = tgtEntityId.pop().uuid;
                             await associate({
+                                typeDefinition: propertyDefinition,
                                 collectionId: collection.id,
                                 entityId: entity.uuid,
                                 property,
