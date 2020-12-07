@@ -7,9 +7,9 @@
             </div>
             <div class="flex-grow"></div>
             <div v-if="resource">
-                <el-button type="danger" size="small" @click="resource = undefined"
-                    >Change resource</el-button
-                >
+                <el-button type="danger" size="small" @click="resource = undefined">
+                    Change resource
+                </el-button>
             </div>
         </div>
         <div class="flex flex-col" v-if="!target.resource || !target.folder">
