@@ -41,7 +41,6 @@ module.exports = {
                 "RepositoryObject",
                 "RepositoryObject, ImageObject",
                 "ComputerLanguage, SoftwareApplication",
-                "File, SoftwareSourceCode, ComputationalWorkflow",
                 "FormalParameter",
             ],
         },
@@ -51,7 +50,6 @@ module.exports = {
     compoundTypes: [
         "File, ImageObject",
         "File, SoftwareSourceCode",
-        "File, SoftwareSourceCode, ComputationalWorkflow",
         "RepositoryObject, ImageObject",
         "ComputerLanguage, SoftwareApplication",
         "File, SoftwareSourceCode, ComputationalWorkflow",
