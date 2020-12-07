@@ -104,7 +104,6 @@ function addCompoundTypeDefinitions() {
             linksTo: [],
             hierarchy,
         };
-        console.log(classes[type]);
     });
 }
 
@@ -144,11 +143,14 @@ function extractClassesAndProperties({ graph }) {
             if (rename.classes[name]) {
                 name = rename.classes[name];
             }
+            let subClassOf = getValue(entry[defs.subclass]).map((e) =>
+                rename.classes[e] ? rename.classes[e] : e
+            );
             classes[name] = {
                 id: entry["@id"],
                 name,
                 help: getValue(entry[defs.help], true),
-                subClassOf: getValue(entry[defs.subclass]),
+                subClassOf,
                 allowAdditionalProperties: false,
                 inputs: [],
                 linksTo: [],
