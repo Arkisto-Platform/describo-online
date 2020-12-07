@@ -1,15 +1,15 @@
 const models = require("../models");
-import { readJSON } from "fs-extra";
+import { readJSON, readJSONSync } from "fs-extra";
 import { cloneDeep, flattenDeep, orderBy, uniqBy } from "lodash";
 import path from "path";
 const typeDefinitions =
     process.env.NODE_ENV !== "development"
-        ? "/srv/type-definitions.json"
-        : path.join(__dirname, "..", "common", "type-definitions.json");
+        ? readJSONSync("/srv/type-definitions.json")
+        : readJSONSync(path.join(__dirname, "..", "common", "type-definitions.json"));
 const typeDefinitionsLookup =
     process.env.NODE_ENV !== "development"
-        ? "/srv/type-definitions-lookup.json"
-        : path.join(__dirname, "..", "common", "type-definitions-lookup.json");
+        ? readJSONSync("/srv/type-definitions-lookup.json")
+        : readJSONSync(path.join(__dirname, "..", "common", "type-definitions-lookup.json"));
 
 export async function getProfile({ collectionId }) {
     return (
@@ -46,7 +46,7 @@ export async function getTypeDefinition({ collectionId, name }) {
         definitions = {};
     }
     if (!profile) {
-        definitions = await readJSON(typeDefinitions);
+        definitions = typeDefinitions;
     }
 
     let typeDefinition;
