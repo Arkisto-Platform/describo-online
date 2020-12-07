@@ -14,10 +14,7 @@ import { getLogger } from "../common";
 const log = getLogger();
 
 const defaultCrateFileName = "ro-crate-metadata.json";
-const validCrateFileNames = [
-    "ro-crate-metadata.json",
-    "ro-crate-metadata.jsonld",
-];
+const validCrateFileNames = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
 
 const crateMetadata = {
     "@context": "https://w3id.org/ro/crate/1.1/context",
@@ -44,9 +41,7 @@ export async function loadRouteHandler(req, res, next) {
     });
     const { resource, folder, id } = req.body;
     if (!resource | !(folder || id)) {
-        return next(
-            new BadRequestError(`Must specify 'resource' and 'folder' || 'id'`)
-        );
+        return next(new BadRequestError(`Must specify 'resource' and 'folder' || 'id'`));
     }
     let crate, collection, content, localFile;
     try {
@@ -61,9 +56,7 @@ export async function loadRouteHandler(req, res, next) {
             resource,
             folderPath: folder,
         });
-        let crateFile = content.filter((e) =>
-            validCrateFileNames.includes(e.name)
-        );
+        let crateFile = content.filter((e) => validCrateFileNames.includes(e.name));
 
         const crateManager = new Crate();
         if (crateFile.length === 0) {
@@ -172,7 +165,9 @@ export async function loadRouteHandler(req, res, next) {
             stage: 7,
             total: 7,
         });
-        await crateManager.importCrateIntoDatabase({ collection, crate });
+        let sync = true;
+        if (crate["@graph"].length > 1000) sync = false;
+        await crateManager.importCrateIntoDatabase({ collection, crate, sync, io: req.io });
     } catch (error) {
         if (error.message !== "That collection is already loaded.") {
             console.log(error);
