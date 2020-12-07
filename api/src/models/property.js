@@ -13,7 +13,9 @@ module.exports = function (sequelize, DataTypes) {
             name: {
                 type: DataTypes.TEXT,
                 allowNull: false,
-                defaultValue: "",
+            },
+            definition: {
+                type: DataTypes.JSON,
             },
             sequenceNumber: {
                 type: DataTypes.INTEGER,
