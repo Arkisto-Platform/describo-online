@@ -1,19 +1,17 @@
-# describo-online
-
 This is the source code for the describo-online application.
 
-- [describo-online](#describo-online)
-  - [Before you start up the development environment](#before-you-start-up-the-development-environment)
-    - [Get Describo UI plugins](#get-describo-ui-plugins)
-    - [Register your application with Microsoft](#register-your-application-with-microsoft)
-    - [Create an Okta organisation and setup your application](#create-an-okta-organisation-and-setup-your-application)
-      - [Okta session lifetime](#okta-session-lifetime)
-    - [Create a configuration file](#create-a-configuration-file)
-  - [Developing the application](#developing-the-application)
-    - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
-  - [Setting up for production](#setting-up-for-production)
-  - [Integrating Describo Online into another service](#integrating-describo-online-into-another-service)
-  - [Building production containers](#building-production-containers)
+- [Before you start up the development environment](#before-you-start-up-the-development-environment)
+  - [Get Describo UI plugins](#get-describo-ui-plugins)
+  - [Register your application with Microsoft](#register-your-application-with-microsoft)
+  - [Create an Okta organisation and setup your application](#create-an-okta-organisation-and-setup-your-application)
+    - [Okta session lifetime](#okta-session-lifetime)
+  - [Create a configuration file](#create-a-configuration-file)
+- [Developing the application](#developing-the-application)
+  - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
+- [Setting up for production](#setting-up-for-production)
+- [Integrating Describo Online into another service](#integrating-describo-online-into-another-service)
+- [Building production containers](#building-production-containers)
+- [Updating type definitions](#updating-type-definitions)
 
 ## Before you start up the development environment
 
@@ -135,3 +133,7 @@ To build the production containers for a release:
 ```
 > ./build-production-containers.sh
 ```
+
+## Updating type definitions
+
+See [api/scripts/README.md](api/scripts/README.md) for detailed instructions on how to update type definitions.
