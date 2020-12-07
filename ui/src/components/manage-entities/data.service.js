@@ -54,7 +54,7 @@ export default class DataService {
 
     async getEntityTypeDefinition({ type }) {
         let response = await this.$http.get({
-            route: `/definition/${type}`,
+            route: `/definition?name=${encodeURIComponent(type)}`,
         });
         if (response.status !== 200) {
             return this.handleError({ response });
