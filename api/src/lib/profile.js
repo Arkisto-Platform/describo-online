@@ -27,7 +27,7 @@ export async function lookupProfile({ collectionId, query }) {
         });
     }
     if (!profile) {
-        profile = await readJSON(typeDefinitionsLookup);
+        profile = typeDefinitionsLookup;
     }
     let re = new RegExp(query, "i");
     let matches = profile.filter((e) => {
