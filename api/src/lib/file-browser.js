@@ -98,10 +98,13 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
 
 export async function setup({ session, user, resource }) {
     // use resource to see if we have a suitable rclone configuration
-    let rcloneConfiguration = session.data?.rclone[resource];
+    if (!session.data.rclone) {
+        throw new NotFoundError("No session data");
+    }
+    let rcloneConfiguration = session?.data?.rclone[resource];
     if (!rcloneConfiguration) {
         // fail not found error if not
-        throw new NotFoundError();
+        throw new NotFoundError("No session data");
     }
 
     // write rclone configuration to disk
