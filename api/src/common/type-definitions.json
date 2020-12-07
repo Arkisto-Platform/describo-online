@@ -2412,14 +2412,16 @@
     "name": "MusicVideoObject",
     "help": "A music video file.",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [],
     "linksTo": [],
     "hierarchy": [
       "MusicVideoObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "BedAndBreakfast": {
@@ -11278,7 +11280,7 @@
     "name": "AudioObject",
     "help": "An audio file.",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [
@@ -11306,7 +11308,9 @@
     ],
     "hierarchy": [
       "AudioObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "ArtGallery": {
@@ -14330,7 +14334,7 @@
     "name": "3DModel",
     "help": "A 3D model represents some kind of 3D content, which may have [[encoding]]s in one or more [[MediaObject]]s. Many 3D formats are available (e.g. see [Wikipedia](https://en.wikipedia.org/wiki/Category:3D_graphics_file_formats)); specific encoding formats can be represented using the [[encodingFormat]] property applied to the relevant [[MediaObject]]. For the\ncase of a single file published after Zip compression, the convention of appending '+zip' to the [[encodingFormat]] can be used. Geospatial, AR/VR, artistic/animation, gaming, engineering and scientific content can all be represented using [[3DModel]].",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [
@@ -14347,7 +14351,9 @@
     "linksTo": [],
     "hierarchy": [
       "3DModel",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "PaymentStatusType": {
@@ -15495,7 +15501,7 @@
     "name": "DataDownload",
     "help": "A dataset in downloadable form.",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [
@@ -15514,7 +15520,9 @@
     ],
     "hierarchy": [
       "DataDownload",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "VideoObject": {
@@ -15522,7 +15530,7 @@
     "name": "VideoObject",
     "help": "A video file.",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [
@@ -15631,7 +15639,9 @@
     ],
     "hierarchy": [
       "VideoObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "BroadcastService": {
@@ -17637,7 +17647,7 @@
     "name": "ImageObject",
     "help": "An image file.",
     "subClassOf": [
-      "MediaObject"
+      "File"
     ],
     "allowAdditionalProperties": false,
     "inputs": [
@@ -17694,7 +17704,9 @@
     ],
     "hierarchy": [
       "ImageObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "TextDigitalDocument": {
@@ -30280,7 +30292,7 @@
     "name": "LegislationObject",
     "help": "A specific object or file containing a Legislation. Note that the same Legislation can be published in multiple files. For example, a digitally signed PDF, a plain PDF and an HTML version.",
     "subClassOf": [
-      "MediaObject",
+      "File",
       "Legislation"
     ],
     "allowAdditionalProperties": false,
@@ -30298,7 +30310,7 @@
     "linksTo": [],
     "hierarchy": [
       "LegislationObject",
-      "MediaObject",
+      "File",
       "Legislation",
       "CreativeWork",
       "Thing"
@@ -33837,10 +33849,10 @@
     "hierarchy": [
       "Audiobook",
       "Book",
-      "CreativeWork",
-      "Thing",
       "AudioObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "TelevisionChannel": {
@@ -34340,7 +34352,9 @@
     "hierarchy": [
       "Barcode",
       "ImageObject",
-      "MediaObject"
+      "File",
+      "CreativeWork",
+      "Thing"
     ]
   },
   "HairSalon": {
@@ -35673,6 +35687,74 @@
     ],
     "hierarchy": [
       "FormalParameter",
+      "Thing"
+    ]
+  },
+  "File, ImageObject": {
+    "name": "File, ImageObject",
+    "subClassOf": [],
+    "allowAdditionalProperties": false,
+    "inputs": [],
+    "linksTo": [],
+    "hierarchy": [
+      "ImageObject",
+      "File",
+      "CreativeWork",
+      "Thing"
+    ]
+  },
+  "File, SoftwareSourceCode": {
+    "name": "File, SoftwareSourceCode",
+    "subClassOf": [],
+    "allowAdditionalProperties": false,
+    "inputs": [],
+    "linksTo": [],
+    "hierarchy": [
+      "File",
+      "SoftwareSourceCode",
+      "CreativeWork",
+      "Thing"
+    ]
+  },
+  "RepositoryObject, ImageObject": {
+    "name": "RepositoryObject, ImageObject",
+    "subClassOf": [],
+    "allowAdditionalProperties": false,
+    "inputs": [],
+    "linksTo": [],
+    "hierarchy": [
+      "RepositoryObject",
+      "ImageObject",
+      "File",
+      "CreativeWork",
+      "Thing"
+    ]
+  },
+  "ComputerLanguage, SoftwareApplication": {
+    "name": "ComputerLanguage, SoftwareApplication",
+    "subClassOf": [],
+    "allowAdditionalProperties": false,
+    "inputs": [],
+    "linksTo": [],
+    "hierarchy": [
+      "ComputerLanguage",
+      "Intangible",
+      "SoftwareApplication",
+      "CreativeWork",
+      "Thing"
+    ]
+  },
+  "File, SoftwareSourceCode, ComputationalWorkflow": {
+    "name": "File, SoftwareSourceCode, ComputationalWorkflow",
+    "subClassOf": [],
+    "allowAdditionalProperties": false,
+    "inputs": [],
+    "linksTo": [],
+    "hierarchy": [
+      "File",
+      "SoftwareSourceCode",
+      "CreativeWork",
+      "ComputationalWorkflow",
       "Thing"
     ]
   }
