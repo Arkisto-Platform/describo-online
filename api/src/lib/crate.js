@@ -222,7 +222,7 @@ export class Crate {
         }
 
         // get root dataset and send loaded message
-        io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
+        if (io?.emit) io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
     }
 
     async exportCollectionAsROCrate({ collectionId, sync = false }) {
