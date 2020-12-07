@@ -1,6 +1,6 @@
 const models = require("../models");
 import { readJSON } from "fs-extra";
-import { cloneDeep, flattenDeep, orderBy } from "lodash";
+import { cloneDeep, flattenDeep, orderBy, uniqBy } from "lodash";
 import path from "path";
 const typeDefinitions =
     process.env.NODE_ENV !== "development"
@@ -49,14 +49,29 @@ export async function getTypeDefinition({ collectionId, name }) {
         definitions = await readJSON(typeDefinitions);
     }
 
-    let typeDefinition = definitions[name];
-    if (!typeDefinition) return undefined;
+    let typeDefinition;
     let inputs = [];
 
-    typeDefinition.hierarchy.forEach((e) => {
-        inputs.push(cloneDeep(definitions[e].inputs));
-    });
+    name = name.split(", ");
+    if (name.length === 1) {
+        name = name.pop();
+        typeDefinition = definitions[name];
+        if (!typeDefinition) return undefined;
+        typeDefinition.hierarchy.forEach((e) => {
+            inputs.push(cloneDeep(definitions[e].inputs));
+        });
+    } else {
+        name.forEach((n) => {
+            typeDefinition = definitions[n];
+            if (!typeDefinition) return;
+            typeDefinition.hierarchy.forEach((e) => {
+                inputs.push(cloneDeep(definitions[e].inputs));
+            });
+        });
+    }
+
     inputs = flattenDeep(inputs);
+    inputs = uniqBy(inputs, "id");
     inputs = orderBy(inputs, "name");
 
     typeDefinition.inputs = inputs;
