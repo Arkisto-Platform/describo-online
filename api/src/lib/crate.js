@@ -157,7 +157,16 @@ export class Crate {
     async createCrateEntities({ collection, entities, io }) {
         const filterProperties = ["@id", "@type", "name", "uuid"];
         // iterate over the entities and create each one
+        let i = 0;
+        let total = entities.length;
+
         for (let entity of entities) {
+            i += 1;
+            if (i % 20 === 0) {
+                io.emit("loadRouteHandler", {
+                    msg: `loading entities: completed ${i} / ${total} entities`,
+                });
+            }
             if (!entity.name) entity.name = entity["@id"] ? entity["@id"] : entity["@type"];
             if (isArray(entity["@type"])) entity["@type"] = entity["@type"].join(", ");
             if (isArray(entity.name)) entity.name = entity.name.join(", ");
@@ -166,12 +175,13 @@ export class Crate {
 
         // now iterate over each entity
         const entitiesById = groupBy(entities, "@id");
-        let i = 0;
-        let total = entities.length;
+        i = 0;
         for (let entity of entities) {
             i += 1;
             if (i % 20 === 0) {
-                io.emit("loadRouteHandler", { msg: `loaded ${i} / ${total} entities into the DB` });
+                io.emit("loadRouteHandler", {
+                    msg: `loading entity properties and relationships: completed ${i} / ${total} entities`,
+                });
             }
             const properties = Object.keys(entity).filter((p) => !filterProperties.includes(p));
             for (let property of properties) {
