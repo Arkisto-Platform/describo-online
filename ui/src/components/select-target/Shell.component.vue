@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import HTTPService from "@/components//http.service";
+import HTTPService from "@/components/http.service";
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
 import { isMatch } from "lodash";
 

@@ -28,7 +28,7 @@ export default {
     },
     mounted() {
         this.$socket.on("loadRouteHandler", (response) => {
-            this.msg = `Loading collection: ${response.msg}`;
+            this.msg = `${response.msg}`;
         });
         this.loadFolder();
     },
@@ -46,8 +46,6 @@ export default {
             if (response.status !== 200) {
             }
             let { collection } = await response.json();
-            console.log(JSON.stringify(collection, null, 2));
-            this.msg = `Loaded collection: ${collection.name}`;
             this.$store.commit("setActiveCollection", collection);
             this.loading = false;
         },
