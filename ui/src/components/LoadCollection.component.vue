@@ -44,6 +44,13 @@ export default {
                 },
             });
             if (response.status !== 200) {
+                this.$store.commit("setTargetResource", {
+                    resource: undefined,
+                    folder: undefined,
+                });
+                this.$store.commit("setActiveCollection", {});
+                this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+                return;
             }
             let { collection } = await response.json();
             this.$store.commit("setActiveCollection", collection);
