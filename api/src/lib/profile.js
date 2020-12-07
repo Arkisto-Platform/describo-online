@@ -51,28 +51,16 @@ export async function getTypeDefinition({ collectionId, name }) {
 
     let typeDefinition = definitions[name];
     if (!typeDefinition) return undefined;
-    let inputs = cloneDeep(typeDefinition.inputs);
+    let inputs = [];
 
-    inputs = typeDefinition.metadata.subClassOf.map((name) => {
-        return (inputs = joinInputs(inputs, definitions, name));
+    typeDefinition.hierarchy.forEach((e) => {
+        inputs.push(cloneDeep(definitions[e].inputs));
     });
     inputs = flattenDeep(inputs);
     inputs = orderBy(inputs, "name");
 
     typeDefinition.inputs = inputs;
     return typeDefinition;
-
-    function joinInputs(inputs, definitions, name) {
-        let def = definitions[name];
-        if (!def) def = { inputs: [], metadata: { subClassOf: [] } };
-        inputs = [...inputs, ...def.inputs];
-        if (def.metadata.subClassOf.length) {
-            return def.metadata.subClassOf.map((name) => {
-                return joinInputs(inputs, definitions, name);
-            });
-        }
-        return inputs;
-    }
 }
 
 export async function createProfile({ name, profile, collectionId }) {
