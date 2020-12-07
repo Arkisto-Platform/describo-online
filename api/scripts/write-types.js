@@ -36,6 +36,7 @@ const defs = {
     mapClassHierarchies();
     collapseNames();
     sortClassData();
+    addCompoundTypeDefinitions();
     let context = await extractCrateContext();
     // diffSchemaOrgAndCrateContext({ context });
     await writeTypeDefinitions();
@@ -70,14 +71,6 @@ function mapClassHierarchies() {
     }
 }
 
-function sortClassData() {
-    Object.keys(classes).forEach((c) => {
-        classes[c].inputs = uniqBy(classes[c].inputs, "name");
-        classes[c].inputs = orderBy(classes[c].inputs, "name");
-        classes[c].linksTo = classes[c].linksTo.sort();
-    });
-}
-
 function collapseNames() {
     Object.keys(classes).forEach((name) => {
         if (classes[name].subClassOf && classes[name].subClassOf.length) {
@@ -89,9 +82,30 @@ function collapseNames() {
     });
 }
 
-async function extractCrateContext() {
-    const jsonld = await readJson(crateContext);
-    return jsonld["@context"];
+function sortClassData() {
+    Object.keys(classes).forEach((c) => {
+        classes[c].inputs = uniqBy(classes[c].inputs, "name");
+        classes[c].inputs = orderBy(classes[c].inputs, "name");
+        classes[c].linksTo = classes[c].linksTo.sort();
+    });
+}
+
+function addCompoundTypeDefinitions() {
+    compoundTypes.forEach((type) => {
+        let types = type.split(", ");
+        let hierarchy = uniq(
+            flattenDeep(types.map((type) => classes[type].hierarchy)).reverse()
+        ).reverse();
+        classes[type] = {
+            name: type,
+            subClassOf: [],
+            allowAdditionalProperties: false,
+            inputs: [],
+            linksTo: [],
+            hierarchy,
+        };
+        console.log(classes[type]);
+    });
 }
 
 function extractClassesAndProperties({ graph }) {
@@ -226,6 +240,11 @@ function mapPropertiesToClasses() {
             });
         });
     });
+}
+
+async function extractCrateContext() {
+    const jsonld = await readJson(crateContext);
+    return jsonld["@context"];
 }
 
 async function writeTypeDefinitions() {
