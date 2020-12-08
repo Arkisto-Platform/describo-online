@@ -172,8 +172,7 @@ export async function loadRouteHandler(req, res, next) {
         if (error.message === "That collection is already loaded.") {
             req.io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
         } else {
-            console.log(error);
-            log.error(`loadRouterHandler: ${error.message}`);
+            log.error(`loadRouteHandler: ${error.message}`);
             return next(error);
         }
     }
