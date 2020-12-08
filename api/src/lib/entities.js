@@ -3,12 +3,23 @@ const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 import path from "path";
 import { cloneDeep, orderBy, flattenDeep, isArray } from "lodash";
+import { getTypeDefinition } from "./profile";
 
 export async function insertEntity({ entity, collectionId }) {
     verifyEntity({ entity });
+    let hierarchy = (
+        await getTypeDefinition({
+            collectionId,
+            name: entity["@type"] ? entity["@type"] : entity.etype,
+        })
+    ).hierarchy;
+    if (!hierarchy) {
+        hierarchy = [entity["@type"] ? entity["@type"] : entity.etype, "Thing"];
+    }
     entity = await models.entity.create({
         eid: entity["@id"] ? entity["@id"] : entity.eid,
         etype: entity["@type"] ? entity["@type"] : entity.etype,
+        hierarchy: hierarchy.join(", "),
         name: entity["name"],
         collectionId,
     });

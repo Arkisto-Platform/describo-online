@@ -17,6 +17,9 @@ module.exports = function (sequelize, DataTypes) {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            hierarchy: {
+                type: DataTypes.STRING,
+            },
             name: {
                 type: DataTypes.STRING,
                 defaultValue: "",
@@ -32,6 +35,9 @@ module.exports = function (sequelize, DataTypes) {
             indexes: [
                 {
                     fields: ["collectionId", "etype"],
+                },
+                {
+                    fields: ["collectionId", "hierarchy"],
                 },
                 {
                     unique: true,
