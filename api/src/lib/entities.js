@@ -149,21 +149,24 @@ export async function removeEntity({ id }) {
     });
 }
 
-export async function findEntity({ eid, etype, name, collectionId, fuzzy = true }) {
+export async function findEntity({ eid, etype, name, hierarchy, collectionId, fuzzy = true }) {
     // TODO add pagination and ordering
     let nameClause, eidClause;
     let andClause = [{ collectionId }];
     const orClause = [];
-    if (etype) {
+    if (hierarchy) {
         andClause.push({
-            hierarchy: {
-                [Op.like]: `%${etype}%`,
-            },
+            hierarchy: fuzzy ? { [Op.iLike]: `%${hierarchy}%` } : { [Op.eq]: etype },
+        });
+    }
+    if (etype) {
+        orClause.push({
+            etype: fuzzy ? { [Op.iLike]: `%${etype}%` } : { [Op.eq]: etype },
         });
     }
     if (eid) {
         eidClause = {
-            eid: fuzzy ? { [Op.iLike]: `${eid}%` } : { [Op.eq]: eid },
+            eid: fuzzy ? { [Op.iLike]: `%${eid}%` } : { [Op.eq]: eid },
         };
         orClause.push(eidClause);
     }

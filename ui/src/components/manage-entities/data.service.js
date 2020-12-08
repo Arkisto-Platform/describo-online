@@ -164,11 +164,11 @@ export default class DataService {
         }
     }
 
-    async findEntity({ etype, eid, name }) {
+    async findEntity({ etype, eid, name, hierarchy }) {
         this.$log.debug("lookup entity");
         let response = await this.$http.post({
             route: `/entity/lookup`,
-            body: { etype, eid, name },
+            body: { etype, eid, name, hierarchy },
         });
         if (response.status !== 200) {
             return this.handleError({ response });

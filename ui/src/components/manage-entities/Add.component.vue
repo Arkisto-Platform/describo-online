@@ -29,7 +29,7 @@
                 <div class="flex flex-row space-x-4 divide-x divide-gray-800 text-gray-600">
                     <div class="w-1/2">
                         <div class="">
-                            Associate an existing '{{ addType }}': lookup by name or @id
+                            Associate an existing '{{ addType }}': lookup by @id, @type, or name
                         </div>
                         <autocomplete-component
                             :type="addType"

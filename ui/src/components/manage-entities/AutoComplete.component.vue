@@ -10,10 +10,10 @@
         @select="handleSelect"
     >
         <template slot-scope="{ item }">
-            <div class="flex flex-col my-2">
-                <div class="text-sm">{{ item.etype }}</div>
-                <div class="text-sm">{{ item.name }}</div>
-                <div class="text-sm text-right">{{ item.eid }}</div>
+            <div class="flex flex-row space-x-2 my-1">
+                <div class="text-sm">{{ item.etype }}:</div>
+                <div class="text-sm" v-if="item.name">{{ item.name }}</div>
+                <div class="text-sm text-right" v-else>{{ item.eid }}</div>
             </div>
         </template>
     </el-autocomplete>
@@ -57,7 +57,8 @@ export default {
             if (this.by === "id") query.eid = queryString;
             if (this.by === "name") query.name = queryString;
             let { entities } = await this.dataService.findEntity({
-                etype: this.type,
+                hierarchy: this.type,
+                etype: queryString,
                 eid: queryString,
                 name: queryString,
             });
