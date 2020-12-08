@@ -21,6 +21,7 @@
                     </div>
                     <add-component
                         class="flex-grow"
+                        v-if="inputs"
                         :property="name"
                         :definition="definition(name)"
                         :embedded="false"
@@ -79,7 +80,7 @@ export default {
         };
     },
     watch: {
-        properties: function () {
+        properties: function() {
             this.loadTgtEntityData();
         },
     },
@@ -95,7 +96,7 @@ export default {
             return `${direction}-${name}`;
         },
         definition(name) {
-            return this.inputs ? this.inputs.filter((i) => i?.name === name)[0] : {};
+            return this.inputs ? this.inputs.filter((i) => i?.name === name)[0] : [];
         },
         help(name) {
             return this.definition(name)?.help;

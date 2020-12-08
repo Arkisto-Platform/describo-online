@@ -41,7 +41,7 @@
                     <!-- <add-entity-component /> -->
                 </div>
                 <add-property-dialog-component
-                    v-if="definition && definition.inputs.length"
+                    v-if="definition && definition.inputs && definition.inputs.length"
                     :visible="addPropertyDialogVisible"
                     :inputs="definition.inputs"
                     @close="addPropertyDialogVisible = false"
