@@ -4,16 +4,16 @@
         v-model="selection"
         :clearable="true"
         :fetch-suggestions="querySearch"
-        :trigger-on-focus="false"
+        :trigger-on-focus="true"
         value-key="id"
         placeholder="Please Input"
         @select="handleSelect"
     >
         <template slot-scope="{ item }">
-            <div class="flex flex-row py-2">
+            <div class="flex flex-col my-2">
+                <div class="text-sm">{{ item.etype }}</div>
                 <div class="text-sm">{{ item.name }}</div>
-                <div class="flex-grow"></div>
-                <div class="text-sm">{{ item.eid }}</div>
+                <div class="text-sm text-right">{{ item.eid }}</div>
             </div>
         </template>
     </el-autocomplete>
@@ -65,9 +65,7 @@ export default {
             cb(entities);
         },
         handleSelect() {
-            let entity = this.entities.filter(
-                (e) => e.id === this.selection
-            )[0];
+            let entity = this.entities.filter((e) => e.id === this.selection)[0];
             this.$emit("link:entity", { entity });
         },
     },
