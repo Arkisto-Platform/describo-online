@@ -155,7 +155,11 @@ export async function findEntity({ eid, etype, name, collectionId, fuzzy = true 
     let andClause = [{ collectionId }];
     const orClause = [];
     if (etype) {
-        andClause.push({ etype });
+        andClause.push({
+            hierarchy: {
+                [Op.like]: `%${etype}%`,
+            },
+        });
     }
     if (eid) {
         eidClause = {
