@@ -39,7 +39,7 @@ services:
             - $PWD/api:/srv/api:delegated
             - $PWD/.git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
-            - $PWD/configuration/development-configuration.json:/srv/api/configuration.json
+            - $PWD/configuration:/srv/api/configuration
         working_dir: /srv/api
         command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
 
