@@ -74,7 +74,17 @@ export async function getTypeDefinition({ collectionId, name }) {
     inputs = uniqBy(inputs, "id");
     inputs = orderBy(inputs, "name");
 
-    typeDefinition.inputs = inputs;
+    try {
+        typeDefinition.inputs = inputs;
+    } catch (error) {
+        typeDefinition = {
+            name,
+            help: "",
+            subClassOf: ["Thing"],
+            allowAdditionalProperties: false,
+            inputs,
+        };
+    }
     return typeDefinition;
 }
 
