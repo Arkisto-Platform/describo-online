@@ -169,7 +169,9 @@ export async function loadRouteHandler(req, res, next) {
         if (crate["@graph"].length > 1000) sync = false;
         await crateManager.importCrateIntoDatabase({ collection, crate, sync, io: req.io });
     } catch (error) {
-        if (error.message !== "That collection is already loaded.") {
+        req.io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
+        if (error.message === "That collection is already loaded.") {
+        } else {
             console.log(error);
             log.error(`loadRouterHandler: ${error.message}`);
             return next(error);
