@@ -191,8 +191,13 @@ export class Crate {
             const properties = Object.keys(entity).filter((p) => !filterProperties.includes(p));
             for (let property of properties) {
                 let data = this.asArray(entity[property]);
-                let propertyDefinition = typeDefinition.inputs.filter((i) => i.name === property);
-                propertyDefinition = propertyDefinition.length ? propertyDefinition[0] : {};
+                let propertyDefinition;
+                try {
+                    propertyDefinition = typeDefinition.inputs.filter((i) => i.name === property);
+                    propertyDefinition = propertyDefinition.length ? propertyDefinition[0] : {};
+                } catch (error) {
+                    propertyDefinition = {};
+                }
                 for (let value of data) {
                     if (isString(value)) {
                         await attachProperty({
