@@ -1,14 +1,15 @@
 <template>
     <div class="flex flex-row">
         <div class="flex flex-col bg-yellow-200 p-3 cursor-pointer rounded-l" @click="loadEntity">
-            <div class="text-sm flex flex-row">
+            <div class="text-sm flex flex-row space-x-1">
                 <type-icon-component
                     class="mr-2 text-gray-700"
                     :type="entity.tgtEntityType"
                     v-if="entity.tgtEntityType"
                 />
-                {{ entity.tgtEntityType }}:
-                {{ entity.tgtEntityName }}
+                <div>{{ entity.tgtEntityType }}:</div>
+                <span v-if="entity.tgtEntityName">{{ entity.tgtEntityName }}</span>
+                <span v-else>{{ entity.tgtEntityEid }}</span>
             </div>
         </div>
         <delete-property-component

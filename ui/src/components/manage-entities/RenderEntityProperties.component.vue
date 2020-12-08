@@ -119,6 +119,7 @@ export default {
                             ...this.properties[property][idx],
                             tgtEntityName: entity.name,
                             tgtEntityType: entity.etype,
+                            tgtEntityEid: entity.eid,
                         };
                         this.properties[property] = [...this.properties[property]];
                     }
