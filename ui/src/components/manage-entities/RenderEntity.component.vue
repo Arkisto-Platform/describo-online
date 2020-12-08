@@ -1,67 +1,94 @@
 <template>
     <div class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
-            <!-- navbar : controls -->
-            <div>
-                <el-button
-                    @click="loadRootDataset"
-                    size="small"
-                    :disabled="entity && entity.eid === './'"
-                >
-                    Load Root Dataset
-                </el-button>
-            </div>
-            <div>
-                <el-button @click="showAddPropertyDialog" size="small">
-                    <i class="fas fa-code"></i> Add Property
-                </el-button>
-            </div>
-            <div class="flex flex-grow"></div>
-            <div>
-                <el-button
-                    @click="deleteEntity"
-                    type="danger"
-                    size="small"
-                    :disabled="entity && entity.eid === './'"
-                >
-                    <i class="fas fa-trash"></i>
-                    Delete Entity
-                </el-button>
-            </div>
-            <!-- <add-entity-component /> -->
-        </div>
-        <add-property-dialog-component
-            v-if="definition && definition.inputs.length"
-            :visible="addPropertyDialogVisible"
-            :inputs="definition.inputs"
-            @close="addPropertyDialogVisible = false"
-            @create:property="createProperty"
-            @create-and-link:entity="createAndLinkEntity"
-            @link:entity="linkEntity"
-        />
-        <div v-if="entity && entity.id" class="border-t my-4 border-gray-200">
-            <!-- render entity name and id -->
-            <render-entity-header-component :entity="entity" class="my-1" />
+        <div
+            v-if="entity"
+            class="flex"
+            :class="{
+                'flex-row space-x-1': entity.etype === 'File',
+                'flex-col': entity.etype !== 'File',
+            }"
+        >
+            <div :class="{ 'w-1/2': entity.etype === 'File', 'w-full': entity.etype !== 'File' }">
+                <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
+                    <!-- navbar : controls -->
+                    <div>
+                        <el-button
+                            @click="loadRootDataset"
+                            size="small"
+                            :disabled="entity && entity.eid === './'"
+                        >
+                            Load Root Dataset
+                        </el-button>
+                    </div>
+                    <div>
+                        <el-button @click="showAddPropertyDialog" size="small">
+                            <i class="fas fa-code"></i> Add Property
+                        </el-button>
+                    </div>
+                    <div class="flex flex-grow"></div>
+                    <div>
+                        <el-button
+                            @click="deleteEntity"
+                            type="danger"
+                            size="small"
+                            :disabled="entity && entity.eid === './'"
+                        >
+                            <i class="fas fa-trash"></i>
+                            Delete Entity
+                        </el-button>
+                    </div>
+                    <!-- <add-entity-component /> -->
+                </div>
+                <add-property-dialog-component
+                    v-if="definition && definition.inputs.length"
+                    :visible="addPropertyDialogVisible"
+                    :inputs="definition.inputs"
+                    @close="addPropertyDialogVisible = false"
+                    @create:property="createProperty"
+                    @create-and-link:entity="createAndLinkEntity"
+                    @link:entity="linkEntity"
+                />
+                <div v-if="entity && entity.id" class="border-t my-4 border-gray-200">
+                    <!-- render entity name and id -->
+                    <render-entity-header-component :entity="entity" class="my-1" />
 
-            <!-- render entity properties -->
-            <render-entity-properties-component
-                v-if="definition && entity.forwardProperties"
-                :entity="entity"
-                :properties="entity.forwardProperties"
-                :inputs="definition.inputs"
-                @refresh="getEntity"
-            />
+                    <!-- render entity properties -->
+                    <render-entity-properties-component
+                        v-if="definition && entity.forwardProperties"
+                        :entity="entity"
+                        :properties="entity.forwardProperties"
+                        :inputs="definition.inputs"
+                        @refresh="getEntity"
+                    />
 
-            <!--render entities it links to  -->
-            <render-entity-reverse-properties-component
-                class="mt-2"
-                v-if="entity.reverseProperties"
-                :properties="entity.reverseProperties"
-            />
-        </div>
-        <div v-if="error" class="bg-red-200 p-2 text-center rounded">
-            {{ error }}
+                    <!--render entities it links to  -->
+                    <render-entity-reverse-properties-component
+                        class="mt-2"
+                        v-if="entity.reverseProperties"
+                        :properties="entity.reverseProperties"
+                    />
+                </div>
+                <div v-if="error" class="bg-red-200 p-2 text-center rounded">
+                    {{ error }}
+                </div>
+            </div>
+
+            <div
+                class="pl-2 flex flex-col justify-items-start"
+                :class="{ 'w-1/2': entity.etype === 'File', 'w-0': entity.etype !== 'File' }"
+            >
+                <onedrive-file-preview-component
+                    v-if="entity.etype === 'File'"
+                    class="w-full"
+                    style="height: 500px;"
+                    :path="resolveFilePath(entity.eid)"
+                />
+                <!-- <onedrive-file-preview-component
+                style="width: 500px; height: 500px;"
+                id="b!-4xxhXFx5kKSQwwAuO7Ek9AvCPQ0yFpGrxxa6HLjh4QGAuTlRxZhQ59yKADIuZ49#01K7QV4XMU2HLRHYXGTVAY4LGNFZOOIF6Z"
+            /> -->
+            </div>
         </div>
     </div>
 </template>
@@ -176,6 +203,10 @@ export default {
         async deleteEntity() {
             await this.dataService.deleteEntity({ id: this.entity.id });
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+        },
+        resolveFilePath(id) {
+            let filePath = `${this.$store.state.target.folder.path}/${id}`;
+            return filePath;
         },
     },
 };
