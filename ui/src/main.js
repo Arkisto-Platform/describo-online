@@ -50,6 +50,11 @@ import { defaultSessionLifetime } from "./constants";
         const sessionCreate = Date.parse(store.state.session.create.valueOf()).valueOf() / 1000;
         if (new Date().valueOf() / 1000 > sessionCreate + defaultSessionLifetime) {
             store.commit("setTargetResource", { resource: undefined, folder: undefined });
+        } else {
+            // do we already have a onedrive session on the go? log it in again
+            if (store.state?.target?.resource === "onedrive") {
+                await Vue.prototype.onedriveAuthenticationManager.login();
+            }
         }
 
         new Vue({
