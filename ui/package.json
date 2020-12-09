@@ -7,9 +7,9 @@
         "build": "npm install && vue-cli-service build"
     },
     "dependencies": {
+        "@azure/msal-browser": "^2.8.0",
         "@fortawesome/fontawesome-free": "^5.15.1",
         "@fortawesome/fontawesome-svg-core": "^1.2.32",
-        "@microsoft/microsoft-graph-client": "^2.1.1",
         "@okta/okta-signin-widget": "^4.5.1",
         "@okta/okta-vue": "^2.1.1",
         "core-js": "^3.7.0",
