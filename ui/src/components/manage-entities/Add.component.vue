@@ -29,6 +29,11 @@
                     :property="property"
                     @save:property="createProperty"
                 />
+                <number-component
+                    v-if="['Number', 'Float', 'Integer'].includes(addType)"
+                    :property="property"
+                    @save:property="createProperty"
+                />
                 <time-component
                     v-if="addType === 'Time'"
                     :property="property"
@@ -70,6 +75,7 @@ import TextComponent from "./Text.component.vue";
 import DateComponent from "./Date.component.vue";
 import DateTimeComponent from "./DateTime.component.vue";
 import TimeComponent from "./Time.component.vue";
+import NumberComponent from "./Number.component.vue";
 import DataService from "./data.service.js";
 import AutocompleteComponent from "./AutoComplete.component.vue";
 
@@ -80,6 +86,7 @@ export default {
         DateComponent,
         DateTimeComponent,
         TimeComponent,
+        NumberComponent,
         AutocompleteComponent,
     },
     props: {
