@@ -19,6 +19,7 @@ module.exports = {
     rename: {
         classes: {
             MediaObject: "File",
+            Periodical: "Journal",
             "models#Object": "RepositoryObject",
             "models#Collection": "RepositoryCollection",
         },
