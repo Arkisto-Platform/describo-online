@@ -50,7 +50,7 @@ export default {
         };
     },
     watch: {
-        types: function () {
+        types: function() {
             this.init();
         },
     },

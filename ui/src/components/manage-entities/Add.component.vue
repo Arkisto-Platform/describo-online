@@ -24,6 +24,16 @@
                     :property="property"
                     @save:property="createProperty"
                 />
+                <date-time-component
+                    v-if="addType === 'DateTime'"
+                    :property="property"
+                    @save:property="createProperty"
+                />
+                <time-component
+                    v-if="addType === 'Time'"
+                    :property="property"
+                    @save:property="createProperty"
+                />
             </div>
             <div v-else class="flex flex-col mt-4">
                 <div class="flex flex-row space-x-4 divide-x divide-gray-800 text-gray-600">
@@ -58,6 +68,8 @@
 import AddControlComponent from "./AddControl.component.vue";
 import TextComponent from "./Text.component.vue";
 import DateComponent from "./Date.component.vue";
+import DateTimeComponent from "./DateTime.component.vue";
+import TimeComponent from "./Time.component.vue";
 import DataService from "./data.service.js";
 import AutocompleteComponent from "./AutoComplete.component.vue";
 
@@ -66,6 +78,8 @@ export default {
         AddControlComponent,
         TextComponent,
         DateComponent,
+        DateTimeComponent,
+        TimeComponent,
         AutocompleteComponent,
     },
     props: {
@@ -84,7 +98,7 @@ export default {
     },
     data() {
         return {
-            simpleTypes: ["Text", "Date"],
+            simpleTypes: ["Text", "Date", "DateTime", "Time", "Number", "Float", "Integer"],
             addType: undefined,
         };
     },
