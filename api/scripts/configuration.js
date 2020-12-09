@@ -9,7 +9,7 @@ module.exports = {
     crateContext: "crate-context.jsonld",
 
     // simple data types - ie not entities
-    simpleDataTypes: ["Text", "Date", "Number", "Integer"],
+    simpleDataTypes: ["Text", "Date", "DateTime", "Time", "Number", "Float", "Integer"],
 
     // classes to be mapped to a switch
     selectDataTypes: ["Boolean"],
