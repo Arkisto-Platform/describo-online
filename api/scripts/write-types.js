@@ -176,21 +176,21 @@ function mapPropertiesToClasses() {
             }
 
             const complexTypes = property.range
-                .filter((t) => !simpleDataTypes.includes(stripSchemaPath(t)))
-                .filter((t) => !selectDataTypes.includes(stripSchemaPath(t)))
-                .map((t) => stripSchemaPath(t));
+                .map((t) => stripSchemaPath(t))
+                .filter((t) => !simpleDataTypes.includes(t))
+                .filter((t) => !selectDataTypes.includes(t));
 
             const simpleTypes = property.range
-                .filter((t) => !has(classes, stripSchemaPath(t)))
-                .filter((t) => simpleDataTypes.includes(stripSchemaPath(t)))
-                .map((t) => stripSchemaPath(t));
+                .map((t) => stripSchemaPath(t))
+                .filter((t) => simpleDataTypes.includes(t));
+            // console.log(property.name, simpleTypes);
 
             const selectTypes = property.range
-                .filter((t) => !has(classes, stripSchemaPath(t)))
-                .filter((t) => selectDataTypes.includes())
-                .map((t) => stripSchemaPath(t));
+                .map((t) => stripSchemaPath(t))
+                .filter((t) => !has(classes, t))
+                .filter((t) => selectDataTypes.includes());
 
-            // console.log(complexTypes, simpleTypes, selectTypes);
+            // console.log(property.name, complexTypes, simpleTypes, selectTypes);
 
             // link this property to the relevant class
             const definition = {
