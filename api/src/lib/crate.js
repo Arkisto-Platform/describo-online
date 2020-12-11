@@ -10,6 +10,7 @@ import {
 } from "./entities";
 import { getTypeDefinition } from "./profile";
 import models from "../models";
+import { syncLocalFileToRemote } from "../lib/file-browser";
 
 import { getLogger } from "../common";
 const log = getLogger();
@@ -279,6 +280,146 @@ export class Crate {
         }
         // console.log(JSON.stringify(crate, null, 2));
         return crate;
+    }
+
+    async saveCrate({ session, user, resource, parent, localFile, crate }) {
+        // write the file out locally
+        await writeJSON(localFile, crate, { spaces: 2 });
+
+        // sync it back to the remote
+        syncLocalFileToRemote({
+            session,
+            user,
+            resource,
+            parent,
+            localFile,
+        });
+    }
+
+    async updateCrate({ localCrateFile, collectionId, actions }) {
+        let entity;
+        let crate = await readJSON(localCrateFile);
+        for (let action of actions) {
+            // console.log(action);
+            let updates = [];
+            if (action.name === "insert") {
+                const entityId = action.entity.id;
+                entity = await getEntity({ collectionId, id: entityId });
+                crate = insertEntity({ crate, entity });
+            }
+            if (action.name === "update") {
+                // load context entity and schedule for update
+                const entityId = action.entity.id;
+                entity = await getEntity({ collectionId, id: entityId });
+                updates.push(entity);
+
+                // find all instances of context entity as target and schedule for update
+                let properties = await models.property.findAll({
+                    where: { tgtEntityId: entityId },
+                });
+                for (let property of properties) {
+                    entity = await getEntity({ collectionId, id: property.entityId });
+                    updates.push(entity);
+                }
+            }
+            if (action.name === "remove") {
+                crate = removeEntity({ crate, entity: action.entity });
+            }
+
+            for (let entity of updates) {
+                crate = updateEntity({ crate, entity });
+                let { properties } = await getEntityProperties({ collectionId, id: entity.id });
+                crate = await updateEntityProperties({
+                    crate,
+                    entity,
+                    properties,
+                });
+            }
+        }
+        return crate;
+
+        function insertEntity({ crate, entity }) {
+            crate["@graph"].push({
+                "@id": entity.eid ? entity.id : entity.id,
+                "@type": entity.etype,
+                name: entity.name,
+            });
+            return crate;
+        }
+
+        function removeEntity({ crate, entity }) {
+            crate["@graph"] = crate["@graph"].filter((e) => {
+                return ![entity.eid, entity.id].includes(e["@id"]) && e["@id"] !== entity.etype;
+            });
+            return crate;
+        }
+
+        function updateEntity({ crate, entity }) {
+            crate["@graph"] = crate["@graph"].map((e) => {
+                if (e["@id"] === entity.eid && e["@type"] === entity.etype) {
+                    return {
+                        name: entity.name,
+                        "@id": entity.eid ? entity.eid : entity.id,
+                        "@type": entity.etype,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            return crate;
+        }
+
+        async function updateEntityProperties({ crate, entity, properties }) {
+            // properties.forEach((p) => console.log(p.get()));
+            const reverseProperties = groupBy(
+                properties.filter((p) => p.direction === "R"),
+                "name"
+            );
+            properties = groupBy(
+                properties.filter((p) => p.direction !== "R"),
+                "name"
+            );
+
+            for (let e of crate["@graph"]) {
+                if (e["@id"] === entity.eid && e["@type"] === entity.etype) {
+                    // found a match - add simple value properties and forward refs
+                    for (let property of Object.keys(properties)) {
+                        let data = [];
+                        for (let entry of properties[property]) {
+                            if (entry.value) data.push(entry.value);
+                            if (entry.direction === "F") {
+                                entry = await getEntity({
+                                    collectionId,
+                                    id: entry.tgtEntityId,
+                                });
+                                data.push({ "@id": entry.eid ? entry.eid : entry.id });
+                            }
+                        }
+                        e[property] = data;
+                    }
+
+                    // found a match - add reverse refs
+                    for (let property of Object.keys(reverseProperties)) {
+                        if (reverseProperties[property].length) {
+                            let data = [];
+                            if (!e["@reverse"]) e["@reverse"] = {};
+                            for (let entry of reverseProperties[property]) {
+                                if (entry.direction === "R") {
+                                    entry = await getEntity({
+                                        collectionId,
+                                        id: entry.tgtEntityId,
+                                    });
+                                    data.push({ "@id": entry.eid ? entry.eid : entry.id });
+                                }
+                            }
+                            e["@reverse"][property] = data;
+                        }
+                    }
+                }
+            }
+
+            return crate;
+        }
     }
 
     asArray(data) {

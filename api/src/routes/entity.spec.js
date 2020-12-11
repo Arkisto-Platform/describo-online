@@ -156,6 +156,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify({ entity }),
         });
@@ -178,6 +179,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify({ entity }),
         });
@@ -190,6 +192,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(update),
         });
@@ -215,6 +218,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify({ entity }),
         });
@@ -226,6 +230,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
         });
         expect(response.status).toBe(200);
@@ -259,6 +264,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(property),
         });
@@ -304,6 +310,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(property),
         });
@@ -317,6 +324,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(update),
         });
@@ -360,6 +368,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(property),
         });
@@ -371,6 +380,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
         });
         expect(response.status).toBe(200);
@@ -410,6 +420,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify({ eid: "person1" }),
         });
@@ -425,6 +436,7 @@ describe("Test entity and property route operations", () => {
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
+                "X-Testing": true,
             },
             body: JSON.stringify(association),
         });

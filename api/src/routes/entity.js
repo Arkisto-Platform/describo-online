@@ -13,8 +13,36 @@ import {
     associate,
     insertFilesAndFolders,
 } from "../lib/entities";
+import { Crate } from "../lib/crate";
 import { getLogger } from "../common";
 const log = getLogger();
+import process from "process";
+
+async function saveCrate({ session, user, collectionId, actions }) {
+    try {
+        const crateMgr = new Crate();
+        let hrstart = process.hrtime();
+        let crate = await crateMgr.updateCrate({
+            localCrateFile: session?.data?.current?.local?.file,
+            collectionId,
+            actions,
+        });
+        let hrend = process.hrtime(hrstart);
+        // log.debug(JSON.stringify(crate, null, 2));
+        await crateMgr.saveCrate({
+            session,
+            user,
+            resource: session?.data?.current?.remote?.resource,
+            parent: session?.data?.current?.remote?.parent,
+            localFile: session?.data?.current?.local?.file,
+            crate,
+        });
+        log.debug(`Crate update time: ${hrend[0]}s, ${hrend[1]}ns`);
+    } catch (error) {
+        log.error(`saveCrate: error saving crate ${error.message}`);
+        throw new Error("Error saving the crate back to the target");
+    }
+}
 
 export async function getEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
@@ -161,6 +189,14 @@ export async function postEntityRouteHandler(req, res, next) {
     let entity = req.body.entity;
     try {
         entity = await insertEntity({ entity, collectionId });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "insert", entity }],
+            });
+        }
         res.send({ entity });
         return next();
     } catch (error) {
@@ -184,7 +220,15 @@ export async function putEntityRouteHandler(req, res, next) {
     let entityId = req.params.entityId;
     let { name, eid } = req.body;
     try {
-        let entity = await updateEntity({ entityId, name, eid });
+        let entity = await updateEntity({ collectionId, entityId, name, eid });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "update", entity }],
+            });
+        }
         res.send({ entity });
         return next();
     } catch (error) {
@@ -207,7 +251,17 @@ export async function delEntityRouteHandler(req, res, next) {
     }
     let entityId = req.params.entityId;
     try {
-        await removeEntity({ id: entityId });
+        let { updated, removed } = await removeEntity({ entityId, collectionId });
+        let actions = updated.map((eid) => ({ name: "update", entity: { id: eid } }));
+        actions = [...actions, { name: "remove", entity: removed.get() }];
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions,
+            });
+        }
         res.send({});
         next();
     } catch (error) {
@@ -230,6 +284,15 @@ export async function postEntityPropertyRouteHandler(req, res, next) {
             property,
             value,
         });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "update", entity: { id: entityId } }],
+            });
+        }
+
         res.send({ property: property.get() });
         return next();
     } catch (error) {
@@ -252,6 +315,15 @@ export async function putEntityPropertyRouteHandler(req, res, next) {
             propertyId,
             value,
         });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "update", entity: { id: entityId } }],
+            });
+        }
+
         res.send({ property: property.get() });
         return next();
     } catch (error) {
@@ -272,6 +344,15 @@ export async function delEntityPropertyRouteHandler(req, res, next) {
             entityId,
             propertyId,
         });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "update", entity: { id: entityId } }],
+            });
+        }
+
         res.send({});
         return next();
     } catch (error) {
@@ -295,6 +376,15 @@ export async function putEntityAssociateRouteHandler(req, res, next) {
             property,
             tgtEntityId,
         });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions: [{ name: "update", entity: { id: entityId } }],
+            });
+        }
+
         res.send({});
         return next();
     } catch (error) {

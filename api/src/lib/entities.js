@@ -43,17 +43,18 @@ export async function insertEntity({ entity, collectionId }) {
     }
 }
 
-export async function updateEntity({ entityId, name, eid }) {
-    let entity = await models.entity.findOne({ where: { id: entityId } });
-
+export async function updateEntity({ collectionId, entityId, name, eid }) {
+    let entity = await getEntity({ id: entityId, collectionId });
     if (!entity) {
-        throw new Error(`Unable to find an entity with that id`);
+        throw new Error(`You don't have permission to access that entity`);
     }
 
     let update = {};
     if (name) update.name = name;
     if (eid) update.eid = eid;
-    return (await entity.update(update)).get();
+
+    entity = (await entity.update(update)).get();
+    return entity;
 }
 
 export async function attachProperty({ collectionId, entityId, property, value, typeDefinition }) {
@@ -62,12 +63,13 @@ export async function attachProperty({ collectionId, entityId, property, value, 
         throw new Error(`You don't have permission to access that entity`);
     }
     let fqname = typeDefinition?.id ? typeDefinition.id : "";
-    return await models.property.create({
+    property = await models.property.create({
         name: property,
         definition: { id: fqname },
         value,
         entityId,
     });
+    return property;
 }
 
 export async function updateProperty({ collectionId, entityId, propertyId, value }) {
@@ -79,7 +81,8 @@ export async function updateProperty({ collectionId, entityId, propertyId, value
         where: { id: propertyId },
     });
     property.value = value;
-    return await property.save();
+    property = await property.save();
+    return property;
 }
 
 export async function removeProperty({ collectionId, entityId, propertyId }) {
@@ -96,6 +99,7 @@ export async function removeProperty({ collectionId, entityId, propertyId }) {
             where: { tgtEntityId: entityId },
         });
     }
+    return { updated: [property.entityId, property.tgtEntityId] };
 }
 
 export async function associate({ collectionId, entityId, property, tgtEntityId, typeDefinition }) {
@@ -126,27 +130,39 @@ export async function associate({ collectionId, entityId, property, tgtEntityId,
             defaults: property,
         });
     }
+
     // await models.property.bulkCreate(properties);
 }
 
-export async function removeEntity({ id }) {
+export async function removeEntity({ entityId, collectionId }) {
+    let entity = await getEntity({ id: entityId, collectionId });
+    if (!entity) {
+        throw new Error(`You don't have permission to access that entity`);
+    }
+    let targetIds = await models.property.findAll({
+        where: { tgtEntityId: entityId },
+        attributes: ["entityId"],
+        raw: true,
+    });
+    targetIds = targetIds.map((t) => t.entityId);
     await sequelize.transaction(async (t) => {
         await models.entity.destroy({
-            where: { id },
+            where: { id: entityId },
             include: [{ model: models.property }],
             transaction: t,
         });
         // remove properties where this entity is the target
         await models.property.destroy({
-            where: { tgtEntityId: id },
+            where: { tgtEntityId: entityId },
             transaction: t,
         });
         // remove properties associated to this entity
         await models.property.destroy({
-            where: { entityId: id },
+            where: { entityId },
             transaction: t,
         });
     });
+    return { removed: entity, updated: targetIds };
 }
 
 export async function findEntity({ eid, etype, name, hierarchy, collectionId, fuzzy = true }) {
@@ -336,17 +352,17 @@ export async function insertFilesAndFolders({ collectionId, files }) {
         let parent;
         if (!file.parent) {
             //  if parent is undefined attach it to the root dataset
-            parent = (await findEntity({ collectionId, eid: "./", etype: "Dataset" })).pop();
+            parent = await findEntity({ collectionId, eid: "./", etype: "Dataset", fuzzy: false });
+            parent = parent.filter((p) => p.eid === "./" && p.etype === "Dataset").pop();
         } else {
             //  otherwise find the parent and associate to that
-            parent = (
-                await findEntity({
-                    collectionId,
-                    eid: file.parent,
-                    etype: "Dataset",
-                    fuzzy: false,
-                })
-            ).pop();
+            parent = await findEntity({
+                collectionId,
+                eid: file.parent,
+                etype: "Dataset",
+                fuzzy: false,
+            });
+            parent = parent.filter((p) => p.eid === file.parent && p.etype === "Dataset").pop();
         }
         let association = {
             collectionId,

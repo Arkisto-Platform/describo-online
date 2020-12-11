@@ -53,11 +53,20 @@ describe("Test entity and property management operations", () => {
         };
         entity = await insertEntity({ entity, collectionId: collection.id });
 
-        entity = await updateEntity({ entityId: entity.id, name: "new" });
+        entity = await updateEntity({
+            collectionId: collection.id,
+            entityId: entity.id,
+            name: "new",
+        });
         expect(entity.name).toBe("new");
-        entity = await updateEntity({ entityId: entity.id, eid: "new" });
+        entity = await updateEntity({
+            collectionId: collection.id,
+            entityId: entity.id,
+            eid: "new",
+        });
         expect(entity.eid).toBe("new");
         entity = await updateEntity({
+            collectionId: collection.id,
             entityId: entity.id,
             name: "blah",
             eid: "boo",
@@ -239,7 +248,7 @@ describe("Test entity and property management operations", () => {
             property: "author",
             value: "something",
         });
-        await removeEntity({ id: entityId });
+        await removeEntity({ collectionId: collection.id, entityId });
         entity = await models.entity.findAll({ where: { id: entityId } });
         property = await models.property.findAll({
             where: { entityId },
@@ -272,7 +281,7 @@ describe("Test entity and property management operations", () => {
             property: "author",
             tgtEntityId: entityB.id,
         });
-        await removeEntity({ id: entityA.id });
+        await removeEntity({ collectionId: collection.id, entityId: entityA.id });
         let entities = await models.entity.findAll({
             where: { id: entityA.id },
             include: [{ model: models.property }],
@@ -326,7 +335,7 @@ describe("Test entity and property management operations", () => {
             property: "author",
             tgtEntityId: entityC.id,
         });
-        await removeEntity({ id: entityA.id });
+        await removeEntity({ collectionId: collection.id, entityId: entityA.id });
         let entities = await models.entity.findAll({
             include: [{ model: models.property }],
         });
