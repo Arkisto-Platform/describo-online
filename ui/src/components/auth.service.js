@@ -21,8 +21,9 @@ export default class AuthService {
     }
 
     logout() {
-        this.$auth.logout();
+        window.localStorage.removeItem("vuex");
         removeSessionSID();
+        this.$auth.logout();
     }
 }
 

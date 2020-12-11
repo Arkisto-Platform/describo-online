@@ -12,7 +12,6 @@ export default {
         return {};
     },
     mounted() {
-        window.localStorage.removeItem("vuex");
         const as = new AuthService({ $auth: this.$auth });
         try {
             as.logout();
