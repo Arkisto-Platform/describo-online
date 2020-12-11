@@ -60,14 +60,15 @@ export async function getEntityRouteHandler(req, res, next) {
 
     let entity;
     try {
+        console.log("get", req.params.entityId);
         if (req.params.entityId === "RootDataset") {
-            entity = (
-                await findEntity({
-                    eid: "./",
-                    etype: "Dataset",
-                    collectionId,
-                })
-            ).pop();
+            let entities = await findEntity({
+                eid: "./",
+                etype: "Dataset",
+                collectionId,
+                fuzzy: false,
+            });
+            entity = entities.pop();
             if (!entity) {
                 return next(new NotFoundError(`Root dataset not found`));
             }
