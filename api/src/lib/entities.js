@@ -167,34 +167,39 @@ export async function removeEntity({ entityId, collectionId }) {
 
 export async function findEntity({ eid, etype, name, hierarchy, collectionId, fuzzy = true }) {
     // TODO add pagination and ordering
-    let nameClause, eidClause;
     let andClause = [{ collectionId }];
     const orClause = [];
     if (hierarchy) {
-        andClause.push({
+        let clause = {
             hierarchy: fuzzy ? { [Op.iLike]: `%${hierarchy}%` } : { [Op.eq]: etype },
-        });
+        };
+        andClause.push(clause);
     }
     if (etype) {
-        orClause.push({
+        let clause = {
             etype: fuzzy ? { [Op.iLike]: `%${etype}%` } : { [Op.eq]: etype },
-        });
+        };
+        if (fuzzy) orClause.push(clause);
+        if (!fuzzy) andClause.push(clause);
     }
     if (eid) {
-        eidClause = {
+        let clause = {
             eid: fuzzy ? { [Op.iLike]: `%${eid}%` } : { [Op.eq]: eid },
         };
-        orClause.push(eidClause);
+        if (fuzzy) orClause.push(clause);
+        if (!fuzzy) andClause.push(clause);
     }
     if (name) {
-        nameClause = {
+        let clause = {
             name: fuzzy ? { [Op.iLike]: `%${name}%` } : { [Op.eq]: name },
         };
-        orClause.push(nameClause);
+        if (fuzzy) orClause.push(clause);
+        if (!fuzzy) andClause.push(clause);
     }
     if (orClause.length) {
         andClause.push({ [Op.or]: orClause });
     }
+    console.log(andClause, orClause);
 
     let where = {
         [Op.and]: andClause,
