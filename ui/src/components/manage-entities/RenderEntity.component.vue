@@ -158,7 +158,7 @@ export default {
                 this.entity = { ...entity };
                 this.loading = false;
 
-                let { properties } = await this.dataService.getEntityProperties({ id: this.id });
+                let { properties } = await this.dataService.getEntityProperties({ id: entity.id });
                 this.entity = {
                     ...this.entity,
                     forwardProperties: { ...properties.forwardProperties },

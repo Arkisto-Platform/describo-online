@@ -56,7 +56,7 @@ export default {
             return this.$store.state.target;
         },
         selectedEntityId() {
-            return this.$store.state.selectedEntity?.id;
+            return this.$store.state.selectedEntity.id;
         },
     },
     mounted() {
