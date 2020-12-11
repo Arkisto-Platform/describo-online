@@ -12,9 +12,13 @@ export default {
         return {};
     },
     mounted() {
-        const as = new AuthService({ $auth: this.$auth });
         window.localStorage.removeItem("vuex");
-        as.logout();
+        const as = new AuthService({ $auth: this.$auth });
+        try {
+            as.logout();
+        } catch (error) {
+            this.$router.push("/login");
+        }
     },
 };
 </script>
