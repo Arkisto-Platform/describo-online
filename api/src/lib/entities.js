@@ -199,7 +199,6 @@ export async function findEntity({ eid, etype, name, hierarchy, collectionId, fu
     if (orClause.length) {
         andClause.push({ [Op.or]: orClause });
     }
-    console.log(andClause, orClause);
 
     let where = {
         [Op.and]: andClause,

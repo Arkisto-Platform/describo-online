@@ -60,7 +60,6 @@ export async function getEntityRouteHandler(req, res, next) {
 
     let entity;
     try {
-        console.log("get", req.params.entityId);
         if (req.params.entityId === "RootDataset") {
             let entities = await findEntity({
                 eid: "./",
@@ -408,7 +407,6 @@ export async function postFilesRouteHandler(req, res, next) {
         res.send({});
         return next();
     } catch (error) {
-        console.log(error);
         log.error(`postFilesRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }
