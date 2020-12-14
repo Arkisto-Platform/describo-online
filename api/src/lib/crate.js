@@ -1,5 +1,5 @@
 import { readJSON, writeJSON } from "fs-extra";
-import { flattenDeep, isPlainObject, groupBy, isString, isArray } from "lodash";
+import { flattenDeep, isPlainObject, groupBy, isString, isArray, compact } from "lodash";
 import { insertCollection, findCollection } from "./collections";
 import {
     insertEntity,
@@ -299,12 +299,14 @@ export class Crate {
         const configuration = await loadConfiguration();
         // console.log(configuration.api.applications);
 
-        const endpoints = configuration.api.applications.map((application) => {
+        let endpoints = configuration.api.applications.map((application) => {
+            if (!application.postCrateTo?.url) return undefined;
             return {
-                url: application.postCrateTo.url,
-                headers: application.postCrateTo.headers,
+                url: application?.postCrateTo.url,
+                headers: application?.postCrateTo.headers,
             };
         });
+        endpoints = compact(endpoints);
         for (let endpoint of endpoints) {
             let response = await fetch(endpoint.url, {
                 method: "POST",
