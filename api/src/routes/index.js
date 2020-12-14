@@ -65,6 +65,15 @@ export function setupRoutes({ server }) {
     server.del("/entity/:entityId/property/:propertyId", route(delEntityPropertyRouteHandler));
     server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
     server.post("/files", route(postFilesRouteHandler));
+
+    if (process.env.NODE_ENV === "development") {
+        // this is only for development of the capability to post back on save
+        server.post("/save", (req, res, next) => {
+            console.log(req.body);
+            res.send({});
+            return next();
+        });
+    }
 }
 
 function route(handler) {

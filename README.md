@@ -10,6 +10,7 @@ This is the source code for the describo-online application.
   - [Running the tests in watch mode](#running-the-tests-in-watch-mode)
 - [Setting up for production](#setting-up-for-production)
 - [Integrating Describo Online into another service](#integrating-describo-online-into-another-service)
+  - [Getting data back from Describo into your application](#getting-data-back-from-describo-into-your-application)
 - [Building production containers](#building-production-containers)
 - [Updating type definitions](#updating-type-definitions)
 
@@ -125,6 +126,12 @@ this mode, okta auth is bypassed for a given session. This works as follows:
 -   If successful, a `session identifier` will be returned from describo online. Call describo-online inside an iframe as `https://{describo-online}/application?sid={sessionId}`. From that point on the session id will be used to identifier the currently logged in user bypassing all okta authentication.
 
 -   The application secret is not stored in the DB so it can be changed at anytime by changing in the configuration file and restarting describo online.
+
+### Getting data back from Describo into your application
+
+Describo can POST the crate back to your oapplication whenever it saves the data back to disk. To configure this capability add a section
+`postCrateTo` into your application configuration as per the example in `configuration/exaple-configuration.json`. Set the headers section
+as your service requires them - Describo will use them as is.
 
 ## Building production containers
 

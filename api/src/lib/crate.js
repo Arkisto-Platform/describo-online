@@ -11,8 +11,9 @@ import {
 import { getTypeDefinition } from "./profile";
 import models from "../models";
 import { syncLocalFileToRemote } from "../lib/file-browser";
+import fetch from "node-fetch";
 
-import { getLogger } from "../common";
+import { getLogger, loadConfiguration } from "../common";
 const log = getLogger();
 
 const rootDescriptorIdPrefix = "#:localid:describo:";
@@ -294,6 +295,29 @@ export class Crate {
             parent,
             localFile,
         });
+
+        const configuration = await loadConfiguration();
+        // console.log(configuration.api.applications);
+
+        const endpoints = configuration.api.applications.map((application) => {
+            return {
+                url: application.postCrateTo.url,
+                headers: application.postCrateTo.headers,
+            };
+        });
+        for (let endpoint of endpoints) {
+            let response = await fetch(endpoint.url, {
+                method: "POST",
+                headers: endpoint.headers,
+                body: JSON.stringify(crate),
+            });
+            if (response.status !== 200) {
+                const error = await response.json();
+                log.error(
+                    `Error POST'ing the crate back to ${endpoint.url}: ${response.status} - ${error.message}`
+                );
+            }
+        }
     }
 
     async updateCrate({ localCrateFile, collectionId, actions }) {

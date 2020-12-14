@@ -16,6 +16,15 @@
     },
     "api": {
         "port": 8080,
-        "applications": [{ "name": "stash.uts.edu.au", "secret": "xxx" }]
+        "applications": [
+            {
+                "name": "stash",
+                "secret": "xxx",
+                "postCrateTo": {
+                    "url": "https://{your url}",
+                    "headers": { "Authorization": "Bearer yyy", "Content-Type": "application/json" }
+                }
+            }
+        ]
     }
 }
