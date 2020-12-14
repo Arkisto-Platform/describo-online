@@ -69,7 +69,7 @@ export function setupRoutes({ server }) {
     if (process.env.NODE_ENV === "development") {
         // this is only for development of the capability to post back on save
         server.post("/save", (req, res, next) => {
-            console.log(req.body);
+            log.debug(`Crate POST'ed: ${req.body["@graph"][0]["@id"]}`);
             res.send({});
             return next();
         });
