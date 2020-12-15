@@ -40,9 +40,9 @@ export async function getTemplate({ userId, templateId }) {
 
 export async function getTemplates({ userId, filter, page, limit, orderBy, orderDirection }) {
     let andClause = [{ userId }];
-    const orClause = [];
+    let orClause = [];
     if (filter) {
-        let orClause = [
+        orClause = [
             { eid: { [Op.iLike]: `%${filter}%` } },
             { etype: { [Op.iLike]: `%${filter}%` } },
             { name: { [Op.iLike]: `%${filter}%` } },
