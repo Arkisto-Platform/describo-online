@@ -33,6 +33,12 @@ import {
     postFilesRouteHandler,
 } from "./entity";
 import { loadRouteHandler } from "./load";
+import {
+    getTemplatesRouteHandler,
+    getTemplateRouteHandler,
+    postTemplateRouteHandler,
+    delTemplateRouteHandler,
+} from "./template";
 
 import { getLogger } from "../common";
 const log = getLogger();
@@ -65,6 +71,10 @@ export function setupRoutes({ server }) {
     server.del("/entity/:entityId/property/:propertyId", route(delEntityPropertyRouteHandler));
     server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
     server.post("/files", route(postFilesRouteHandler));
+    server.get("/template", route(getTemplatesRouteHandler));
+    server.get("/template/:templateId", route(getTemplateRouteHandler));
+    server.post("/template", route(postTemplateRouteHandler));
+    server.del("/template/:templateId", route(delTemplateRouteHandler));
 
     if (process.env.NODE_ENV === "development") {
         // this is only for development of the capability to post back on save
