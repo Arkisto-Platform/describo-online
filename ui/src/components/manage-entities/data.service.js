@@ -189,9 +189,70 @@ export default class DataService {
         }
     }
 
+    async saveEntityAsTemplate({ id }) {
+        this.$log.debug("save entity as template", id);
+        let response = await this.$http.post({
+            route: `/template`,
+            body: { entityId: id },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
+    async saveCrateAsTemplate({ name }) {
+        this.$log.debug("save crate as template");
+        let response = await this.$http.post({
+            route: `/template`,
+            body: { name },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
+    async getTemplates({ filter, page, limit, orderBy, orderDirection }) {
+        this.$log.debug("lookup templates");
+        let queryParams = { page, limit, orderBy, orderDirection };
+        if (filter) queryParams.filter = encodeURIComponent(filter);
+
+        const queryString = this.toQueryString(queryParams);
+        const url = queryString ? `/template?${queryString}` : "/template";
+        let response = await this.$http.get({
+            route: url,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
+    async deleteTemplate({ id }) {
+        this.$log.debug("delete template", id);
+        let response = await this.$http.delete({
+            route: `/template/${id}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
     async handleError({ response }) {
         let error = await response.json();
         // this.$log.error(response.status, error.message);
         throw new Error(error.message);
+    }
+
+    toQueryString(paramsObject) {
+        return Object.keys(paramsObject)
+            .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(paramsObject[key])}`)
+            .join("&");
     }
 }
