@@ -40,6 +40,7 @@ module.exports = function (sequelize, DataTypes) {
             foreignKey: "userId",
             otherKey: "entityId",
         });
+        User.hasMany(models.template, { foreignKey: { allowNull: false }, onDelete: "CASCADE" });
     };
 
     return User;
