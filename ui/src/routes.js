@@ -5,6 +5,7 @@ import LogoutComponent from "@/components/Logout.component.vue";
 import OktaLoginComponent from "@/components/OktaLogin.component.vue";
 import OktaLoginCallbackComponent from "@/components/OktaLoginCallback.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
+import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
 import AuthService from "./components/auth.service";
 const authService = new AuthService({});
 
@@ -14,6 +15,13 @@ const routes = [
     {
         path: "/",
         component: ShellComponent,
+        meta: {
+            requiresAuth: true,
+        },
+    },
+    {
+        path: "/templates",
+        component: TemplateListManagerComponent,
         meta: {
             requiresAuth: true,
         },
