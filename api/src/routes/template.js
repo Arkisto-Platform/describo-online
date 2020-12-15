@@ -22,11 +22,17 @@ export async function getTemplateRouteHandler(req, res, next) {
     }
 }
 export async function getTemplatesRouteHandler(req, res, next) {
-    let { eid, etype, name, fuzzy } = req.query;
-    if (fuzzy) fuzzy = toBoolean(fuzzy);
+    let { filter, page, limit, orderBy, orderDirection } = req.query;
     try {
-        let templates = await getTemplates({ userId: req.user.id, eid, etype, name, fuzzy });
-        res.send({ templates });
+        let { templates, total } = await getTemplates({
+            userId: req.user.id,
+            filter,
+            page,
+            limit,
+            orderBy: orderBy.split(","),
+            orderDirection,
+        });
+        res.send({ templates, total });
         next();
     } catch (error) {
         log.error(`getTemplatesRouteHandler: ${error.message}`);

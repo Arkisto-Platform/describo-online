@@ -38,30 +38,15 @@ export async function getTemplate({ userId, templateId }) {
     return await models.template.findOne({ where: { id: templateId, userId } });
 }
 
-export async function getTemplates({ userId, eid, etype, name, fuzzy = true }) {
-    // TODO add pagination and ordering
+export async function getTemplates({ userId, filter, page, limit, orderBy, orderDirection }) {
     let andClause = [{ userId }];
     const orClause = [];
-    if (etype) {
-        let clause = {
-            etype: fuzzy ? { [Op.iLike]: `%${etype}%` } : { [Op.eq]: etype },
-        };
-        if (fuzzy) orClause.push(clause);
-        if (!fuzzy) andClause.push(clause);
-    }
-    if (eid) {
-        let clause = {
-            eid: fuzzy ? { [Op.iLike]: `%${eid}%` } : { [Op.eq]: eid },
-        };
-        if (fuzzy) orClause.push(clause);
-        if (!fuzzy) andClause.push(clause);
-    }
-    if (name) {
-        let clause = {
-            name: fuzzy ? { [Op.iLike]: `%${name}%` } : { [Op.eq]: name },
-        };
-        if (fuzzy) orClause.push(clause);
-        if (!fuzzy) andClause.push(clause);
+    if (filter) {
+        let orClause = [
+            { eid: { [Op.iLike]: `%${filter}%` } },
+            { etype: { [Op.iLike]: `%${filter}%` } },
+            { name: { [Op.iLike]: `%${filter}%` } },
+        ];
     }
     if (orClause.length) {
         andClause.push({ [Op.or]: orClause });
@@ -70,6 +55,15 @@ export async function getTemplates({ userId, eid, etype, name, fuzzy = true }) {
     let where = {
         [Op.and]: andClause,
     };
-    let templates = await models.template.findAll({ where, limit: 10 });
-    return templates.map((e) => e.get());
+    where = {
+        where,
+        distinct: true,
+        offset: page,
+        limit,
+        order: orderBy.map((p) => [p, orderDirection]),
+    };
+
+    let results = await models.template.findAndCountAll(where);
+    let templates = results.rows.map((t) => t.get());
+    return { templates, total: results.count };
 }
