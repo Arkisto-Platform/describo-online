@@ -1,4 +1,4 @@
-import { UnauthorizedError } from "restify-errors";
+import { UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
 import { getLogger } from "../common";
@@ -6,9 +6,7 @@ const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {
     if (!req.headers.authorization) {
-        log.error(
-            `demandKnownUser: Authorization header not preset in request`
-        );
+        log.error(`demandKnownUser: Authorization header not preset in request`);
         return next(new UnauthorizedError());
     }
     let [authType, token] = req.headers.authorization.split(" ");
@@ -40,15 +38,14 @@ export async function demandKnownUser(req, res, next) {
             }
             req.user = user;
             req.session = session;
+
             return next();
         } else {
             log.error(`demandKnownUser: no session or user retrieved`);
             return next(new UnauthorizedError());
         }
     } catch (error) {
-        log.error(
-            `demandKnownUser: something just went wrong ${error.message}`
-        );
+        log.error(`demandKnownUser: something just went wrong ${error.message}`);
         return next(new UnauthorizedError());
     }
 }
