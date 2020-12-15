@@ -27,18 +27,28 @@
                         </el-button>
                     </div>
                     <div class="flex flex-grow"></div>
-                    <div>
-                        <el-button
-                            @click="deleteEntity"
-                            type="danger"
-                            size="small"
-                            :disabled="entity && entity.eid === './'"
-                        >
+                    <div
+                        class="flex flex-row space-x-2 flex-grow"
+                        v-if="entity && entity.eid === './'"
+                    >
+                        <el-input v-model="crateName" size="small" />
+                        <el-button @click="saveCrateAsTemplate" size="small" :disabled="!crateName">
+                            <i class="fas fa-save"></i>
+                            Save Crate as Template
+                        </el-button>
+                    </div>
+                    <div class="flex flex-row" v-else>
+                        <div class="flex flex-grow"></div>
+                        <el-button @click="saveEntityAsTemplate" type="primary" size="small">
+                            <i class="fas fa-save"></i>
+                            Save Entity as Template
+                        </el-button>
+                        <el-button @click="deleteEntity" type="danger" size="small">
                             <i class="fas fa-trash"></i>
                             Delete Entity
                         </el-button>
                     </div>
-                    <!-- <add-entity-component /> -->
+                    <!-- /navbar: controls -->
                 </div>
                 <add-property-dialog-component
                     v-if="definition && definition.inputs && definition.inputs.length"
@@ -129,6 +139,7 @@ export default {
             definition: undefined,
             error: undefined,
             addPropertyDialogVisible: false,
+            crateName: undefined,
         };
     },
     watch: {
@@ -203,6 +214,12 @@ export default {
         async deleteEntity() {
             await this.dataService.deleteEntity({ id: this.entity.id });
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+        },
+        async saveEntityAsTemplate() {
+            await this.dataService.saveEntityAsTemplate({ id: this.entity.id });
+        },
+        async saveCrateAsTemplate() {
+            await this.dataService.saveCrateAsTemplate({ name: this.crateName });
         },
         resolveFilePath(id) {
             let filePath = `${this.$store.state.target.folder.path}/${id}`;
