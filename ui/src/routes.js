@@ -14,6 +14,7 @@ Vue.use(VueRouter);
 const routes = [
     {
         path: "/",
+        name: "root",
         component: ShellComponent,
         meta: {
             requiresAuth: true,
@@ -21,6 +22,7 @@ const routes = [
     },
     {
         path: "/templates",
+        name: "templates",
         component: TemplateListManagerComponent,
         meta: {
             requiresAuth: true,
