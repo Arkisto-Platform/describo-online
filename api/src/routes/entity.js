@@ -18,7 +18,7 @@ import { getLogger } from "../common";
 const log = getLogger();
 import process from "process";
 
-async function saveCrate({ session, user, collectionId, actions }) {
+export async function saveCrate({ session, user, collectionId, actions }) {
     try {
         const crateMgr = new Crate();
         let hrstart = process.hrtime();

@@ -22,7 +22,7 @@ export async function insertTemplate({ userId, entityId, collectionId, name }) {
             entity[property] = properties[property].map((p) => p.value);
         });
 
-        let template = models.template.findOne({
+        let template = await models.template.findOne({
             where: { userId, eid: entity.eid, etype: entity.etype, name: entity.name },
         });
         if (!template) return await models.template.create({ userId, ...entity, src: entity });

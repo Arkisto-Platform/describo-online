@@ -213,7 +213,7 @@ export class Crate {
                         // const tgtEntityId = entitiesById[value["@id"]].pop()
                         //     .uuid;
                         let tgtEntityId = entitiesById[value["@id"]];
-                        if (tgtEntityId.length) {
+                        if (tgtEntityId && tgtEntityId.length) {
                             tgtEntityId = tgtEntityId.pop().uuid;
                             await associate({
                                 typeDefinition: propertyDefinition,
@@ -365,7 +365,7 @@ export class Crate {
 
         function insertEntity({ crate, entity }) {
             crate["@graph"].push({
-                "@id": entity.eid ? entity.id : entity.id,
+                "@id": entity.eid ? entity.eid : entity.id,
                 "@type": entity.etype,
                 name: entity.name,
             });
