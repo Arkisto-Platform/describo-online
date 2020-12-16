@@ -199,4 +199,7 @@ export default {
 .el-tree-node__content {
     @apply mb-1;
 }
+.is-disabled + .el-tree-node__label {
+    @apply text-sm text-gray-400 cursor-not-allowed;
+}
 </style>
