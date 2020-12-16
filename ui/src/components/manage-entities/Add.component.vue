@@ -50,6 +50,7 @@
                             :type="addType"
                             by="name"
                             @link:entity="linkEntity"
+                            @add:template="addTemplate"
                         />
                     </div>
                     <div class="w-1/2 pl-2">
@@ -138,6 +139,12 @@ export default {
             this.$emit("link:entity", {
                 property: this.property,
                 tgtEntityId: entity.id,
+            });
+        },
+        addTemplate({ template }) {
+            this.$emit("add:template", {
+                property: this.property,
+                templateId: template.id,
             });
         },
     },

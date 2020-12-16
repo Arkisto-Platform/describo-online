@@ -28,6 +28,7 @@
                         @create:property="createProperty"
                         @create:entity="createEntityAndLink"
                         @link:entity="linkEntity"
+                        @add:template="addTemplateAndLinkEntity"
                     />
                 </div>
                 <information-component type="info" align="left" v-if="showHelp === name">
@@ -167,6 +168,10 @@ export default {
                 tgtEntityId,
             });
             this.$emit("refresh");
+        },
+        async addTemplateAndLinkEntity({ property, templateId }) {
+            let { entity } = await this.dataService.addTemplateToCollection({ templateId });
+            this.linkEntity({ property, tgtEntityId: entity.id });
         },
     },
 };

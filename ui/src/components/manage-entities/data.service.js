@@ -164,11 +164,11 @@ export default class DataService {
         }
     }
 
-    async findEntity({ etype, eid, name, hierarchy }) {
+    async findEntity({ etype, eid, name, hierarchy, limit }) {
         this.$log.debug("lookup entity");
         let response = await this.$http.post({
             route: `/entity/lookup`,
-            body: { etype, eid, name, hierarchy },
+            body: { etype, eid, name, hierarchy, limit },
         });
         if (response.status !== 200) {
             return this.handleError({ response });
@@ -215,9 +215,9 @@ export default class DataService {
         }
     }
 
-    async getTemplates({ filter, page, limit, orderBy, orderDirection }) {
+    async getTemplates({ filter, type, page, limit, orderBy, orderDirection }) {
         this.$log.debug("lookup templates");
-        let queryParams = { page, limit, orderBy, orderDirection };
+        let queryParams = { page, limit, orderBy, orderDirection, type };
         if (filter) queryParams.filter = encodeURIComponent(filter);
 
         const queryString = this.toQueryString(queryParams);
@@ -236,6 +236,19 @@ export default class DataService {
         this.$log.debug("delete template", id);
         let response = await this.$http.delete({
             route: `/template/${id}`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
+    async addTemplateToCollection({ templateId }) {
+        this.$log.debug("add template", templateId);
+        let response = await this.$http.post({
+            route: `/template/add`,
+            body: { templateId },
         });
         if (response.status !== 200) {
             return this.handleError({ response });

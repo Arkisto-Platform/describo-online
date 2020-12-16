@@ -2,7 +2,15 @@ import "regenerator-runtime";
 import { removeCollection, insertCollection } from "../lib/collections";
 import { createUser } from "./user";
 import { Crate } from "../lib/crate";
-import { insertTemplate, removeTemplate, getTemplate, getTemplates } from "./template";
+import { getEntityProperties } from "./entities";
+import {
+    insertTemplate,
+    removeTemplate,
+    getTemplate,
+    getTemplates,
+    addTemplate,
+    replaceCrateWithTemplate,
+} from "./template";
 import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
@@ -78,30 +86,81 @@ describe("Test template management operations", () => {
             name: "this is a really silly name designed for lookup AGHJDJKHFUHK",
         });
 
-        let template = await getTemplates({ userId: user.id, eid: "person1" });
-        expect(template.length).toEqual(1);
-        expect(template[0].eid).toEqual("person1");
+        let { templates } = await getTemplates({ userId: user.id, filter: "person1" });
+        expect(templates.length).toEqual(1);
+        expect(templates[0].eid).toEqual("person1");
 
-        template = await getTemplates({ userId: user.id, etype: "Person" });
-        expect(template.length).toEqual(1);
-        expect(template[0].eid).toEqual("person1");
+        ({ templates } = await getTemplates({ userId: user.id, filter: "Person" }));
+        expect(templates.length).toEqual(1);
+        expect(templates[0].eid).toEqual("person1");
 
-        template = await getTemplates({ userId: user.id, name: "a person" });
-        expect(template.length).toEqual(1);
-        expect(template[0].eid).toEqual("person1");
+        ({ templates } = await getTemplates({ userId: user.id, filter: "a person" }));
+        expect(templates.length).toEqual(1);
+        expect(templates[0].eid).toEqual("person1");
 
-        template = await getTemplates({ userId: user.id, name: "per" });
-        expect(template.length).toEqual(1);
-        expect(template[0].eid).toEqual("person1");
+        ({ templates } = await getTemplates({ userId: user.id, filter: "per" }));
+        expect(templates.length).toEqual(1);
+        expect(templates[0].eid).toEqual("person1");
 
-        template = await getTemplates({ userId: user.id, name: "designed" });
-        expect(template.length).toEqual(1);
+        ({ templates } = await getTemplates({ userId: user.id, filter: "designed" }));
+        expect(templates.length).toEqual(1);
 
-        template = await getTemplates({ userId: user.id, name: "designed", fuzzy: false });
-        expect(template.length).toEqual(0);
+        ({ templates } = await getTemplates({ userId: user.id }));
+        expect(templates.length).toEqual(2);
+    });
+    test("it should be able to add a template to a collection", async () => {
+        let entity = await models.entity.findOne({
+            where: { etype: "Person", collectionId: collection.id },
+        });
+        let template = await insertTemplate({
+            userId: user.id,
+            entityId: entity.id,
+            collectionId: collection.id,
+        });
+        template = await getTemplate({ userId: user.id, templateId: template.id });
+        // console.log(template.src);
 
-        template = await getTemplates({ userId: user.id });
-        expect(template.length).toEqual(2);
+        await models.entity.destroy({ where: { id: entity.id } });
+        ({ entity } = await addTemplate({
+            templateId: template.id,
+            userId: user.id,
+            collectionId: collection.id,
+        }));
+
+        let { properties } = await getEntityProperties({
+            id: entity.id,
+            collectionId: collection.id,
+        });
+        properties = properties.map((p) => ({ [p.name]: p.value }));
+        expect(properties).toEqual([
+            { firstName: "a" },
+            { lastName: "person" },
+            { description: "something" },
+            { description: "and another thing" },
+        ]);
+
+        await removeTemplate({ userId: user.id, templateId: template.id });
+    });
+    test("it should be able to replace a collection with a crate template", async () => {
+        let entity = await models.entity.findOne({
+            where: { etype: "Person", collectionId: collection.id },
+        });
+        let template = await insertTemplate({
+            userId: user.id,
+            name: "my crate",
+            collectionId: collection.id,
+        });
+        template = await getTemplate({ userId: user.id, templateId: template.id });
+        await replaceCrateWithTemplate({
+            userId: user.id,
+            collectionId: collection.id,
+            templateId: template.id,
+        });
+
+        const entities = await models.entity.findAll({ where: { collectionId: collection.id } });
+        expect(entities.length).toBe(2);
+
+        await removeTemplate({ userId: user.id, templateId: template.id });
     });
 });
 

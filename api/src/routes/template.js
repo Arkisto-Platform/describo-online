@@ -1,8 +1,15 @@
 import { BadRequestError, ForbiddenError } from "restify-errors";
-import { insertTemplate, removeTemplate, getTemplate, getTemplates } from "../lib/template";
+import {
+    insertTemplate,
+    removeTemplate,
+    getTemplate,
+    getTemplates,
+    addTemplate,
+    replaceCrateWithTemplate,
+} from "../lib/template";
 import { getLogger } from "../common";
 const log = getLogger();
-import { toBoolean } from "validator";
+import { toBoolean, isUndefined } from "validator";
 
 export async function getTemplateRouteHandler(req, res, next) {
     if (!req.params.templateId) {
@@ -22,14 +29,22 @@ export async function getTemplateRouteHandler(req, res, next) {
     }
 }
 export async function getTemplatesRouteHandler(req, res, next) {
-    let { filter, page, limit, orderBy, orderDirection } = req.query;
+    let { filter, page, limit, orderBy, orderDirection, type, fuzzy } = req.query;
+    filter = filter === "undefined" ? undefined : filter;
+    type = type === "undefined" ? undefined : type;
+    page = page === "undefined" ? undefined : page;
+    limit = limit === "undefined" ? undefined : limit;
+    orderBy = orderBy === "undefined" ? undefined : orderBy;
+    if (orderBy) orderBy = orderBy.split(",");
+    orderDirection = orderDirection === "undefined" ? undefined : orderDirection;
     try {
         let { templates, total } = await getTemplates({
             userId: req.user.id,
             filter,
+            type,
             page,
             limit,
-            orderBy: orderBy.split(","),
+            orderBy,
             orderDirection,
         });
         res.send({ templates, total });
@@ -41,6 +56,9 @@ export async function getTemplatesRouteHandler(req, res, next) {
 }
 export async function postTemplateRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
     try {
         let template;
         if (req.body.entityId) {
@@ -75,6 +93,56 @@ export async function delTemplateRouteHandler(req, res, next) {
         next();
     } catch (error) {
         log.error(`delTemplateRouteHandler: ${error.message}`);
+        return next(new ForbiddenError());
+    }
+}
+export async function postAddTemplateRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    try {
+        let entity;
+        console.log(req.body);
+        let { templateId } = req.body;
+        console.log(templateId);
+        if (templateId) {
+            ({ entity } = await addTemplate({
+                userId: req.user.id,
+                templateId,
+                collectionId,
+            }));
+        } else {
+            return next(new BadRequestError());
+        }
+        res.send({ entity });
+        next();
+    } catch (error) {
+        console.log(error);
+        log.error(`postAddTemplateRouteHandler: ${error.message}`);
+        return next(new ForbiddenError());
+    }
+}
+export async function postReplaceCrateWithTemplateRouteHandler(req, res, next) {
+    const collectionId = req.session.data?.current?.collectionId;
+    if (!collectionId) {
+        return next(new ForbiddenError());
+    }
+    try {
+        let template;
+        if (req.body.templateId) {
+            template = await replaceCrateWithTemplate({
+                userId: req.user.id,
+                templateId: req.body.templateId,
+                collectionId,
+            });
+        } else {
+            return next(new BadRequestError());
+        }
+        res.send({ template });
+        next();
+    } catch (error) {
+        log.error(`postAddTemplateRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
 }

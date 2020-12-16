@@ -31,7 +31,11 @@
                         class="flex flex-row space-x-2 flex-grow"
                         v-if="entity && entity.eid === './'"
                     >
-                        <el-input v-model="crateName" size="small" />
+                        <el-input
+                            v-model="crateName"
+                            size="small"
+                            placeholder="provide a name for the crate template"
+                        />
                         <el-button @click="saveCrateAsTemplate" size="small" :disabled="!crateName">
                             <i class="fas fa-save"></i>
                             Save Crate as Template
@@ -58,6 +62,7 @@
                     @create:property="createProperty"
                     @create-and-link:entity="createAndLinkEntity"
                     @link:entity="linkEntity"
+                    @add:template="addTemplateAndLinkEntity"
                 />
                 <div v-if="entity && entity.id" class="border-t my-4 border-gray-200">
                     <!-- render entity name and id -->
@@ -210,6 +215,10 @@ export default {
                 tgtEntityId,
             });
             this.getEntity();
+        },
+        async addTemplateAndLinkEntity({ property, templateId }) {
+            let { entity } = await this.dataService.addTemplateToCollection({ templateId });
+            this.linkEntity({ property, tgtEntityId: entity.id });
         },
         async deleteEntity() {
             await this.dataService.deleteEntity({ id: this.entity.id });

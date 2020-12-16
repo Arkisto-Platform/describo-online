@@ -165,7 +165,15 @@ export async function removeEntity({ entityId, collectionId }) {
     return { removed: entity, updated: targetIds };
 }
 
-export async function findEntity({ eid, etype, name, hierarchy, collectionId, fuzzy = true }) {
+export async function findEntity({
+    limit = 10,
+    eid,
+    etype,
+    name,
+    hierarchy,
+    collectionId,
+    fuzzy = true,
+}) {
     // TODO add pagination and ordering
     let andClause = [{ collectionId }];
     const orClause = [];

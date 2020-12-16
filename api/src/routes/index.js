@@ -38,6 +38,8 @@ import {
     getTemplateRouteHandler,
     postTemplateRouteHandler,
     delTemplateRouteHandler,
+    postAddTemplateRouteHandler,
+    postReplaceCrateWithTemplateRouteHandler,
 } from "./template";
 
 import { getLogger } from "../common";
@@ -75,6 +77,8 @@ export function setupRoutes({ server }) {
     server.get("/template/:templateId", route(getTemplateRouteHandler));
     server.post("/template", route(postTemplateRouteHandler));
     server.del("/template/:templateId", route(delTemplateRouteHandler));
+    server.post("/template/add", route(postAddTemplateRouteHandler));
+    server.post("/template/replace", route(postReplaceCrateWithTemplateRouteHandler));
 
     if (process.env.NODE_ENV === "development") {
         // this is only for development of the capability to post back on save

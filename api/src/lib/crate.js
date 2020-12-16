@@ -249,7 +249,6 @@ export class Crate {
             "@graph": [
                 {
                     ...collection.metadata.rootDescriptor,
-                    describoCollectionId: collection.id,
                 },
             ],
         };

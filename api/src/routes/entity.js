@@ -168,8 +168,8 @@ export async function findEntityRouteHandler(req, res, next) {
 
     let find = { collectionId };
     try {
-        let { hierarchy, eid, etype, name } = req.body;
-        find = { collectionId, hierarchy, eid, etype, name };
+        let { hierarchy, eid, etype, name, limit } = req.body;
+        find = { collectionId, hierarchy, eid, etype, name, limit };
     } catch (error) {}
     try {
         let entities = await findEntity(find);

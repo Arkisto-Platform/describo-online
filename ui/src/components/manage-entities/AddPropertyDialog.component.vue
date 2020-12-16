@@ -43,6 +43,7 @@
                 @create:property="createProperty"
                 @create:entity="createAndLinkEntity"
                 @link:entity="linkEntity"
+                @add:template="addTemplate"
             />
         </div>
     </div>
@@ -94,11 +95,13 @@ export default {
             this.$emit("create-and-link:entity", data);
             this.close();
         },
-        linkEntity({ property, tgtEntityId }) {
-            this.$emit("link:entity", {
-                property,
-                tgtEntityId,
-            });
+        linkEntity(data) {
+            this.$emit("link:entity", data);
+            this.close();
+        },
+        addTemplate(data) {
+            console.log(data);
+            this.$emit("add:template", data);
             this.close();
         },
     },

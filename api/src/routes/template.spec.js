@@ -165,7 +165,7 @@ describe("Test template route operations", () => {
             }),
         });
 
-        response = await fetch(`${api}/template?eid=person1`, {
+        response = await fetch(`${api}/template?filter=person1`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
@@ -186,7 +186,7 @@ describe("Test template route operations", () => {
         ({ templates } = await response.json());
         expect(templates.length).toEqual(2);
 
-        response = await fetch(`${api}/template?name=fancy`, {
+        response = await fetch(`${api}/template?filter=fancy`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
@@ -195,16 +195,6 @@ describe("Test template route operations", () => {
         });
         ({ templates } = await response.json());
         expect(templates.length).toEqual(1);
-
-        response = await fetch(`${api}/template?name=fancy&fuzzy=false`, {
-            method: "GET",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-        });
-        ({ templates } = await response.json());
-        expect(templates.length).toEqual(0);
 
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
