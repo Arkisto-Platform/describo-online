@@ -7,6 +7,7 @@ import {
     addTemplate,
     replaceCrateWithTemplate,
 } from "../lib/template";
+import { saveCrate } from "./entity";
 import { getLogger } from "../common";
 const log = getLogger();
 import { toBoolean, isUndefined } from "validator";
@@ -103,22 +104,27 @@ export async function postAddTemplateRouteHandler(req, res, next) {
     }
     try {
         let entity;
-        console.log(req.body);
         let { templateId } = req.body;
-        console.log(templateId);
         if (templateId) {
             ({ entity } = await addTemplate({
                 userId: req.user.id,
                 templateId,
                 collectionId,
             }));
+            if (!req.headers["x-testing"]) {
+                await saveCrate({
+                    session: req.session,
+                    user: req.user,
+                    collectionId,
+                    actions: [{ name: "insert", entity }],
+                });
+            }
         } else {
             return next(new BadRequestError());
         }
         res.send({ entity });
         next();
     } catch (error) {
-        console.log(error);
         log.error(`postAddTemplateRouteHandler: ${error.message}`);
         return next(new ForbiddenError());
     }
