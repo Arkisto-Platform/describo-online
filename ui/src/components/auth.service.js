@@ -32,7 +32,12 @@ export function setSessionSID({ sid }) {
 }
 
 export function getSessionSID() {
-    const value = window.sessionStorage.getItem(sidProperty);
+    let value;
+    try {
+        value = window.sessionStorage.getItem(sidProperty);
+    } catch (error) {
+        return null;
+    }
     const v = Number(value);
     return !isNaN(v)
         ? v
