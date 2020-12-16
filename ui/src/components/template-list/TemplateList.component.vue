@@ -20,7 +20,7 @@
                     </el-pagination>
                 </div>
             </div>
-            <el-table :data="templates" highlight-current-row>
+            <el-table :data="templates" highlight-current-row v-loading="loading">
                 <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
                 <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
                 <el-table-column prop="name" label="Name"> </el-table-column>
@@ -32,6 +32,15 @@
                 <el-table-column label="Actions" width="150">
                     <template slot-scope="scope">
                         <div class="flex flex-row space-x-2">
+                            <div v-if="!scope.row.etype && !scope.row.eid">
+                                <el-button
+                                    @click="applyCrateTemplate(scope.row.id)"
+                                    size="small"
+                                    type="primary"
+                                >
+                                    <i class="fas fa-check-double"></i>
+                                </el-button>
+                            </div>
                             <div>
                                 <el-button
                                     @click="deleteTemplate(scope.row.id)"
@@ -61,6 +70,7 @@ export default {
     },
     data() {
         return {
+            loading: false,
             debouncedGetTemplates: debounce(this.getTemplates, 1000),
             total: undefined,
             templates: [],
@@ -97,6 +107,12 @@ export default {
         async deleteTemplate(id) {
             await this.dataService.deleteTemplate({ id });
             this.getTemplates();
+        },
+        async applyCrateTemplate(templateId) {
+            this.loading = true;
+            await this.dataService.replaceCrateWithTemplate({ templateId });
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            this.loading = false;
         },
     },
 };

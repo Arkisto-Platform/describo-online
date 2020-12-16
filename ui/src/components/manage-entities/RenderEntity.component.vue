@@ -232,6 +232,7 @@ export default {
         },
         async saveCrateAsTemplate() {
             await this.dataService.saveCrateAsTemplate({ name: this.crateName });
+            this.crateName = undefined;
         },
         resolveFilePath(id) {
             let filePath = `${this.$store.state.target.folder.path}/${id}`;

@@ -244,7 +244,20 @@ export default class DataService {
         }
     }
 
-    async addTemplateToCollection({ templateId }) {
+    async replaceCrateWithTemplate({ templateId }) {
+        this.$log.debug("replace crate with template", templateId);
+        let response = await this.$http.post({
+            route: `/template/replace`,
+            body: { templateId },
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
+    async addTemplate({ templateId }) {
         this.$log.debug("add template", templateId);
         let response = await this.$http.post({
             route: `/template/add`,
