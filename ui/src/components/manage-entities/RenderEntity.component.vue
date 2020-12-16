@@ -44,13 +44,13 @@
                     <div class="flex flex-row" v-else>
                         <el-button @click="saveEntityAsTemplate" type="primary" size="small">
                             <i class="fas fa-save"></i>
-                            <div class="hidden xl:inline-block">
+                            <div class="hidden xl:inline-block xl:ml-1">
                                 Save Entity as Template
                             </div>
                         </el-button>
                         <el-button @click="deleteEntity" type="danger" size="small">
                             <i class="fas fa-trash"></i>
-                            <div class="hidden xl:inline-block">
+                            <div class="hidden xl:inline-block xl:ml-1">
                                 Delete Entity
                             </div>
                         </el-button>
