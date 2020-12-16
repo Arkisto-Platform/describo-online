@@ -9,8 +9,8 @@ import {
 } from "../lib/template";
 import { saveCrate } from "./entity";
 import { getLogger } from "../common";
+import { Crate } from "../lib/crate";
 const log = getLogger();
-import { toBoolean, isUndefined } from "validator";
 
 export async function getTemplateRouteHandler(req, res, next) {
     if (!req.params.templateId) {
@@ -142,6 +142,21 @@ export async function postReplaceCrateWithTemplateRouteHandler(req, res, next) {
                 templateId: req.body.templateId,
                 collectionId,
             });
+            if (!req.headers["x-testing"]) {
+                const crateMgr = new Crate();
+                let crate = await crateMgr.exportCollectionAsROCrate({
+                    collectionId,
+                    sync: true,
+                });
+                await crateMgr.saveCrate({
+                    session: req.session,
+                    user: req.user,
+                    resource: req.session?.data?.current?.remote?.resource,
+                    parent: req.session?.data?.current?.remote?.parent,
+                    localFile: req.session?.data?.current?.local?.file,
+                    crate,
+                });
+            }
         } else {
             return next(new BadRequestError());
         }
