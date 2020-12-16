@@ -1,5 +1,5 @@
 <template>
-    <el-card class="box-card">
+    <el-card class="box-card" v-if="msg">
         <div class="flex flex-row">
             <!-- <div>
                 <el-button @click="loadFolder" :disabled="loading">
@@ -30,7 +30,9 @@ export default {
         this.$socket.on("loadRouteHandler", (response) => {
             this.msg = `${response.msg}`;
         });
-        this.loadFolder();
+        if (!this.$store.state.collection.id) {
+            this.loadFolder();
+        }
     },
     methods: {
         async loadFolder() {
@@ -55,6 +57,8 @@ export default {
             let { collection } = await response.json();
             this.$store.commit("setActiveCollection", collection);
             this.loading = false;
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            this.msg = undefined;
         },
     },
 };
