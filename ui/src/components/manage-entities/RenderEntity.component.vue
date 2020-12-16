@@ -10,7 +10,7 @@
             }"
         >
             <div :class="{ 'w-1/2': entity.etype === 'File', 'w-full': entity.etype !== 'File' }">
-                <div class="flex flex-row space-x-4 mb-4 p-2 bg-blue-200">
+                <div class="flex flex-row space-x-2 mb-4 p-2 bg-blue-200">
                     <!-- navbar : controls -->
                     <div>
                         <el-button
@@ -42,14 +42,17 @@
                         </el-button>
                     </div>
                     <div class="flex flex-row" v-else>
-                        <div class="flex flex-grow"></div>
                         <el-button @click="saveEntityAsTemplate" type="primary" size="small">
                             <i class="fas fa-save"></i>
-                            Save Entity as Template
+                            <div class="hidden xl:inline-block">
+                                Save Entity as Template
+                            </div>
                         </el-button>
                         <el-button @click="deleteEntity" type="danger" size="small">
                             <i class="fas fa-trash"></i>
-                            Delete Entity
+                            <div class="hidden xl:inline-block">
+                                Delete Entity
+                            </div>
                         </el-button>
                     </div>
                     <!-- /navbar: controls -->
