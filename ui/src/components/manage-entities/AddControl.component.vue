@@ -56,6 +56,7 @@ export default {
     },
     mounted() {
         this.init();
+        if (this.types.length === 1) this.add(this.types[0]);
     },
     methods: {
         init() {
