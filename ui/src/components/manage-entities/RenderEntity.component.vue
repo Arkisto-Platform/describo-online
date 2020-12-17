@@ -41,29 +41,33 @@
                             Save Crate as Template
                         </el-button>
                     </div>
-                    <div class="flex flex-row" v-if="entity && entity !== './'">
-                        <el-button @click="saveEntityAsTemplate" type="primary" size="small">
-                            <div class="inline-block">
-                                <i class="fas fa-save"></i>
-                            </div>
-                            <div
-                                class="inline-block ml-1 xl:inline-block xl:ml-1"
-                                :class="{ hidden: entity.etype === 'File' }"
-                            >
-                                Save Entity as Template
-                            </div>
-                        </el-button>
-                        <el-button @click="deleteEntity" type="danger" size="small">
-                            <div class="inline-block">
-                                <i class="fas fa-trash"></i>
-                            </div>
-                            <div
-                                class="inline-block ml-1 xl:inline-block xl:ml-1"
-                                :class="{ hidden: entity.etype === 'File' }"
-                            >
-                                Delete Entity
-                            </div>
-                        </el-button>
+                    <div class="flex flex-rows space-x-1" v-if="entity && entity.eid !== './'">
+                        <div>
+                            <el-button @click="saveEntityAsTemplate" type="primary" size="small">
+                                <div class="inline-block">
+                                    <i class="fas fa-save"></i>
+                                </div>
+                                <div
+                                    class="inline-block ml-1 xl:inline-block xl:ml-1"
+                                    :class="{ hidden: entity.etype === 'File' }"
+                                >
+                                    Save Entity as Template
+                                </div>
+                            </el-button>
+                        </div>
+                        <div>
+                            <el-button @click="deleteEntity" type="danger" size="small">
+                                <div class="inline-block">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div
+                                    class="inline-block ml-1 xl:inline-block xl:ml-1"
+                                    :class="{ hidden: entity.etype === 'File' }"
+                                >
+                                    Delete Entity
+                                </div>
+                            </el-button>
+                        </div>
                     </div>
                     <!-- /navbar: controls -->
                 </div>
