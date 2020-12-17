@@ -13,7 +13,8 @@ import models from "../models";
 import { syncLocalFileToRemote } from "../lib/file-browser";
 import fetch from "node-fetch";
 
-import { getLogger, loadConfiguration } from "../common";
+import { loadConfiguration } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 const rootDescriptorIdPrefix = "#:localid:describo:";

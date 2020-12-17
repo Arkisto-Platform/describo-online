@@ -7,9 +7,8 @@ import {
     addTemplate,
     replaceCrateWithTemplate,
 } from "../lib/template";
-import { saveCrate } from "./entity";
-import { getLogger } from "../common";
-import { Crate } from "../lib/crate";
+import { saveCrate } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export async function getTemplateRouteHandler(req, res, next) {
@@ -143,18 +142,10 @@ export async function postReplaceCrateWithTemplateRouteHandler(req, res, next) {
                 collectionId,
             });
             if (!req.headers["x-testing"]) {
-                const crateMgr = new Crate();
-                let crate = await crateMgr.exportCollectionAsROCrate({
-                    collectionId,
-                    sync: true,
-                });
-                await crateMgr.saveCrate({
+                await saveCrate({
                     session: req.session,
                     user: req.user,
-                    resource: req.session?.data?.current?.remote?.resource,
-                    parent: req.session?.data?.current?.remote?.parent,
-                    localFile: req.session?.data?.current?.local?.file,
-                    crate,
+                    collectionId,
                 });
             }
         } else {

@@ -10,7 +10,7 @@ import { Crate } from "../lib/crate";
 import { updateUserSession } from "../lib/user";
 import path from "path";
 import { writeJSON, ensureDir } from "fs-extra";
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 const defaultCrateFileName = "ro-crate-metadata.json";

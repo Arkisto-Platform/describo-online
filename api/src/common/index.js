@@ -2,9 +2,10 @@ import path from "path";
 import fetch from "node-fetch";
 import { readJSON, writeJSON } from "fs-extra";
 import { cloneDeep } from "lodash";
-const { createLogger, format, transports } = require("winston");
-const { combine, timestamp, printf } = format;
+import { Crate } from "../lib/crate";
 const api = "http://localhost:8080";
+import { getLogger } from "../common/logger";
+const log = getLogger();
 import Chance from "chance";
 const chance = new Chance();
 
@@ -42,14 +43,37 @@ export async function createSessionForTest() {
     return { sessionId: response.sessionId, user };
 }
 
-export function getLogger() {
-    const myFormat = printf(({ level, message, timestamp }) => {
-        return `${timestamp} ${level.toUpperCase()}: ${message}`;
-    });
-    const logger = createLogger({
-        level: process.env.NODE_ENV === "development" ? "debug" : "info",
-        format: combine(timestamp(), myFormat),
-        transports: [new transports.Console()],
-    });
-    return logger;
+export async function saveCrate({ session, user, collectionId, actions }) {
+    try {
+        const crateMgr = new Crate();
+        let hrstart = process.hrtime();
+        let crate;
+        if (actions?.length) {
+            crate = await crateMgr.updateCrate({
+                localCrateFile: session?.data?.current?.local?.file,
+                collectionId,
+                actions,
+            });
+        } else {
+            crate = await crateMgr.exportCollectionAsROCrate({
+                collectionId,
+                sync: true,
+            });
+        }
+        let hrend = process.hrtime(hrstart);
+        // log.debug(JSON.stringify(crate, null, 2));
+        await crateMgr.saveCrate({
+            session,
+            user,
+            resource: session?.data?.current?.remote?.resource,
+            parent: session?.data?.current?.remote?.parent,
+            localFile: session?.data?.current?.local?.file,
+            crate,
+        });
+
+        log.debug(`Crate update time: ${hrend[0]}s, ${hrend[1]}ns`);
+    } catch (error) {
+        log.error(`saveCrate: error saving crate ${error.message}`);
+        throw new Error("Error saving the crate back to the target");
+    }
 }

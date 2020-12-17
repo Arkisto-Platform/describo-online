@@ -3,7 +3,7 @@ import { spawn } from "child_process";
 import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
 import path from "path";
 import { camelCase } from "lodash";
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 

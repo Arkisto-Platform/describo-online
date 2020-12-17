@@ -42,7 +42,7 @@ import {
     postReplaceCrateWithTemplateRouteHandler,
 } from "./template";
 
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export function setupRoutes({ server }) {

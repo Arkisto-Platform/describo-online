@@ -1,7 +1,7 @@
 import { UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {

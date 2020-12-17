@@ -6,7 +6,7 @@ import {
     getTypeDefinition,
 } from "../lib/profile";
 import { BadRequestError, InternalServerError } from "restify-errors";
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export async function getProfileRouteHandler(req, res, next) {

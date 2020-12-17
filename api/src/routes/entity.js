@@ -13,36 +13,9 @@ import {
     associate,
     insertFilesAndFolders,
 } from "../lib/entities";
-import { Crate } from "../lib/crate";
-import { getLogger } from "../common";
+import { saveCrate } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
-import process from "process";
-
-export async function saveCrate({ session, user, collectionId, actions }) {
-    try {
-        const crateMgr = new Crate();
-        let hrstart = process.hrtime();
-        let crate = await crateMgr.updateCrate({
-            localCrateFile: session?.data?.current?.local?.file,
-            collectionId,
-            actions,
-        });
-        let hrend = process.hrtime(hrstart);
-        // log.debug(JSON.stringify(crate, null, 2));
-        await crateMgr.saveCrate({
-            session,
-            user,
-            resource: session?.data?.current?.remote?.resource,
-            parent: session?.data?.current?.remote?.parent,
-            localFile: session?.data?.current?.local?.file,
-            crate,
-        });
-        log.debug(`Crate update time: ${hrend[0]}s, ${hrend[1]}ns`);
-    } catch (error) {
-        log.error(`saveCrate: error saving crate ${error.message}`);
-        throw new Error("Error saving the crate back to the target");
-    }
-}
 
 export async function getEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
@@ -265,6 +238,7 @@ export async function delEntityRouteHandler(req, res, next) {
         res.send({});
         next();
     } catch (error) {
+        console.log(error);
         log.error(`delEntityRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }

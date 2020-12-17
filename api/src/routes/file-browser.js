@@ -1,6 +1,6 @@
 import { listFolder, createFolder, deleteFolder } from "../lib/file-browser";
 import { BadRequestError } from "restify-errors";
-import { getLogger } from "../common";
+import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export async function readFolderRouteHandler(req, res, next) {
@@ -28,9 +28,7 @@ export async function readFolderRouteHandler(req, res, next) {
 export async function createFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
-        log.error(
-            `createFolderRouterHandler: resource || folderPath not provided`
-        );
+        log.error(`createFolderRouterHandler: resource || folderPath not provided`);
         return next(new BadRequestError());
     }
     try {
@@ -51,9 +49,7 @@ export async function createFolderRouteHandler(req, res, next) {
 export async function deleteFolderRouteHandler(req, res, next) {
     const { resource, path: folderPath } = req.body;
     if (!resource || !folderPath) {
-        log.error(
-            `createFolderRouterHandler: resource || folderPath not provided`
-        );
+        log.error(`createFolderRouterHandler: resource || folderPath not provided`);
         return next(new BadRequestError());
     }
     try {

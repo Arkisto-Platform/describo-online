@@ -3,7 +3,8 @@ const restify = require("restify");
 const server = restify.createServer();
 const models = require("./src/models");
 const { setupRoutes } = require("./src/routes");
-const { loadConfiguration, getLogger } = require("./src/common");
+const { loadConfiguration } = require("./src/common");
+const { getLogger } = require("./src/common/logger");
 const corsMiddleware = require("restify-cors-middleware");
 const log = getLogger();
 
