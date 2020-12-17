@@ -112,6 +112,7 @@ export default {
             this.loading = true;
             await this.dataService.replaceCrateWithTemplate({ templateId });
             await new Promise((resolve) => setTimeout(resolve, 1000));
+            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
             this.loading = false;
         },
     },
