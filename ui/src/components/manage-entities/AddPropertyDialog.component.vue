@@ -82,7 +82,10 @@ export default {
             this.$emit("close");
         },
         handlePropertySelection() {
-            this.selectedProperty = this.inputs.filter((i) => i.name === this.property)[0];
+            this.selectedProperty = undefined;
+            this.$nextTick(() => {
+                this.selectedProperty = this.inputs.filter((i) => i.name === this.property)[0];
+            });
         },
         add({ type }) {
             this.addType = type;
