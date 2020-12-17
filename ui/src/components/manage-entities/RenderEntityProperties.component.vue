@@ -159,7 +159,8 @@ export default {
                 property,
                 tgtEntityId: entity.id,
             });
-            this.$emit("refresh");
+            this.$store.commit("setSelectedEntity", { id: entity.id });
+            // this.$emit("refresh");
         },
         async linkEntity({ property, tgtEntityId }) {
             await this.dataService.associate({

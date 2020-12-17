@@ -202,14 +202,15 @@ export default {
                 property,
                 value,
             });
-            this.getEntity();
+            await this.getEntity();
         },
         async createAndLinkEntity({ property, etype, entityName }) {
             let { entity } = await this.dataService.createEntity({
                 name: entityName,
                 etype,
             });
-            this.linkEntity({ property, tgtEntityId: entity.id });
+            await this.linkEntity({ property, tgtEntityId: entity.id });
+            this.$store.commit("setSelectedEntity", { id: entity.id });
         },
         async linkEntity({ property, tgtEntityId }) {
             await this.dataService.associate({
@@ -217,11 +218,11 @@ export default {
                 property,
                 tgtEntityId,
             });
-            this.getEntity();
+            await this.getEntity();
         },
         async addTemplateAndLinkEntity({ property, templateId }) {
             let { entity } = await this.dataService.addTemplateToCollection({ templateId });
-            this.linkEntity({ property, tgtEntityId: entity.id });
+            await this.linkEntity({ property, tgtEntityId: entity.id });
         },
         async deleteEntity() {
             await this.dataService.deleteEntity({ id: this.entity.id });
