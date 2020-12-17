@@ -12,7 +12,9 @@
                 "clientID": "{microsoft Client ID}",
                 "redirectURI": "http://localhost:9000/onedrive-callback"
             }
-        }
+        },
+        "maxSessionLifetime": "86400",
+        "maxEntitiesPerTemplate": "100"
     },
     "api": {
         "port": 8080,

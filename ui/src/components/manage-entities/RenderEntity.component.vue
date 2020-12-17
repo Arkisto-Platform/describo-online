@@ -134,7 +134,6 @@ import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
 import DataService from "./data.service.js";
-import { maxEntitiesPerTemplate } from "@/constants";
 
 export default {
     components: {
@@ -157,7 +156,7 @@ export default {
     data() {
         return {
             entityCount: 0,
-            maxEntitiesPerTemplate,
+            maxEntitiesPerTemplate: this.$store.state.configuration.maxEntitiesPerTemplate,
             loading: false,
             dataService: undefined,
             entity: undefined,

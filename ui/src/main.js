@@ -21,7 +21,7 @@ prefixer.reg(log);
 prefixer.apply(log);
 import { io } from "socket.io-client";
 import HTTPService from "./components/http.service";
-import { defaultSessionLifetime } from "./constants";
+// import { defaultSessionLifetime } from "./constants";
 
 (async () => {
     let response = await fetch("/api/configuration");
@@ -48,7 +48,7 @@ import { defaultSessionLifetime } from "./constants";
         Vue.prototype.$socket = io();
 
         const sessionCreate = Date.parse(store.state.session.create.valueOf()).valueOf() / 1000;
-        if (new Date().valueOf() / 1000 > sessionCreate + defaultSessionLifetime) {
+        if (new Date().valueOf() / 1000 > sessionCreate + configuration.maxSessionLifetime) {
             store.commit("setTargetResource", { resource: undefined, folder: undefined });
         } else {
             // do we already have a onedrive session on the go? log it in again
