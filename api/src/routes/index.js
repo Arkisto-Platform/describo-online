@@ -20,6 +20,7 @@ import {
 } from "./profile";
 import {
     getEntityRouteHandler,
+    getEntityCountRouteHandler,
     getEntitiesRouteHandler,
     getEntityPropertiesRouteHandler,
     findEntityRouteHandler,
@@ -64,6 +65,7 @@ export function setupRoutes({ server }) {
     server.post("/entity/lookup", route(findEntityRouteHandler));
     server.get("/entity/:entityId", route(getEntityRouteHandler));
     server.get("/entity/:entityId/properties", route(getEntityPropertiesRouteHandler));
+    server.get("/entity/count", route(getEntityCountRouteHandler));
     server.get("/entity", route(getEntitiesRouteHandler));
     server.post("/entity", route(postEntityRouteHandler));
     server.put("/entity/:entityId", route(putEntityRouteHandler));

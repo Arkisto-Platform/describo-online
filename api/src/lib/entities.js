@@ -221,6 +221,10 @@ export async function getEntity({ id, collectionId }) {
     });
 }
 
+export async function getEntityCount({ collectionId }) {
+    return await models.entity.count({ where: { collectionId } });
+}
+
 export async function getEntities({
     collectionId,
     filter,
