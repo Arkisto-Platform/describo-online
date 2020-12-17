@@ -1,18 +1,23 @@
 <template>
     <div class="flex flex-col">
-        <add-control-component :types="definition['type']" v-if="definition" @add="add" />
+        <add-control-component
+            :types="definition['type']"
+            :embedded="embedded"
+            v-if="definition && !addType"
+            @add="add"
+        />
 
-        <div v-if="addType" class="mt-2" :class="{ 'bg-indigo-100 p-4': !embedded }">
-            <div class="flex flex-row mt-2">
-                <div><i class="text-xl fas fa-link"></i> Associate a {{ addType }}</div>
+        <div v-if="addType" class="" :class="{ 'bg-indigo-100 p-2': !embedded }">
+            <div class="flex flex-row">
+                <!-- <div><i class="text-xl fas fa-link"></i> Associate an entity</div> -->
                 <div class="flex-grow"></div>
                 <div v-if="!embedded">
-                    <el-button @click="addType = undefined" size="mini">
+                    <el-button @click="close" size="mini">
                         <i class="fas fa-times fa-fw"></i>
                     </el-button>
                 </div>
             </div>
-            <div v-if="addSimpleType" class="mt-2">
+            <div v-if="addSimpleType" class="">
                 <text-component
                     v-if="addType === 'Text'"
                     :property="property"
@@ -40,28 +45,35 @@
                     @save:property="createProperty"
                 />
             </div>
-            <div v-else class="flex flex-col mt-4">
-                <div class="flex flex-row space-x-4 divide-x divide-gray-800 text-gray-600">
-                    <div class="w-1/2">
-                        <div class="">
-                            Associate an existing '{{ addType }}': lookup by @id, @type, or name
+            <div v-else class="">
+                <div class="flex flex-col space-y-2 divide-y divide-gray-300 text-gray-600 ">
+                    <div class="w-full flex flex-col justify-center">
+                        <div class="flex flex-row">
+                            <div class="mr-2 text-sm pt-1">
+                                Create and associate a new:
+                            </div>
+                            <div>
+                                <el-button
+                                    @click="createEntityAndLink"
+                                    type="success"
+                                    size="mini"
+                                    class="focus:outline-none focus:border-2 focus:border-green-600"
+                                >
+                                    <i class="fas fa-plus"></i>&nbsp;{{ addType }}
+                                </el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full py-2">
+                        <div class="text-sm">
+                            OR - Associate an existing '{{ addType }}': lookup by @id, @type, or
+                            name
                         </div>
                         <autocomplete-component
                             :type="addType"
                             by="name"
                             @link:entity="linkEntity"
                             @add:template="addTemplate"
-                        />
-                    </div>
-                    <div class="w-1/2 pl-2">
-                        <div class="">
-                            Create and associate a new entity of type '{{ addType }}'
-                        </div>
-                        <text-component
-                            class="flex-grow"
-                            type="text"
-                            :property="property"
-                            @save:property="createEntityAndLink"
                         />
                     </div>
                 </div>
@@ -122,17 +134,20 @@ export default {
         });
     },
     methods: {
+        close() {
+            this.addType = undefined;
+        },
         add({ type }) {
             this.addType = type;
         },
         createProperty(data) {
             this.$emit("create:property", data);
         },
-        createEntityAndLink(data) {
+        createEntityAndLink() {
             this.$emit("create:entity", {
                 etype: this.addType,
                 property: this.property,
-                entityName: data.value,
+                entityName: "new entity",
             });
         },
         linkEntity({ entity }) {

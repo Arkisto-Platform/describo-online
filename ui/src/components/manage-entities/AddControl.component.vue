@@ -36,6 +36,11 @@
 <script>
 export default {
     props: {
+        embedded: {
+            type: Boolean,
+            default: false,
+            validator: (val) => [true, false].includes(val),
+        },
         types: {
             type: Array,
             required: true,
@@ -56,13 +61,14 @@ export default {
     },
     mounted() {
         this.init();
-        if (this.types.length === 1) this.add(this.types[0]);
+        if (this.embedded && this.types.length === 1) this.add(this.types[0]);
     },
     methods: {
         init() {
             this.allowedTypes = this.types.filter((type) => !this.typeExclusions.includes(type));
         },
         add(type) {
+            this.selectedType = type;
             this.$emit("add", { type });
         },
     },
