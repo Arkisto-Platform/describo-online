@@ -103,7 +103,6 @@ export default {
             this.close();
         },
         addTemplate(data) {
-            console.log(data);
             this.$emit("add:template", data);
             this.close();
         },

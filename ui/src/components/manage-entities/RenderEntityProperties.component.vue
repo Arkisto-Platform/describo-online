@@ -171,7 +171,7 @@ export default {
             this.$emit("refresh");
         },
         async addTemplateAndLinkEntity({ property, templateId }) {
-            let { entity } = await this.dataService.addTemplateToCollection({ templateId });
+            let { entity } = await this.dataService.addTemplate({ templateId });
             this.linkEntity({ property, tgtEntityId: entity.id });
         },
     },

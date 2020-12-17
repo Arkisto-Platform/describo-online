@@ -221,7 +221,7 @@ export default {
             await this.getEntity();
         },
         async addTemplateAndLinkEntity({ property, templateId }) {
-            let { entity } = await this.dataService.addTemplateToCollection({ templateId });
+            let { entity } = await this.dataService.addTemplate({ templateId });
             await this.linkEntity({ property, tgtEntityId: entity.id });
         },
         async deleteEntity() {
