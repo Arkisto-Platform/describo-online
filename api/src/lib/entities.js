@@ -12,7 +12,7 @@ export async function insertEntity({ entity, collectionId }) {
             collectionId,
             name: entity["@type"] ? entity["@type"] : entity.etype,
         })
-    ).hierarchy;
+    )?.hierarchy;
     if (!hierarchy) {
         hierarchy = [entity["@type"] ? entity["@type"] : entity.etype, "Thing"];
     }
