@@ -29,7 +29,7 @@
                     <div class="flex flex-grow"></div>
                     <div
                         class="flex flex-row space-x-2 flex-grow"
-                        v-if="entity && entity.eid === './'"
+                        v-if="entity && entity.eid === './' && entityCount < maxEntitiesPerTemplate"
                     >
                         <el-input
                             v-model="crateName"
@@ -134,6 +134,7 @@ import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
 import DataService from "./data.service.js";
+import { maxEntitiesPerTemplate } from "@/constants";
 
 export default {
     components: {
@@ -155,6 +156,8 @@ export default {
     },
     data() {
         return {
+            entityCount: 0,
+            maxEntitiesPerTemplate,
             loading: false,
             dataService: undefined,
             entity: undefined,
@@ -185,6 +188,8 @@ export default {
             this.error = undefined;
             this.loading = true;
             try {
+                let { count } = await this.dataService.getEntityCount();
+                this.entityCount = count;
                 let { entity } = await this.dataService.getEntity({
                     id: this.id,
                 });

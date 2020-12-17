@@ -18,6 +18,17 @@ export default class DataService {
         }
     }
 
+    async getEntityCount() {
+        let response = await this.$http.get({
+            route: `/entity/count`,
+        });
+        if (response.status !== 200) {
+            return this.handleError({ response });
+        } else {
+            return await response.json();
+        }
+    }
+
     async getEntities({ filter, page, limit, orderBy, orderDirection }) {
         let response = await this.$http.get({
             route: `/entity?page=${page}&limit=${limit}&orderBy=${encodeURIComponent(
