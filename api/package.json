@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "develop": "npm run develop:server",
-        "develop:server": "npm install && ./node_modules/.bin/nodemon --exec babel-node ./index.js",
+        "develop:server": "npm install && ./node_modules/.bin/nodemon -L --watch src --exec babel-node ./index.js",
         "test": "./node_modules/.bin/jest",
         "test:watch": "./node_modules/.bin/jest --watch",
         "build:production": "./node_modules/.bin/webpack --config webpack.production.js"
@@ -34,7 +34,10 @@
         "@okta/jwt-verifier": "^1.0.0",
         "debug": "^4.2.0",
         "fs-extra": "^9.0.1",
+        "google-protobuf": "^3.15.3",
+        "grpc": "^1.24.3",
         "jsonld": "^3.2.0",
+        "jsonwebtoken": "^8.5.1",
         "lodash": "^4.17.20",
         "node-fetch": "^2.6.1",
         "pg": "^8.3.3",

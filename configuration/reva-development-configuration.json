@@ -1,0 +1,28 @@
+{
+    "ui": {
+        "siteName": "UTS Describo Online",
+        "logo": "http://www.researchobject.org/ro-crate/assets/img/ro-crate.svg",
+        "services": {
+            "type": "reva",
+            "reva": {
+
+            }
+        },
+        "maxSessionLifetime": "86400",
+        "maxEntitiesPerTemplate": "100"
+    },
+    "api": {
+        "port": 8080,
+        "applications": [
+            {
+                "name": "stash",
+                "secret": "xxx",
+                "expiry": 3600,
+                "postCrateTo": {
+                    "url": "https://{your url}",
+                    "headers": { "Authorization": "Bearer yyy", "Content-Type": "application/json" }
+                }
+            }
+        ]
+    }
+}

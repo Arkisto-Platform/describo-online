@@ -15,7 +15,9 @@ export async function loadConfiguration() {
             ? "/srv/configuration/development-configuration.json"
             : "/srv/configuration.json";
     configuration = await readJSON(configuration);
-    configuration.ui.services.okta.issuer = `${configuration.ui.services.okta.domain}/oauth2/default`;
+
+    if (configuration.ui.services.okta)
+        configuration.ui.services.okta.issuer = `${configuration.ui.services.okta.domain}/oauth2/default`;
     return configuration;
 }
 

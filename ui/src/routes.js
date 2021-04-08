@@ -2,14 +2,21 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import ShellComponent from "@/components/Shell.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
-import OktaLoginComponent from "@/components/OktaLogin.component.vue";
-import OktaLoginCallbackComponent from "@/components/OktaLoginCallback.component.vue";
+// import OktaLoginComponent from "@/components/OktaLogin.component.vue";
+// import OktaLoginCallbackComponent from "@/components/OktaLoginCallback.component.vue";
+import {OktaLoginCallbackComponent} from '../../plugins/okta';
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
 import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
+import LoginComponent from "@/components/Login.component.vue";
 import AuthService from "./components/auth.service";
 const authService = new AuthService({});
 
 Vue.use(VueRouter);
+Vue.use(OktaLoginCallbackComponent, {});
+// if (configuration.services.onedrive) {
+//     Vue.use(OktaLoginComponent, {});
+//     Vue.use(OktaLoginCallback, {});
+// }
 
 const routes = [
     {
@@ -31,7 +38,7 @@ const routes = [
     {
         name: "login",
         path: "/login",
-        component: OktaLoginComponent,
+        component: LoginComponent,
     },
     {
         name: "logout",

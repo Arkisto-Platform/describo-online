@@ -88,7 +88,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
     }
 }
 
-export async function createUserSession({ email, data, oktaToken, oktaExpiry }) {
+export async function createUserSession({ email, data, token, expiry }) {
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],
@@ -100,8 +100,8 @@ export async function createUserSession({ email, data, oktaToken, oktaExpiry }) 
     let session = await models.session.create({
         userId: user.id,
         data,
-        oktaToken,
-        oktaExpiry,
+        oktaToken: token,
+        oktaExpiry: expiry,
     });
     return session.get();
 }

@@ -43,13 +43,18 @@ import {
     postReplaceCrateWithTemplateRouteHandler,
 } from "./template";
 
+import {createToken, verifyToken} from '../lib/JWTService';
+import {getGateway, authenticate} from '../lib/RevaConnector';
+
 import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export function setupRoutes({ server }) {
     server.get("/configuration", getConfiguration);
     server.post("/session/okta", createOktaSession);
+    server.post('/session/reva', createRevaSession);
     server.post("/session/application", createApplicationSession);
+    server.post("/authentication/reva", revaAuthentication)
     server.get("/authenticated", route(isAuthenticated));
     server.post("/onedrive/configuration", route(saveUserOnedriveConfiguration));
     server.post("/folder/create", route(createFolderRouteHandler));
@@ -98,7 +103,12 @@ function route(handler) {
 
 async function getConfiguration(req, res, next) {
     let configuration = await loadConfiguration();
+
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", 0);
     res.send({ configuration: configuration.ui });
+
     return next();
 }
 
@@ -142,11 +152,62 @@ async function createOktaSession(req, res, next) {
     let session = await createUserSession({
         email,
         data: {},
-        oktaToken: token,
-        oktaExpiry: jwt.claims.exp,
+        token,
+        expiry: jwt.claims.exp,
     });
     res.send({});
     return next();
+}
+
+async function revaAuthentication(req, res, next) {
+    const config = (await loadConfiguration());
+
+    const client = getGateway();
+    const revaAuth = await authenticate(client, req.body.user, req.body.password);
+    if (revaAuth.code !== 1) {
+        log.error(`Reva: issue with authorization: ${revaAuth.message}`);
+        return next(new UnauthorizedError("Unable to get authorization"));
+    }
+
+    await createUser({
+        email: revaAuth.user.email,
+        name: revaAuth.user.username
+    });
+
+    const token = await createToken(revaAuth.token);
+
+    await createUserSession({
+        email: revaAuth.user.email,
+        data: {
+            username: revaAuth.user.username
+        },
+        token: token,
+        expiry: config.api.applications[0].expiry
+    });
+
+    res.json({
+        token: token
+    });
+}
+
+async function createRevaSession(req, res, next) {
+    let token;
+    try {
+        token = req.headers.authorization.split("reva ").pop();
+    } catch (error) {
+        log.error(`Reva: issue with authorization header: ${error.message}`);
+        return next(new UnauthorizedError("Unable to get authorization from header"));
+    }
+
+    const verifiedToken = verifyToken(token);
+
+    if (verifiedToken.code === 0) {
+        log.error('reva token verification failure');
+        return next(new BadRequestError());
+    }
+    res.json({
+        token: 'session id'
+    });
 }
 
 async function createApplicationSession(req, res, next) {

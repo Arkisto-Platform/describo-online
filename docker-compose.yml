@@ -18,6 +18,7 @@ services:
             POSTGRES_USER: "admin"
             POSTGRES_PASSWORD: "admin"
             PGDATA: /postgresql/data
+            CHOKIDAR_USEPOLLING: "true"
         # volumes:
         #     - describo_online_db_test:/postgresql
         ports:
@@ -36,37 +37,59 @@ services:
             DB_PASSWORD: "admin"
             DB_DATABASE: "describo"
         volumes:
-            - $PWD/api:/srv/api:delegated
-            - $PWD/.git:/srv/api/.git:delegated
+            - ./api:/srv/api:delegated
+            - ./.git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
-            - $PWD/configuration:/srv/configuration
+            - ./configuration:/srv/configuration
+            -   ../reva/:/srv/reva
         working_dir: /srv/api
-        command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
+        entrypoint: ['/bin/bash', './scripts/wait-for-postgres2.sh']
+        command: ["npm run develop"]
 
     ui:
         image: node:14-stretch
         hostname: ui
         tty: true
+        ports:
+            - "9000:9000"
         environment:
             TERM: "xterm-256color"
             NODE_ENV: "development"
+            CHOKIDAR_USEPOLLING: "true"
         volumes:
-            - $PWD/ui:/srv/ui:delegated
-            - $PWD/.git:/srv/ui/.git:delegated
+            - ./ui:/srv/ui:delegated
+            - ./.git:/srv/ui/.git:delegated
             - ui_node_modules:/srv/ui/node_modules:delegated
-            - $PWD/../describo-ui-plugins:/srv/plugins:delegated
+            - ./../describo-ui-plugins:/srv/plugins:delegated
         working_dir: /srv/ui
         command: ["npm", "run", "serve"]
 
-    edge:
-        image: nginx:latest
-        hostname: edge
+    reva:
+        image: cs3org/revad
+        hostname: reva
         tty: true
-        environment:
-            TERM: "xterm-256color"
-        volumes:
-            - $PWD/nginx.conf:/etc/nginx/conf.d/default.conf
-            - $PWD/production/wait-for-it.sh:/wait-for-it.sh
-        command: ["/wait-for-it.sh", "app:8080", "-t", "10", "--", "nginx", "-g", "daemon off;"]
         ports:
-            - 9000:9000
+            - 19000:19000
+        volumes:
+        -   ./configuration:/srv/configuration
+        -   ../reva/:/srv/reva
+        command: >
+            bash -c "
+                cp /srv/configuration/reva/users.json /etc/revad/users.json &
+                cp /srv/configuration/reva/ocm-providers.json /etc/revad/ocm-providers.json &
+                revad -c /srv/configuration/reva/gateway.toml &
+                revad -c /srv/configuration/reva/storage-home.toml &
+                revad -c /srv/configuration/reva/storage-reva.toml
+            "
+#    edge:
+#        image: nginx:latest
+#        hostname: edge
+#        tty: true
+#        environment:
+#            TERM: "xterm-256color"
+#        volumes:
+#            - $PWD/nginx.conf:/etc/nginx/conf.d/default.conf
+#            - $PWD/production/wait-for-it.sh:/wait-for-it.sh
+#        command: ["/wait-for-it.sh", "app:8080", "-t", "10", "--", "nginx", "-g", "daemon off;"]
+#        ports:
+#            - 9000:9000

@@ -1,0 +1,33 @@
+{
+    "ui": {
+        "siteName": "UTS Describo Online",
+        "logo": "http://www.researchobject.org/ro-crate/assets/img/ro-crate.svg",
+        "services": {
+            "type": "okta",
+            "okta": {
+                "domain": "https://dev-77798486.okta.com",
+                "clientId": "0oa7ebnb4r7a3ncrn5d6",
+                "redirectUri": "http://localhost:9000/okta-login"
+            },
+            "onedrive": {
+                "clientID": "d111ca65-c52f-4f61-8f6b-732f23cc3400",
+                "redirectURI": "http://localhost:9000/onedrive-callback"
+            }
+        },
+        "maxSessionLifetime": "86400",
+        "maxEntitiesPerTemplate": "100"
+    },
+    "api": {
+        "port": 8080,
+        "applications": [
+            {
+                "name": "stash",
+                "secret": "xxx",
+                "postCrateTo": {
+                    "url": "https://{your url}",
+                    "headers": { "Authorization": "Bearer yyy", "Content-Type": "application/json" }
+                }
+            }
+        ]
+    }
+}
