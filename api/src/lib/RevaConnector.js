@@ -1,11 +1,10 @@
 import {promisify} from 'util';
 import grpc from 'grpc';
 
-const { GatewayAPIClient } = require('../../cs3/gateway/v1beta1/gateway_api_grpc_pb');
-const gwMessages = require('../../cs3/gateway/v1beta1/gateway_api_pb');
-const fsMessages = require('../../cs3/storage/provider/v1beta1/provider_api_pb');
-const storageResources = require('../../cs3/storage/provider/v1beta1/resources_pb');
-
+const { GatewayAPIClient } = require('@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_grpc_pb');
+const gwMessages = require('@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_pb');
+const fsMessages = require('@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/provider_api_pb');
+const storageResources = require('@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/resources_pb');
 function promisifyAll(client) {
     const to = {};
     for (var k in client) {

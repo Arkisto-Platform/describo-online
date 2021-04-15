@@ -63,6 +63,7 @@ services:
             - ./../describo-ui-plugins:/srv/plugins:delegated
         working_dir: /srv/ui
         command: ["npm", "run", "serve"]
+#        command: ["tail", "-f", "/dev/null"]
 
     reva:
         image: cs3org/revad
@@ -71,15 +72,14 @@ services:
         ports:
             - 19000:19000
         volumes:
-        -   ./configuration:/srv/configuration
-        -   ../reva/:/srv/reva
+            -   ./configuration:/srv/configuration
+            -   ../reva/:/srv/reva
         command: >
             bash -c "
-                cp /srv/configuration/reva/users.json /etc/revad/users.json &
-                cp /srv/configuration/reva/ocm-providers.json /etc/revad/ocm-providers.json &
-                revad -c /srv/configuration/reva/gateway.toml &
-                revad -c /srv/configuration/reva/storage-home.toml &
-                revad -c /srv/configuration/reva/storage-reva.toml
+                cp /srv/configuration/revad/* /etc/revad/ &
+                revad -c /etc/revad/gateway.toml &
+                revad -c /etc/revad/storage-home.toml &
+                revad -c /etc/revad/storage-reva.toml
             "
 #    edge:
 #        image: nginx:latest

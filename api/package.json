@@ -31,6 +31,7 @@
         "webpack-node-externals": "^2.5.2"
     },
     "dependencies": {
+        "@cs3org/node-cs3apis": "0.0.4",
         "@okta/jwt-verifier": "^1.0.0",
         "debug": "^4.2.0",
         "fs-extra": "^9.0.1",
