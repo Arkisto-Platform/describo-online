@@ -118,7 +118,7 @@ this mode, okta auth is bypassed for a given session. This works as follows:
 
 -   Set up an entry for your service in the configuration file under `api/applications`. This must be an array of objects each with a key `name` set to the full qualified domain name of the service and a key `secret` set to some long, random string.
 -   In order to bypass okta, your service must first POST to `https://{describo-online}/api/session/application` a JSON object `containing a name and an email`.
--   The POST must set the header `Authorization: Bearer: {your secret as defined in the configuration}`
+-   The POST must set the header `Authorization: Bearer {your secret as defined in the configuration}`
 -   The POST must set the header `"Content-Type": "application/json"`
 
 -   **See the test `it should be able to create a session and login - bypassing okta auth` @ [api/src/routes/index.spec.js](https://github.com/UTS-eResearch/describo-online/blob/master/api/src/routes/index.spec.js#L48) for an example.**
