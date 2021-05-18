@@ -9,12 +9,25 @@ export default class HTTPService {
     async getHeaders() {
         let accessToken = getSessionSID();
         let authorization;
-        if (accessToken) {
-            authorization = `sid ${accessToken}`;
-        } else {
-            accessToken = await this.$auth.getAccessToken();
-            authorization = `okta ${accessToken}`;
+        switch (accessToken.type) {
+            case 'okta':
+                accessToken = await this.$auth.getAccessToken();
+                authorization = `okta ${accessToken}`;
+                break;
+            case 'reva': authorization =  `reva ${accessToken.sid}`; break;
+            case 'sid': authorization =`sid ${accessToken.sid}`; break;
         }
+        //
+        // if (accessToken.type === 'okta') {
+        //     accessToken = await this.$auth.getAccessToken();
+        //     authorization = `okta ${accessToken.sid}`;
+        // } else if (accessToken.type === 'reva') {
+        //     authorization =  `reva ${accessToken.sid}`;
+        // } else {
+        //     authorization =`sid ${accessToken.sid}`;
+        // }
+
+        console.log(authorization);
         return {
             authorization,
             "Content-Type": "application/json",

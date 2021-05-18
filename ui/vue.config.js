@@ -3,6 +3,10 @@ module.exports = {
         port: 9000,
         disableHostCheck: true,
         writeToDisk: true,
+        watchOptions: {
+            ignored: /node_modules/,
+            poll: 1000
+        },
         proxy: {
             "^/api": {
                 target: "http://api:8080",

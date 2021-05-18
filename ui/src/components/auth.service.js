@@ -1,5 +1,6 @@
 import HTTPService from "./http.service";
 const sidProperty = "describoOnlineSID";
+const revaProperty  = "revaSID";
 
 export default class AuthService {
     constructor({ $auth }) {
@@ -32,24 +33,28 @@ export function setSessionSID({ sid }) {
 }
 
 export function getSessionSID() {
-    let value;
-    try {
-        value = window.sessionStorage.getItem(sidProperty);
-    } catch (error) {
-        return null;
+    let sid, revaSID;
+
+    revaSID = window.sessionStorage.getItem(revaProperty);
+    if (revaSID !== null) {
+        return {
+            type: 'reva',
+            sid: revaSID
+        };
     }
-    const v = Number(value);
-    return !isNaN(v)
-        ? v
-        : value === "undefined"
-        ? undefined
-        : value === "null"
-        ? null
-        : value === "true"
-        ? true
-        : value === "false"
-        ? false
-        : value;
+
+    sid = Number(window.sessionStorage.getItem(sidProperty));
+    if (!isNaN(sid) && sid > 0) {
+        return {
+            type: 'sid',
+            sid: sid
+        }
+    }
+
+    return {
+        type: 'okta',
+        sid: null
+    }
 }
 
 export function removeSessionSID() {

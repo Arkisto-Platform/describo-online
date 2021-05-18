@@ -11,6 +11,9 @@ import { store } from "./store";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import OneDrivePlugin from "../../plugins/onedrive";
+import RevaLoginComponent from '../../plugins/reva';
+import {OktaLoginComponent, OktaLoginCallbackComponent} from '../../plugins/okta';
+
 import Auth from "@okta/okta-vue";
 import log from "loglevel";
 import prefix from "loglevel-plugin-prefix";
@@ -28,18 +31,32 @@ import HTTPService from "./components/http.service";
     if (response.status === 200) {
         let { configuration } = await response.json();
 
-        if (!configuration.services.okta) {
-            console.error(`Okta configuration not found in configuration.json`);
+        if (!configuration.services.okta && !configuration.services.reva) {
+            console.error(`Okta/Reva configuration not found in configuration.json`);
             process.exit();
         }
-        Vue.use(Auth, {
-            ...configuration.services.okta,
-        });
+
+        if (configuration.services.okta) {
+            Vue.use(Auth, {
+                ...configuration.services.okta,
+            });
+        }
+
         Vue.use(ElementUI, { locale });
-        Vue.use(OneDrivePlugin, {
-            ...configuration.services.onedrive,
-            log,
-        });
+
+        if (configuration.services.onedrive) {
+            Vue.use(OktaLoginComponent, {});
+            Vue.use(OktaLoginCallbackComponent, {});
+
+            Vue.use(OneDrivePlugin, {
+                ...configuration.services.onedrive,
+                log,
+            });
+        }
+
+        if (configuration.services.reva) {
+            Vue.use(RevaLoginComponent, {});
+        }
 
         store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;

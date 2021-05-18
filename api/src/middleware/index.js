@@ -1,6 +1,6 @@
 import { UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getUserSession } from "../lib/user";
-const expectedAuthorizationTypes = ["okta", "sid"];
+const expectedAuthorizationTypes = ["okta", "sid", "reva"];
 import { getLogger } from "../common/logger";
 const log = getLogger();
 
@@ -24,6 +24,10 @@ export async function demandKnownUser(req, res, next) {
             }));
         } else if (authType === "okta") {
             // try {
+            ({ session, user, expiresAt } = await getUserSession({
+                oktaToken: token,
+            }));
+        } else if (authType === "reva") {
             ({ session, user, expiresAt } = await getUserSession({
                 oktaToken: token,
             }));
