@@ -14,7 +14,7 @@ import {
     associate,
     insertFilesAndFolders,
 } from "../lib/entities";
-import { saveCrate } from "../common";
+import { saveCrate } from "../common/save-crate";
 import { getLogger } from "../common/logger";
 const log = getLogger();
 
