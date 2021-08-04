@@ -20,8 +20,8 @@ services:
             PGDATA: /postgresql/data
         # volumes:
         #     - describo_online_db_test:/postgresql
-        ports:
-            - 5432:5432
+        # ports:
+        #     - 5432:5432
 
     api:
         image: node:14-buster
@@ -40,8 +40,9 @@ services:
             - ./configuration:/srv/configuration
             - .git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
+            - ./scripts/wait-for-it.sh:/wait-for-it.sh
         working_dir: /srv/api
-        command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
+        command: ["/wait-for-it.sh", "db:5432", "-t", "10", "--", "npm", "run", "develop"]
 
     ui:
         image: node:14-buster
@@ -53,7 +54,7 @@ services:
         volumes:
             - ./ui:/srv/ui:delegated
             - .git:/srv/ui/.git:delegated
-            - ../describo-ui-plugins:/srv/plugins:delegated
+            - ../describo-ui-plugins:/srv/ui/src/plugins:delegated
             - ui_node_modules:/srv/ui/node_modules:delegated
         working_dir: /srv/ui
         command: ["npm", "run", "develop"]
@@ -66,7 +67,7 @@ services:
             TERM: "xterm-256color"
         volumes:
             - ./nginx.conf:/etc/nginx/conf.d/default.conf
-            - ./production/wait-for-it.sh:/wait-for-it.sh
+            - ./scripts/wait-for-it.sh:/wait-for-it.sh
         command: ["/wait-for-it.sh", "app:8080", "-t", "10", "--", "nginx", "-g", "daemon off;"]
         ports:
             - 9000:9000
