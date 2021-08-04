@@ -1,5 +1,10 @@
 version: "3.8"
 
+networks:
+  default:
+    external:
+      name: describo-online_default
+
 volumes:
     database_volume:
         driver: local
