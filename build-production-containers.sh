@@ -17,7 +17,13 @@ fi
 read -p '>> Build the UI code? [y|N] ' resp
 if [ "$resp"  == "y" ] ; then
     cd ui
-    npm run build
+    # npm run build
+    docker run -it --rm \
+        -v $PWD:/srv/ui \
+        -v $PWD/../../describo-ui-plugins:/srv/plugins \
+        -v ui_node_modules:/srv/ui/node_modules \
+        -v ui_node_modules:/srv/plugins/node_modules \
+        -w /srv/ui node:14-buster bash -l -c "npm run build"
     cd -
     echo
 fi
