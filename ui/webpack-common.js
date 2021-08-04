@@ -15,9 +15,7 @@ module.exports = {
         publicPath: "http://localhost:9000/",
     },
     plugins: [
-        new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: ["*.js", "*.css", "*.txt"],
-        }),
+        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             title: "Describo Online",
             template: "./public/index.html",
