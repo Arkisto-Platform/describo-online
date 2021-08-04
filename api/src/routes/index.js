@@ -57,7 +57,7 @@ export function setupRoutes({ server }) {
     server.post("/session/application", createApplicationSession);
     server.put("/session/application/:sessionId", updateApplicationSession);
     server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
-    // server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
+    server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
     server.post("/folder/create", route(createFolderRouteHandler));
     server.post("/folder/read", route(readFolderRouteHandler));
@@ -238,21 +238,21 @@ async function updateApplicationSession(req, res, next) {
     }
 }
 
-// async function saveServiceConfiguration(req, res, next) {
-//     let session = await models.session.findOne({
-//         where: { id: req.session.id },
-//     });
-//     let data = cloneDeep(session.data);
-//     data = {
-//         ...data,
-//         services: {
-//             [req.body.service]: req.body,
-//         },
-//     };
-//     await session.update({ data });
-//     res.send({});
-//     next();
-// }
+async function saveServiceConfiguration(req, res, next) {
+    let session = await models.session.findOne({
+        where: { id: req.session.id },
+    });
+    let data = cloneDeep(session.data);
+    data = {
+        ...data,
+        services: {
+            [req.body.service]: req.body,
+        },
+    };
+    await session.update({ data });
+    res.send({});
+    next();
+}
 
 async function getServiceConfiguration(req, res, next) {
     let configuration = await loadConfiguration();

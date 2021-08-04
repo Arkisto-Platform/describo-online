@@ -1,3 +1,4 @@
+import "regenerator-runtime";
 import "@/assets/tailwind.css";
 import "element-ui/lib/theme-chalk/index.css";
 import "@fortawesome/fontawesome-free/js/all";
