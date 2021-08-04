@@ -4,7 +4,7 @@
         <div class="p-2 flex flex-col space-y-1">
             <select-target-component />
 
-            <load-collection-component v-if="target.resource" />
+            <load-collection-component v-if="target.resource && target.folder" />
             <el-tabs type="border-card" v-model="activeTab" v-if="collectionId && target.resource">
                 <el-tab-pane label="Build the Collection" name="manageData">
                     <render-entity-component

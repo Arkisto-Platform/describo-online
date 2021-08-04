@@ -24,7 +24,7 @@ services:
             - 5432:5432
 
     api:
-        image: node:14-stretch
+        image: node:14-buster
         hostname: api
         tty: true
         environment:
@@ -44,7 +44,7 @@ services:
         command: ["./scripts/wait-for-postgres.sh", "npm run develop"]
 
     ui:
-        image: node:14-stretch
+        image: node:14-buster
         hostname: ui
         tty: true
         environment:

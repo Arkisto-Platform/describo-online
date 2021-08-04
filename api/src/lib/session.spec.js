@@ -19,7 +19,7 @@ describe("test session creation from stash", () => {
 
         let testConfig = cloneDeep(origConfig);
         testConfig.api.applications = [{ name: "test", secret: "xxx" }];
-        await writeJSON(path.join("../../configuration.json"), testConfig);
+        await writeJSON("/srv/configuration/development-configuration.json", testConfig);
 
         try {
             await postSession({
@@ -31,14 +31,14 @@ describe("test session creation from stash", () => {
             expect(error.body.code).toBe("Forbidden");
         }
 
-        await writeJSON(path.join("../../configuration.json"), origConfig);
+        await writeJSON("/srv/configuration/development-configuration.json", origConfig);
     });
     test("it should be able to create a new session and get a session id", async () => {
         const origConfig = await loadConfiguration();
 
         let testConfig = cloneDeep(origConfig);
         testConfig.api.applications = [{ name: "test", secret: "xxx" }];
-        await writeJSON(path.join("../../configuration.json"), testConfig);
+        await writeJSON("/srv/configuration/development-configuration.json", testConfig);
 
         const email = "test@test.com";
         let sessionId = await postSession({
@@ -50,6 +50,6 @@ describe("test session creation from stash", () => {
         expect(session.id).toEqual(sessionId);
         await models.user.destroy({ where: { email } });
 
-        await writeJSON(path.join("../../configuration.json"), origConfig);
+        await writeJSON("/srv/configuration/development-configuration.json", origConfig);
     });
 });

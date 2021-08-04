@@ -25,7 +25,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
         if (sessionId) {
             session = await models.session.findOne({
                 where: { id: sessionId },
-                attributes: ["id", "data", "createdAt"],
+                attributes: ["id", "data", "creator", "createdAt"],
                 include: [
                     {
                         model: models.user,
@@ -38,12 +38,11 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
-                // return { user, session };
             }
         } else if (oktaToken) {
             session = await models.session.findOne({
                 where: { oktaToken },
-                attributes: ["id", "data", "oktaExpiry"],
+                attributes: ["id", "data", "creator", "oktaExpiry"],
                 include: [
                     {
                         model: models.user,
@@ -56,7 +55,6 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
-                // return { user, session };
             }
         } else if (email) {
             user = await models.user.findOne({
@@ -65,7 +63,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 include: [
                     {
                         model: models.session,
-                        attributes: ["id", "data", "createdAt"],
+                        attributes: ["id", "data", "creator", "createdAt"],
                     },
                 ],
             });
@@ -74,7 +72,6 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 user = user.get({ plain: true });
                 session = user.session ? user.session : { id: null, data: null };
                 delete user.session;
-                // return { user, session };
             }
         }
 
@@ -88,7 +85,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
     }
 }
 
-export async function createUserSession({ email, data, oktaToken, oktaExpiry }) {
+export async function createUserSession({ email, data, creator = "", oktaToken, oktaExpiry }) {
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],
@@ -102,6 +99,7 @@ export async function createUserSession({ email, data, oktaToken, oktaExpiry }) 
         data,
         oktaToken,
         oktaExpiry,
+        creator,
     });
     return session.get();
 }

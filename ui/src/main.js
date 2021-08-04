@@ -11,6 +11,7 @@ import { store } from "./store";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import OneDrivePlugin from "../../plugins/onedrive";
+import OwncloudPlugin from "../../plugins/owncloud";
 import Auth from "@okta/okta-vue";
 import log from "loglevel";
 import prefix from "loglevel-plugin-prefix";
@@ -32,20 +33,39 @@ import HTTPService from "./components/http.service";
             console.error(`Okta configuration not found in configuration.json`);
             process.exit();
         }
+
         Vue.use(Auth, {
             ...configuration.services.okta,
         });
-        Vue.use(ElementUI, { locale });
-        Vue.use(OneDrivePlugin, {
-            ...configuration.services.onedrive,
-            log,
-        });
-
-        store.commit("saveConfiguration", { configuration });
-        Vue.config.productionTip = false;
         Vue.prototype.$http = new HTTPService({ $auth: Vue.prototype.$auth });
         Vue.prototype.$log = log;
         Vue.prototype.$socket = io();
+
+        Vue.use(ElementUI, { locale });
+
+        // enable onedrive plugin if defined in config
+        if (configuration.services.onedrive) {
+            Vue.use(OneDrivePlugin, {
+                ...configuration.services.onedrive,
+                log,
+                $http: Vue.prototype.$http,
+                configuration: "/session/configuration/onedrive",
+            });
+        }
+
+        // enable owncloud plugin if defined in config
+        if (configuration.services.owncloud) {
+            Vue.use(OwncloudPlugin, {
+                router,
+                log,
+                $http: Vue.prototype.$http,
+                configuration: "/session/configuration/owncloud",
+                oauthToken: "/session/get-oauth-token/owncloud",
+            });
+        }
+
+        store.commit("saveConfiguration", { configuration });
+        Vue.config.productionTip = false;
 
         const sessionCreate = Date.parse(store.state.session.create.valueOf()).valueOf() / 1000;
         if (new Date().valueOf() / 1000 > sessionCreate + configuration.maxSessionLifetime) {

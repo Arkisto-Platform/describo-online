@@ -33,8 +33,7 @@ export default {
                 logo: this.$store.state.configuration.logo,
                 i18n: {
                     en: {
-                        "primaryauth.title": this.$store.state.configuration
-                            .siteName,
+                        "primaryauth.title": this.$store.state.configuration.siteName || "Describo",
                     },
                 },
             });

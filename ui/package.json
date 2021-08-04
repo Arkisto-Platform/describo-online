@@ -7,7 +7,7 @@
         "build": "npm install && vue-cli-service build"
     },
     "dependencies": {
-        "@azure/msal-browser": "^2.8.0",
+        "@azure/msal-browser": "^2.15.0",
         "@fortawesome/fontawesome-free": "^5.15.1",
         "@fortawesome/fontawesome-svg-core": "^1.2.32",
         "@okta/okta-signin-widget": "^4.5.1",
@@ -17,7 +17,6 @@
         "element-ui": "^2.14.1",
         "loglevel": "^1.7.0",
         "loglevel-plugin-prefix": "^0.8.4",
-        "msal": "^1.4.4",
         "socket.io-client": "^3.0.3",
         "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.1",
         "validator": "^13.1.17",

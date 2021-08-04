@@ -34,7 +34,7 @@ describe("Test entity and property route operations", () => {
         let { entity } = await response.json();
         expect(entity.eid).toEqual("./");
         expect(entity.etype).toEqual("Dataset");
-        // expect(entity.eid);
+        expect(entity.eid);
 
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });

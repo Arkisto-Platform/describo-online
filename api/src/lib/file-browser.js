@@ -4,6 +4,7 @@ import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-e
 import path from "path";
 import { camelCase } from "lodash";
 import { getLogger } from "../common/logger";
+import { loadConfiguration } from "../common";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 
@@ -98,10 +99,10 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
 
 export async function setup({ session, user, resource }) {
     // use resource to see if we have a suitable rclone configuration
-    if (!session.data.rclone) {
+    if (!session.data.services) {
         throw new NotFoundError("No session data");
     }
-    let rcloneConfiguration = session?.data?.rclone[resource];
+    let rcloneConfiguration = session?.data?.services[resource];
     if (!rcloneConfiguration) {
         // fail not found error if not
         throw new NotFoundError("No session data");
@@ -119,15 +120,29 @@ export function localWorkingDirectory({ user }) {
 }
 
 async function writeRcloneConfiguration({ rcloneConfiguration, user }) {
+    // console.log(JSON.stringify(rcloneConfiguration, null, 2));
     const folderPath = localWorkingDirectory({ user });
     const filePath = path.join(folderPath, "rclone.conf");
     await ensureDir(folderPath);
     const fd = await open(filePath, "w");
-    await write(fd, `[${rcloneConfiguration.type}]\n`);
-    await write(fd, `type = ${rcloneConfiguration.type}\n`);
-    await write(fd, `token = ${JSON.stringify(rcloneConfiguration.token)}\n`);
-    await write(fd, `drive_id = ${rcloneConfiguration.drive_id}\n`);
-    await write(fd, `drive_type = ${rcloneConfiguration.drive_type}\n`);
+    switch (rcloneConfiguration.service) {
+        case "onedrive":
+            await write(fd, `[onedrive]\n`);
+            await write(fd, `type = onedrive\n`);
+            await write(fd, `token = ${JSON.stringify(rcloneConfiguration.token)}\n`);
+            await write(fd, `drive_id = ${rcloneConfiguration.drive_id}\n`);
+            await write(fd, `drive_type = ${rcloneConfiguration.token.access_token}\n`);
+            break;
+        case "owncloud":
+            await write(fd, `[owncloud]\n`);
+            await write(fd, `type = webdav\n`);
+            await write(
+                fd,
+                `url = ${rcloneConfiguration.url}/files/${rcloneConfiguration.token.user_id}\n`
+            );
+            await write(fd, `vendor = owncloud\n`);
+            await write(fd, `bearer_token = ${rcloneConfiguration.token.access_token}\n`);
+    }
     await close(fd);
     return folderPath;
 }

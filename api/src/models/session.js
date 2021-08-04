@@ -19,6 +19,9 @@ module.exports = function (sequelize, DataTypes) {
             data: {
                 type: DataTypes.JSON,
             },
+            creator: {
+                type: DataTypes.STRING,
+            },
         },
         {
             timestamps: true,

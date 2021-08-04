@@ -12,8 +12,10 @@ export default class HTTPService {
         if (accessToken) {
             authorization = `sid ${accessToken}`;
         } else {
-            accessToken = await this.$auth.getAccessToken();
-            authorization = `okta ${accessToken}`;
+            let token = JSON.parse(window.localStorage.getItem("okta-token-storage")).accessToken
+                .value;
+            // accessToken = await this.$auth.getAccessToken();
+            authorization = `okta ${token}`;
         }
         return {
             authorization,

@@ -6,7 +6,16 @@ const { setupRoutes } = require("./src/routes");
 const { loadConfiguration } = require("./src/common");
 const { getLogger } = require("./src/common/logger");
 const corsMiddleware = require("restify-cors-middleware");
+const periodicProcesses = require("./src/periodic-processes");
 const log = getLogger();
+
+// DEVELOPER NOTE
+//
+//  Do not import fetch anywhere in your code. Use global.fetch
+//   instead.
+//
+//  This way, jest fetch mock will override fetch when you need it to.
+global.fetch = require("node-fetch");
 
 (async () => {
     let configuration;
@@ -62,7 +71,17 @@ const log = getLogger();
     );
     setupRoutes({ server });
 
+    // kick off periodic processes to run every
+    setInterval(runPeriodicProcesses, configuration.api.periodicProcessInterval * 1000);
+
     const app = server.listen(configuration.api.port, function () {
         console.log("ready on %s", server.url);
     });
 })();
+
+async function runPeriodicProcesses() {
+    for (let process of Object.keys(periodicProcesses)) {
+        log.info(`Kick off: ${process}`);
+        periodicProcesses[process]();
+    }
+}

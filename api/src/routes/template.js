@@ -7,7 +7,7 @@ import {
     addTemplate,
     replaceCrateWithTemplate,
 } from "../lib/template";
-import { saveCrate } from "../common";
+import { saveCrate } from "../common/save-crate";
 import { getLogger } from "../common/logger";
 const log = getLogger();
 

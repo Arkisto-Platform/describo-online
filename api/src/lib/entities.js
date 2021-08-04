@@ -228,10 +228,10 @@ export async function getEntityCount({ collectionId }) {
 export async function getEntities({
     collectionId,
     filter,
-    page,
-    limit,
-    orderByProperties,
-    orderDirection,
+    page = 0,
+    limit = 10,
+    orderByProperties = ["name"],
+    orderDirection = "ASC",
 }) {
     let where;
     if (!filter) {

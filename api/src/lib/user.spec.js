@@ -4,10 +4,12 @@ import {
     createUser,
     getUserSession,
     createUserSession,
+    updateUserSession,
     destroyUserSession,
 } from "./user";
 import models from "../models";
 import { isMatch } from "lodash";
+var chance = require("chance").Chance();
 
 describe("Test user management operations", () => {
     afterAll(async () => {
@@ -48,6 +50,129 @@ describe("Test user management operations", () => {
         expect(s.data).toEqual(session);
 
         await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should be able to create an okta session for a user", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        const session = { a: "b" };
+        const oktaToken = chance.word();
+        let oktaExpiry = new Date();
+        oktaExpiry = oktaExpiry.setSeconds(oktaExpiry.getSeconds() + 10);
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session, oktaToken, oktaExpiry });
+        expect(s.data).toEqual(session);
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should be able to get a session using the session id", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+
+        session = await getUserSession({ sessionId: s.id });
+        expect(Object.keys(session).sort()).toEqual(["expiresAt", "session", "user"]);
+        expect(session.user.id).toEqual(user.id);
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should be able to get a session by email", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+
+        session = await getUserSession({ email });
+        expect(Object.keys(session).sort()).toEqual(["expiresAt", "session", "user"]);
+        expect(session.user.id).toEqual(user.id);
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should be able to get a session using the oktaToken", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        const oktaToken = chance.word();
+        let oktaExpiry = new Date();
+        oktaExpiry = oktaExpiry.setSeconds(oktaExpiry.getSeconds() + 10);
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session, oktaToken, oktaExpiry });
+
+        session = await getUserSession({ oktaToken });
+        expect(Object.keys(session).sort()).toEqual(["expiresAt", "session", "user"]);
+        expect(session.user.id).toEqual(user.id);
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should find an expired session when looking up by session id", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+
+        let date = new Date();
+        date.setDate(date.getDate() - 10);
+
+        s = await models.session.findOne({ where: { id: s.id } });
+        await s.update({ createdAt: date });
+
+        session = await getUserSession({ sessionId: session.id });
+        expect(session).toEqual({ session: null, user: null });
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should not be able to find a session", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+
+        session = await getUserSession({ oktaToken: "xxxy" });
+        expect(session).toEqual({ session: null, user: null });
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should wipe a pre-existing session", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+        session = { b: "c" };
+        s = await createUserSession({ email, data: session });
+
+        expect((await getUserSession({ email })).session.data).toEqual(session);
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
+    });
+    test("it should update an existing session with new data", async () => {
+        const email = chance.email();
+        const name = chance.word();
+        let session = { a: "b" };
+        let user = await createUser({ email, name });
+        let s = await createUserSession({ email, data: session });
+        session = { b: "c" };
+        s = await updateUserSession({ sessionId: s.id, email, data: { b: "c" } });
+        expect(s.data).toEqual({ a: "b", b: "c" });
+
+        s = await updateUserSession({ sessionId: s.id, email, oktaToken: "a", oktaExpiry: "b" });
+        expect(s.oktaToken).toEqual("a");
+        expect(s.oktaExpiry).toEqual("b");
+
+        await models.user.destroy({ where: { email } });
+        await models.session.destroy({ where: { id: s.id } });
     });
     test("it should be able to destroy a session for a user", async () => {
         const email = "test4@test.com";

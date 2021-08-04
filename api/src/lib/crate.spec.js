@@ -243,6 +243,32 @@ describe("Test loading a crate from a file", () => {
         });
         expect(rootDataset).toEqual(crate["@graph"][1]);
     });
+    test("it should not find the root dataset", async () => {
+        let crate = {
+            "@context": "https://w3id.org/ro/crate/1.1/context",
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: { "@id": "https://w3id.org/ro/crate/1.1" },
+                    about: { "@id": "./" },
+                },
+
+                {
+                    "@id": "something else",
+                    "@type": "Dataset",
+                    name: "My crate",
+                },
+            ],
+        };
+        try {
+            let { rootDescriptor, rootDataset } = new Crate().getRootDataset({
+                crate,
+            });
+        } catch (error) {
+            expect(error.message).toEqual(`Unable to locate the root dataset`);
+        }
+    });
     test("it should update the crate root descriptor", async () => {
         let crate = {
             "@context": "https://w3id.org/ro/crate/1.1/context",

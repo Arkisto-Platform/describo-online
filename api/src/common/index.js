@@ -23,8 +23,8 @@ export async function createSessionForTest() {
     const origConfig = await loadConfiguration();
 
     let testConfig = cloneDeep(origConfig);
-    testConfig.api.applications = [{ name: "test", secret: "xxx" }];
-    await writeJSON(path.join("../../configuration.json"), testConfig);
+    testConfig.api.applications = [{ name: "test", url: "localhost:8000", secret: "xxx" }];
+    await writeJSON("/srv/configuration/development-configuration.json", testConfig);
     let user = {
         email: chance.email(),
         name: chance.name(),
@@ -39,41 +39,6 @@ export async function createSessionForTest() {
         body: JSON.stringify(user),
     });
     response = await response.json();
-    await writeJSON(path.join("../../configuration.json"), origConfig);
+    await writeJSON("/srv/configuration/development-configuration.json", origConfig);
     return { sessionId: response.sessionId, user };
-}
-
-export async function saveCrate({ session, user, collectionId, actions }) {
-    try {
-        const crateMgr = new Crate();
-        let hrstart = process.hrtime();
-        let crate;
-        if (actions?.length) {
-            crate = await crateMgr.updateCrate({
-                localCrateFile: session?.data?.current?.local?.file,
-                collectionId,
-                actions,
-            });
-        } else {
-            crate = await crateMgr.exportCollectionAsROCrate({
-                collectionId,
-                sync: true,
-            });
-        }
-        let hrend = process.hrtime(hrstart);
-        // log.debug(JSON.stringify(crate, null, 2));
-        await crateMgr.saveCrate({
-            session,
-            user,
-            resource: session?.data?.current?.remote?.resource,
-            parent: session?.data?.current?.remote?.parent,
-            localFile: session?.data?.current?.local?.file,
-            crate,
-        });
-
-        log.debug(`Crate update time: ${hrend[0]}s, ${hrend[1]}ns`);
-    } catch (error) {
-        log.error(`saveCrate: error saving crate ${error.message}`);
-        throw new Error("Error saving the crate back to the target");
-    }
 }

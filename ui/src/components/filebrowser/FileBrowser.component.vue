@@ -49,7 +49,6 @@ export default {
         resource: {
             type: String,
             required: true,
-            validator: (v) => ["onedrive"].includes(v),
         },
         root: {
             type: String,
