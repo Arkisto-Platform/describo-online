@@ -35,7 +35,9 @@ services:
             DB_PASSWORD: "admin"
             DB_DATABASE: "describo"
         volumes:
-            - $PWD/production-configuration.json:/srv/configuration.json
+            - ./production-configuration.json:/srv/configuration.json
+            - ./ScieboRDS-demo-type-definitions-lookup.json:/srv/type-definitions-lookup.json
+            - ./ScieboRDS-demo-type-definitions.json:/srv/type-definitions.json
 
     ui:
         image: arkisto/describo-online-ui:latest
@@ -44,6 +46,6 @@ services:
         environment:
             TERM: "xterm-256color"
         volumes:
-            - $PWD/nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
         ports:
             - 80:80
