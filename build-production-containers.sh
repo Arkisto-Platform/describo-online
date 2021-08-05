@@ -6,43 +6,32 @@ if [ "$#" != 1 ] ; then
 fi
 VERSION="${1}"
 
-read -p '>> Build the API code? [y|N] ' resp
-if [ "$resp"  == "y" ] ; then
-    cd api
-    npm run build:production
-    cd -
-    echo
-fi
+echo '>> Building the API code'
+docker build --rm -t arkisto/describo-online-api:latest -f Dockerfile.api-build .
+echo
 
-read -p '>> Build the UI code? [y|N] ' resp
-if [ "$resp"  == "y" ] ; then
-    cd ui
-    # npm run build
-    docker run -it --rm \
-        -v $PWD:/srv/ui \
-        -v $PWD/../../describo-ui-plugins:/srv/plugins \
-        -v ui_node_modules:/srv/ui/node_modules \
-        -v ui_node_modules:/srv/plugins/node_modules \
-        -w /srv/ui node:14-buster bash -l -c "npm run build"
-    cd -
-    echo
-fi
+echo '>> Building the UI code'
+cd ui
+# npm run build
+docker run -it --rm \
+    -v $PWD:/srv/ui \
+    -v $PWD/../../describo-ui-plugins:/srv/ui/src/plugins \
+    -v ui_node_modules:/srv/ui/node_modules \
+    -w /srv/ui node:14-buster bash -l -c "npm run build"
+cd -
+echo
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     echo "Building API container"
-    docker build --rm -t arkisto/describo-online-api:latest -f Dockerfile.api-build .
     docker tag arkisto/describo-online-api:latest arkisto/describo-online-api:${VERSION}
-    docker rmi $(docker images | grep none | awk '{print $3}')
-
-    echo "Building UI code"
-    docker run --rm -v $PWD/ui:/srv/ui -v $PWD/../describo-ui-plugins:/srv/plugins -w /srv/ui node:14-buster npm run build
+    # docker rmi $(docker images | grep none | awk '{print $3}')
 
     echo "Building UI container"
     docker build --rm -t arkisto/describo-online-ui:latest -f Dockerfile.ui-build .
     docker tag arkisto/describo-online-ui:latest arkisto/describo-online-ui:${VERSION}
 
-    docker rmi $(docker images | grep none | awk '{print $3}')
+    # docker rmi $(docker images | grep none | awk '{print $3}')
     echo
 fi
 
