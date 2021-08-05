@@ -97,31 +97,10 @@
         "inputs": [
             {
                 "id": "http://schema.org/author",
-                "name": "author",
+                "name": "creator",
                 "help": "The author of this content or rating. Please note that author is special in that HTML 5 provides a special mechanism for indicating authorship via the rel tag. That is equivalent to this and may be used interchangeably. ",
                 "multiple": true,
                 "type": ["Person", "Organization"]
-            },
-            {
-                "id": "http://schema.org/contributor",
-                "name": "contributor",
-                "help": "A secondary contributor to the CreativeWork or Event.",
-                "multiple": true,
-                "type": ["Person", "Organization"]
-            },
-            {
-                "id": "http://schema.org/license",
-                "name": "license",
-                "help": "A license document that applies to this content, typically indicated by URL.",
-                "multiple": true,
-                "type": ["URL"]
-            },
-            {
-                "id": "http://schema.org/publisher",
-                "name": "publisher",
-                "help": "The publisher of the creative work.",
-                "multiple": true,
-                "type": ["Organization"]
             }
         ],
         "linksTo": ["Organization", "Person"],
@@ -133,7 +112,29 @@
         "help": "A body of structured information describing some topic(s) of interest.",
         "subClassOf": ["CreativeWork"],
         "allowAdditionalProperties": false,
-        "inputs": [],
+        "inputs": [
+            {
+                "id": "http://schema.org/datePublished",
+                "name": "datePublished",
+                "help": "Date of first broadcast/publication.",
+                "multiple": true,
+                "type": ["Date"]
+            },
+            {
+                "id": "http://schema.org/zenodoCategory",
+                "name": "Zenodo Category",
+                "help": "The Zenodo Category: [ 'publication/book', 'publication section', '...', 'dataset', 'image/plot', '...' ]",
+                "multiple": true,
+                "type": ["Text"]
+            },
+            {
+                "id": "http://schema.org/osfCategory",
+                "name": "OSF Category",
+                "help": "The OSF Category: [ 'analysis', 'communication', '...', 'procedure', 'instrumentation', '...' ]",
+                "multiple": true,
+                "type": ["Text"]
+            }
+        ],
         "linksTo": ["CreativeWork"],
         "hierarchy": ["Dataset", "CreativeWork", "Thing"]
     }
