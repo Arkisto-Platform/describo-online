@@ -6,20 +6,23 @@ if [ "$#" != 1 ] ; then
 fi
 VERSION="${1}"
 
-echo '>> Building the API code'
-docker build --rm -t arkisto/describo-online-api:latest -f Dockerfile.api-build .
-echo
+read -p '>> Build the code? [y|N] ' resp
+if [ "$resp" == "y" ] ; then
+    echo '>> Building the API code'
+    docker build --rm -t arkisto/describo-online-api:latest -f Dockerfile.api-build .
+    echo
 
-echo '>> Building the UI code'
-cd ui
-# npm run build
-docker run -it --rm \
-    -v $PWD:/srv/ui \
-    -v $PWD/../../describo-ui-plugins:/srv/ui/src/plugins \
-    -v ui_node_modules:/srv/ui/node_modules \
-    -w /srv/ui node:14-buster bash -l -c "npm run build"
-cd -
-echo
+    echo '>> Building the UI code'
+    cd ui
+    # npm run build
+    docker run -it --rm \
+        -v $PWD:/srv/ui \
+        -v $PWD/../../describo-ui-plugins:/srv/ui/src/plugins \
+        -v ui_node_modules:/srv/ui/node_modules \
+        -w /srv/ui node:14-buster bash -l -c "npm run build"
+    cd -
+    echo
+fi
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
