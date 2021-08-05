@@ -14,7 +14,7 @@ WORKDIR /srv
 RUN apt-get update && apt-get install -y postgresql-client ca-certificates
 COPY --from=api-module-install /srv/ /srv/
 COPY --from=api-builder /srv/bin /srv/bin
-COPY production/wait-for-postgres.sh /srv/wait-for-postgres.sh
+COPY scripts/wait-for-postgres.sh /srv/wait-for-postgres.sh
 COPY api/src/common/type-definitions.json /srv/type-definitions.json
 COPY api/src/common/type-definitions-lookup.json /srv/type-definitions-lookup.json
 CMD [ "/srv/wait-for-postgres.sh", "node", "./server.bundle.js" ]  
