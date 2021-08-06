@@ -7,7 +7,7 @@
             </div>
             <div class="flex-grow"></div>
             <div v-if="target.resource">
-                <el-button type="danger" size="small" @click="target.resource = undefined">
+                <el-button type="danger" size="small" @click="selectNewResourceAndTarget">
                     Change resource
                 </el-button>
             </div>
@@ -103,6 +103,15 @@ export default {
             this.selectedFolder = undefined;
             this.$store.commit("setTargetResource", {
                 resource: this.target.resource,
+                folder: undefined,
+            });
+            this.$store.commit("setActiveCollection", {});
+            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+        },
+        selectNewResourceAndTarget() {
+            this.selectedFolder = undefined;
+            this.$store.commit("setTargetResource", {
+                resource: undefined,
                 folder: undefined,
             });
             this.$store.commit("setActiveCollection", {});
