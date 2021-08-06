@@ -60,6 +60,8 @@ export default {
     },
     computed: {
         target: function() {
+            if (this.$store.state.target.folder)
+                this.selectedFolder = this.$store.state.target.folder;
             return this.$store.state.target;
         },
         owncloudEnabled: function() {
