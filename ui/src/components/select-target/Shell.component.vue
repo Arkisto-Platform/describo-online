@@ -102,7 +102,7 @@ export default {
         selectNewTargetFolder() {
             this.selectedFolder = undefined;
             this.$store.commit("setTargetResource", {
-                resource: undefined,
+                resource: this.target.resource,
                 folder: undefined,
             });
             this.$store.commit("setActiveCollection", {});
