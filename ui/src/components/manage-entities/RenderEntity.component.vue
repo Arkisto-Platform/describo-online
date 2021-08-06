@@ -9,7 +9,12 @@
                 'flex-col': entity.etype !== 'File',
             }"
         >
-            <div :class="{ 'w-1/2': entity.etype === 'File', 'w-full': entity.etype !== 'File' }">
+            <div
+                :class="{
+                    'w-1/2 lg:w-3/5': entity.etype === 'File',
+                    'w-full': entity.etype !== 'File',
+                }"
+            >
                 <render-entity-controls-component
                     :entity="entity"
                     :definition="definition"
@@ -42,18 +47,12 @@
 
             <div
                 class="pl-2 flex flex-col justify-items-start"
-                :class="{ 'w-1/2': entity.etype === 'File', 'w-0': entity.etype !== 'File' }"
+                :class="{
+                    'w-1/2 lg:w-2/5': entity.etype === 'File',
+                    'w-0': entity.etype !== 'File',
+                }"
             >
-                <onedrive-file-preview-component
-                    v-if="entity.etype === 'File'"
-                    class="w-full"
-                    style="height: 500px;"
-                    :path="resolveFilePath(entity.eid)"
-                />
-                <!-- <onedrive-file-preview-component
-                style="width: 500px; height: 500px;"
-                id="b!-4xxhXFx5kKSQwwAuO7Ek9AvCPQ0yFpGrxxa6HLjh4QGAuTlRxZhQ59yKADIuZ49#01K7QV4XMU2HLRHYXGTVAY4LGNFZOOIF6Z"
-            /> -->
+                <render-entity-preview-component :entity="entity" v-loading="loading" />
             </div>
         </div>
     </div>
@@ -68,10 +67,12 @@ import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
 import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
 import RenderEntityControlsComponent from "./RenderEntityControls.component.vue";
+import RenderEntityPreviewComponent from "./RenderEntityPreview.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
+        RenderEntityPreviewComponent,
         RenderEntityControlsComponent,
         RenderEntityHeaderComponent,
         RenderEntityPropertiesComponent,
@@ -122,6 +123,7 @@ export default {
             this.definition = undefined;
             this.error = undefined;
             this.loading = true;
+            await new Promise((resolve) => setTimeout(resolve, 200));
             try {
                 let { count } = await this.dataService.getEntityCount();
                 this.entityCount = count;
@@ -146,10 +148,6 @@ export default {
                 this.error = error.message;
             }
             this.loading = false;
-        },
-        resolveFilePath(id) {
-            let filePath = `${this.$store.state.target.folder.path}/${id}`;
-            return filePath;
         },
     },
 };
