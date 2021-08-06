@@ -2,20 +2,19 @@ import { getSessionSID } from "./auth.service";
 import Vue from "vue";
 
 export default class HTTPService {
-    constructor({ $auth }) {
-        this.$auth = $auth ? $auth : Vue.prototype.$auth;
-    }
+    constructor({}) {}
 
     async getHeaders() {
         let accessToken = getSessionSID();
-        let authorization;
+        let authorization = "";
         if (accessToken) {
             authorization = `sid ${accessToken}`;
         } else {
-            let token = JSON.parse(window.localStorage.getItem("okta-token-storage")).accessToken
-                .value;
-            // accessToken = await this.$auth.getAccessToken();
-            authorization = `okta ${token}`;
+            let token = window.localStorage.getItem("okta-token-storage");
+            if (token) {
+                token = JSON.parse(token).accessToken.accessToken;
+                authorization = `okta ${token}`;
+            }
         }
         return {
             authorization,

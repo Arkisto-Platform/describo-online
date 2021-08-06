@@ -22,7 +22,7 @@ global.fetch = require("node-fetch");
     try {
         configuration = await loadConfiguration();
     } catch (error) {
-        console.error("configuration.json not found - stopping now");
+        log.error(`${error.message} - stopping now`);
         process.exit();
     }
     await models.sequelize.sync();

@@ -1,29 +1,17 @@
 import HTTPService from "./http.service";
 const sidProperty = "describoOnlineSID";
 
-export default class AuthService {
-    constructor({ $auth }) {
-        this.$auth = $auth;
-    }
-
-    async isAuthenticated() {
-        try {
-            const httpService = new HTTPService({});
-            let response = await httpService.get({ route: "/authenticated" });
-            if (response.status === 200) {
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.log("isAuthenticated failure", error);
-            return false;
+export async function isAuthenticated() {
+    try {
+        const httpService = new HTTPService({});
+        let response = await httpService.get({ route: "/authenticated" });
+        if (response.status === 200) {
+            return true;
         }
-    }
-
-    logout() {
-        window.localStorage.removeItem("vuex");
-        removeSessionSID();
-        this.$auth.logout();
+        return false;
+    } catch (error) {
+        console.log("isAuthenticated failure", error);
+        return false;
     }
 }
 

@@ -2,12 +2,10 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import ShellComponent from "@/components/Shell.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
-import OktaLoginComponent from "@/components/OktaLogin.component.vue";
-import OktaLoginCallbackComponent from "@/components/OktaLoginCallback.component.vue";
+import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
 import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
-import AuthService from "./components/auth.service";
-const authService = new AuthService({});
+import { isAuthenticated } from "./components/auth.service";
 
 Vue.use(VueRouter);
 
@@ -31,16 +29,12 @@ const routes = [
     {
         name: "login",
         path: "/login",
-        component: OktaLoginComponent,
+        component: LoginComponent,
     },
     {
         name: "logout",
         path: "/logout",
         component: LogoutComponent,
-    },
-    {
-        path: "/okta-login",
-        component: OktaLoginCallbackComponent,
     },
     {
         path: "/application",
@@ -55,18 +49,17 @@ const router = new VueRouter({
 });
 router.beforeEach(onAuthRequired);
 
-async function onAuthRequired(from, to, next) {
-    if (to.name === "logout" || from.name === "logout") {
-        next();
-    } else if (
-        (from.matched.some((r) => r.meta.requiresAuth) ||
-            to.matched.some((r) => r.meta.requiresAuth)) &&
-        !(await authService.isAuthenticated())
-    ) {
-        next({ path: "/login" });
-    } else {
-        next();
+async function onAuthRequired(to, from, next) {
+    if (to.meta?.requiresAuth) {
+        let isAuthed;
+        try {
+            isAuthed = await isAuthenticated();
+            if (!isAuthed && from.path !== "/login") return next({ path: "/login" });
+        } catch (error) {
+            if (!isAuthed && from.path !== "/login") return next({ path: "/login" });
+        }
     }
+    next();
 }
 
 export default router;
