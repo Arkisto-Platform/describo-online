@@ -133,6 +133,7 @@ export class Crate {
             where: { collectionId: collection.id },
         });
         if (count !== 0) {
+            log.debug(`Crate already loaded into the DB - not reloading`);
             throw new Error("That collection is already loaded.");
         }
 
