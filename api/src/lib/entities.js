@@ -2,7 +2,7 @@ const models = require("../models");
 const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 import path from "path";
-import { cloneDeep, orderBy, flattenDeep, isArray } from "lodash";
+import { cloneDeep, orderBy, flattenDeep, uniqBy, isArray } from "lodash";
 import { getTypeDefinition } from "./profile";
 
 export async function insertEntity({ entity, collectionId }) {
@@ -294,7 +294,7 @@ export async function getEntityProperties({ id, collectionId }) {
 
 export async function insertFilesAndFolders({ collectionId, files }) {
     files = cloneDeep(files);
-    let entities = [];
+    let actions = [];
     const propertiesFilter = [
         "path",
         "parent",
@@ -329,12 +329,12 @@ export async function insertFilesAndFolders({ collectionId, files }) {
         let defaults = {
             name: file.parent ? path.join(file.parent, file.path) : `${file.path}`,
         };
-        const entity = (
-            await models.entity.findOrCreate({
-                where: clause,
-                defaults: { ...clause, ...defaults },
-            })
-        )[0];
+        const entity = await models.entity.findOrCreate({
+            where: clause,
+            defaults: { ...clause, ...defaults },
+        });
+        actions.push({ name: entity[1] ? "insert" : "update", entity: { id: entity[0].id } });
+        entity = entity[0];
 
         let properties = Object.keys(file).filter((p) => {
             return !propertiesFilter.includes(p);
@@ -359,7 +359,6 @@ export async function insertFilesAndFolders({ collectionId, files }) {
         }
 
         file.entity = entity.get();
-        entities.push(entity.get());
     }
 
     // create the hasPart associations
@@ -386,9 +385,10 @@ export async function insertFilesAndFolders({ collectionId, files }) {
             property: "hasPart",
             tgtEntityId: file.entity.id,
         };
+        actions.push({ name: "update", entity: { id: parent.id } });
         await associate(association);
     }
-    return entities;
+    return uniqBy(actions, "entity.id");
 }
 
 export function generateParentPaths({ files }) {
