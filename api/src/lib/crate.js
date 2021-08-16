@@ -334,7 +334,7 @@ export class Crate {
                 entity = await getEntity({ collectionId, id: entityId });
                 crate = insertEntity({ crate, entity });
             }
-            if (action.name === "update") {
+            if (["insert", "update"].includes(action.name)) {
                 // load context entity and schedule for update
                 const entityId = action.entity.id;
                 entity = await getEntity({ collectionId, id: entityId });
