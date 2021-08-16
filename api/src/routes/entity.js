@@ -394,7 +394,15 @@ export async function postFilesRouteHandler(req, res, next) {
         return next(new BadRequestError("You must provide an array of files to add"));
     }
     try {
-        await insertFilesAndFolders({ collectionId, files });
+        let actions = await insertFilesAndFolders({ collectionId, files });
+        if (!req.headers["x-testing"]) {
+            await saveCrate({
+                session: req.session,
+                user: req.user,
+                collectionId,
+                actions,
+            });
+        }
         res.send({});
         return next();
     } catch (error) {
