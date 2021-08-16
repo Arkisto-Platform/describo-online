@@ -326,8 +326,8 @@ export class Crate {
     async updateCrate({ localCrateFile, collectionId, actions }) {
         let entity;
         let crate = await readJSON(localCrateFile);
+        // console.log(JSON.stringify(crate, null, 2));
         for (let action of actions) {
-            // console.log(action);
             let updates = [];
             if (action.name === "insert") {
                 const entityId = action.entity.id;
@@ -363,9 +363,17 @@ export class Crate {
                 });
             }
         }
+        // console.log(JSON.stringify(crate, null, 2));
         return crate;
 
         function insertEntity({ crate, entity }) {
+            crate["@graph"] = crate["@graph"].filter(
+                (e) =>
+                    !(
+                        e["@id"] === (entity.eid ? entity.eid : entity.id) &&
+                        e["@type"] === entity.etype
+                    )
+            );
             crate["@graph"].push({
                 "@id": entity.eid ? entity.eid : entity.id,
                 "@type": entity.etype,
