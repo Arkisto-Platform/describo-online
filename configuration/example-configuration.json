@@ -15,7 +15,8 @@
                 "tenantId": "",
                 "redirectUri": "http://localhost:9000/onedrive-callback"
             },
-            "owncloud": {}
+            "owncloud": true,
+            "s3": true
         },
         "maxSessionLifetime": "86400",
         "maxEntitiesPerTemplate": "100"
@@ -35,6 +36,18 @@
                     "oauthAuthoriseEndpoint": "/index.php/apps/oauth2/authorize",
                     "oauthTokenEndpoint": "/index.php/apps/oauth2/api/v1/token",
                     "webdavEndpoint": "/remote.php/dav"
+                }
+            ],
+            "s3": [
+                {
+                    "name": "Local Minio",
+                    "provider": "Minio",
+                    "url": "http://minio:9000",
+                    "publicUrl": "http://s3.your-domain.net"
+                },
+                {
+                    "name": "AWS S3",
+                    "provider": "AWS"
                 }
             ]
         },
