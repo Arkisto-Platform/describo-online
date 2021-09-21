@@ -295,6 +295,7 @@ export async function getEntityProperties({ id, collectionId }) {
 export async function insertFilesAndFolders({ collectionId, files }) {
     files = cloneDeep(files);
     let actions = [];
+
     const propertiesFilter = [
         "path",
         "parent",
@@ -340,11 +341,14 @@ export async function insertFilesAndFolders({ collectionId, files }) {
             return !propertiesFilter.includes(p);
         });
 
-        properties = properties.map((p) => ({
-            name: propertyMap[p],
-            value: String(file[p]),
-            entityId: entity.id,
-        }));
+        properties = properties
+            .map((p) => ({
+                name: propertyMap[p],
+                value: String(file[p]),
+                entityId: entity.id,
+            }))
+            .filter((property) => property.name);
+
         if (entity.etype === "Dataset") {
             properties = properties.filter((p) => !datasetFilterProperties.includes(p.name));
         }

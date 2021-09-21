@@ -11,10 +11,13 @@
             class="w-full"
             style="height: 500px;"
         />
-        <!-- <onedrive-file-preview-component
-                style="width: 500px; height: 500px;"
-                id="b!-4xxhXFx5kKSQwwAuO7Ek9AvCPQ0yFpGrxxa6HLjh4QGAuTlRxZhQ59yKADIuZ49#01K7QV4XMU2HLRHYXGTVAY4LGNFZOOIF6Z"
-            /> -->
+        <s3-file-preview-component
+            v-if="target.resource === 's3' && entity.etype === 'File'"
+            class="w-full"
+            style="height: 500px;"
+            :path="resolveFilePath(entity.eid)"
+            :entity="entity"
+        />
     </div>
 </template>
 

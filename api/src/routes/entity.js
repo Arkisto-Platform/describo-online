@@ -14,8 +14,7 @@ import {
     associate,
     insertFilesAndFolders,
 } from "../lib/entities";
-import { saveCrate } from "../common/save-crate";
-import { getLogger } from "../common/logger";
+import { saveCrate, getLogger, getS3Handle } from "../common";
 const log = getLogger();
 
 export async function getEntityRouteHandler(req, res, next) {
@@ -409,4 +408,17 @@ export async function postFilesRouteHandler(req, res, next) {
         log.error(`postFilesRouteHandler: ${error.message}`);
         return next(new BadRequestError(error.message));
     }
+}
+
+export async function getPresignedUrlRouteHandler(req, res, next) {
+    const { bucket, config } = await getS3Handle({ sessionId: req.session.id, publicUrl: true });
+    // const target = req.params.file.replace();
+    let target = req.body.file;
+    if (["AWS"].includes(config.provider)) {
+        target = target.split("/").slice(2).join("/");
+    }
+    let url = await bucket.getPresignedUrl({ target });
+    console.log(url);
+    res.send({ url });
+    return next();
 }

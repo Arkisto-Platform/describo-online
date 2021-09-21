@@ -15,6 +15,7 @@
         "core-js": "^3.18.0",
         "date-fns": "^2.24.0",
         "element-ui": "^2.15.6",
+        "iv-viewer": "^2.0.1",
         "loglevel": "^1.7.0",
         "loglevel-plugin-prefix": "^0.8.4",
         "regenerator-runtime": "^0.13.9",

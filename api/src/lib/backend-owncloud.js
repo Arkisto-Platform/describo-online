@@ -62,7 +62,6 @@ export async function fetchToken({ url, auth }) {
     }
     let token = await response.json();
     let config = {
-        service: "owncloud",
         url,
         token: {
             ...token,

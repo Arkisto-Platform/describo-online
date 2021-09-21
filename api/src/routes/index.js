@@ -33,6 +33,7 @@ import {
     delEntityPropertyRouteHandler,
     putEntityAssociateRouteHandler,
     postFilesRouteHandler,
+    getPresignedUrlRouteHandler,
 } from "./entity";
 import { loadRouteHandler } from "./load";
 import {
@@ -82,6 +83,7 @@ export function setupRoutes({ server }) {
     server.del("/entity/:entityId/property/:propertyId", route(delEntityPropertyRouteHandler));
     server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
     server.post("/files", route(postFilesRouteHandler));
+    server.post("/s3/presigned-url", route(getPresignedUrlRouteHandler));
     server.get("/template", route(getTemplatesRouteHandler));
     server.get("/template/:templateId", route(getTemplateRouteHandler));
     server.post("/template", route(postTemplateRouteHandler));
@@ -223,9 +225,9 @@ async function updateApplicationSession(req, res, next) {
         if (session.creator !== application.name) {
             return next(new ForbiddenError());
         }
-        let services = session.data.services;
+        let service = session.data.service;
         if (req.body.session?.owncloud) {
-            services.owncloud = assembleOwncloudConfiguration({ body: req.body });
+            service.owncloud = assembleOwncloudConfiguration({ body: req.body });
         }
         await session.update({ data: { ...session.data, ...services } });
 
@@ -239,26 +241,19 @@ async function updateApplicationSession(req, res, next) {
 }
 
 async function saveServiceConfiguration(req, res, next) {
-    let session = await models.session.findOne({
-        where: { id: req.session.id },
+    await saveServiceConfigurationToSession({
+        sessionId: req.session.id,
+        config: req.body,
+        serviceName: req.params.serviceName,
     });
-    let data = cloneDeep(session.data);
-    data = {
-        ...data,
-        services: {
-            [req.body.service]: req.body,
-        },
-    };
-    await session.update({ data });
     res.send({});
     next();
 }
 
 async function getServiceConfiguration(req, res, next) {
+    const privateConfiguration = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
     let configuration = await loadConfiguration();
     configuration = configuration.api.services[req.params.serviceName].map((service) => {
-        const privateConfiguration = ["clientSecret"];
-
         return omit(service, privateConfiguration);
     });
 
@@ -283,8 +278,13 @@ async function getOauthToken(req, res, next) {
         switch (serviceName) {
             case "owncloud":
                 config = await getOwncloudOauthToken({ service, code: req.params.code });
-                service = "owncloud";
-                await saveToSession({ sessionId: req.session.id, config, service: "owncloud" });
+                // service = "owncloud";
+                // await saveToSession({ sessionId: req.session.id, config, service: "owncloud" });
+                await saveServiceConfigurationToSession({
+                    sessionId: req.session.id,
+                    config,
+                    serviceName,
+                });
                 break;
         }
         res.send({});
@@ -295,16 +295,41 @@ async function getOauthToken(req, res, next) {
     }
 }
 
-async function saveToSession({ sessionId, config, service }) {
+async function saveServiceConfigurationToSession({ sessionId, config, serviceName }) {
+    // get the service configuration from the application configuration
+    const configuration = await loadConfiguration();
+
+    let serviceConfiguration = configuration.api.services[serviceName];
+    if (serviceConfiguration) {
+        serviceConfiguration = serviceConfiguration.filter((s) => {
+            if (s.url) {
+                return s.url === config.host;
+            } else if (s.provider) {
+                return s.provider === config.provider;
+            }
+        })[0];
+    } else {
+        serviceConfiguration = {};
+    }
+
+    // load the session model
     let session = await models.session.findOne({
         where: { id: sessionId },
     });
+
+    // create the session struct
     let data = cloneDeep(session.data);
     data = {
         ...data,
-        services: {
-            [service]: config,
+        service: {
+            [serviceName]: {
+                ...config,
+                ...serviceConfiguration,
+            },
         },
     };
+    // console.log(JSON.stringify(data, null, 2));
+
+    // save the session
     await session.update({ data });
 }

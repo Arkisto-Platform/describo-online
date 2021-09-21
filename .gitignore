@@ -2,6 +2,8 @@ node_modules
 dist
 coverage
 
+*credentials*
+
 configuration.json
 development-configuration.json
 production-configuration.json

@@ -1,22 +1,13 @@
-import path from "path";
 import fetch from "node-fetch";
-import { readJSON, writeJSON } from "fs-extra";
+import { writeJSON } from "fs-extra";
 import { cloneDeep } from "lodash";
-import { Crate } from "../lib/crate";
 const api = "http://localhost:8080";
-import { getLogger } from "../common/logger";
-const log = getLogger();
 import Chance from "chance";
 const chance = new Chance();
 
-export async function loadConfiguration() {
-    let configuration =
-        process.env.NODE_ENV === "development"
-            ? "/srv/configuration/development-configuration.json"
-            : "/srv/configuration.json";
-    configuration = await readJSON(configuration);
-    return configuration;
-}
+export { loadConfiguration } from "./configuration";
+export { getLogger } from "./logger";
+export { getS3Handle } from "./getS3Handle";
 
 export async function createSessionForTest() {
     const origConfig = await loadConfiguration();

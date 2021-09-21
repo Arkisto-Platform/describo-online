@@ -16,6 +16,7 @@
             <div class="flex flex-row space-x-2" v-if="!target.resource && !embeddedSession">
                 <onedrive-authenticator-component v-if="onedriveEnabled" />
                 <owncloud-authenticator-component v-if="owncloudEnabled" />
+                <s3-authenticator-component v-if="s3Enabled" />
             </div>
 
             <file-browser-component
@@ -69,6 +70,9 @@ export default {
         },
         onedriveEnabled: function() {
             return this.$store.state.configuration.services?.onedrive ? true : false;
+        },
+        s3Enabled: function() {
+            return this.$store.state.configuration.services?.s3 ? true : false;
         },
     },
     mounted() {

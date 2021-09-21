@@ -5,6 +5,8 @@ volumes:
         driver: local
     ui_node_modules:
         driver: local
+    MINIO_VOLUME:
+        driver: local
 
 services:
     db:
@@ -15,13 +17,33 @@ services:
             TERM: "xterm-256color"
             NODE_ENV: "development"
             POSTGRES_DB: "describo"
-            POSTGRES_USER: "admin"
-            POSTGRES_PASSWORD: "admin"
+            POSTGRES_USER: "root"
+            POSTGRES_PASSWORD: "root"
             PGDATA: /postgresql/data
         # volumes:
         #     - describo_online_db_test:/postgresql
         # ports:
         #     - 5432:5432
+
+    minio:
+        image: minio/minio:latest
+        restart: always
+        entrypoint: sh
+        ports:
+            - 10000:9000
+            - 10001:10001
+        environment:
+            MINIO_ROOT_USER: minio
+            MINIO_ROOT_PASSWORD: minio_pass
+        entrypoint:
+            bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data --console-address ":10001"'
+        volumes:
+            - MINIO_VOLUME:/data
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:10001/minio/health/live"]
+            interval: 30s
+            timeout: 20s
+            retries: 3
 
     api:
         image: node:14-buster
@@ -32,8 +54,8 @@ services:
             NODE_ENV: "development"
             DB_HOST: "db"
             DB_PORT: "5432"
-            DB_USER: "admin"
-            DB_PASSWORD: "admin"
+            DB_USER: "root"
+            DB_PASSWORD: "root"
             DB_DATABASE: "describo"
         volumes:
             - ./api:/srv/api:delegated

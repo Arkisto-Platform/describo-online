@@ -4,7 +4,6 @@ import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-e
 import path from "path";
 import { camelCase } from "lodash";
 import { getLogger } from "../common/logger";
-import { loadConfiguration } from "../common";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 
@@ -99,10 +98,10 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
 
 export async function setup({ session, user, resource }) {
     // use resource to see if we have a suitable rclone configuration
-    if (!session.data.services) {
+    if (!session.data.service) {
         throw new NotFoundError("No session data");
     }
-    let rcloneConfiguration = session?.data?.services[resource];
+    let rcloneConfiguration = session?.data?.service[resource];
     if (!rcloneConfiguration) {
         // fail not found error if not
         throw new NotFoundError("No session data");
@@ -110,6 +109,7 @@ export async function setup({ session, user, resource }) {
 
     // write rclone configuration to disk
     return await writeRcloneConfiguration({
+        resource,
         rcloneConfiguration,
         user,
     });
@@ -119,13 +119,13 @@ export function localWorkingDirectory({ user }) {
     return path.join(localCachePath, user.id);
 }
 
-async function writeRcloneConfiguration({ rcloneConfiguration, user }) {
+async function writeRcloneConfiguration({ resource, rcloneConfiguration, user }) {
     // console.log(JSON.stringify(rcloneConfiguration, null, 2));
     const folderPath = localWorkingDirectory({ user });
     const filePath = path.join(folderPath, "rclone.conf");
     await ensureDir(folderPath);
     const fd = await open(filePath, "w");
-    switch (rcloneConfiguration.service) {
+    switch (resource) {
         case "onedrive":
             await write(fd, `[onedrive]\n`);
             await write(fd, `type = onedrive\n`);
@@ -142,6 +142,31 @@ async function writeRcloneConfiguration({ rcloneConfiguration, user }) {
             );
             await write(fd, `vendor = owncloud\n`);
             await write(fd, `bearer_token = ${rcloneConfiguration.token.access_token}\n`);
+        case "s3":
+            if (rcloneConfiguration.provider === "AWS") {
+                await write(fd, "[s3]\n");
+                await write(fd, `type = s3\n`);
+                await write(fd, `provider = AWS\n`);
+                await write(fd, `env_auth = false\n`);
+                await write(fd, `access_key_id = ${rcloneConfiguration.awsAccessKeyId}\n`);
+                await write(fd, `secret_access_key = ${rcloneConfiguration.awsSecretAccessKey}\n`);
+                await write(fd, `region = ${rcloneConfiguration.region}\n`);
+                await write(fd, `location_constraint = \n`);
+                await write(fd, `acl = private\n`);
+                await write(fd, `server_side_encryption = \n`);
+                await write(fd, `storage_class = \n`);
+            } else if (rcloneConfiguration.provider === "Minio") {
+                await write(fd, "[s3]\n");
+                await write(fd, `type = s3\n`);
+                await write(fd, `provider = Minio\n`);
+                await write(fd, `env_auth = false\n`);
+                await write(fd, `access_key_id = ${rcloneConfiguration.awsAccessKeyId}\n`);
+                await write(fd, `secret_access_key = ${rcloneConfiguration.awsSecretAccessKey}\n`);
+                await write(fd, `region = us-east-1\n`);
+                await write(fd, `endpoint = ${rcloneConfiguration.url}\n`);
+                await write(fd, `location_constraint = \n`);
+                await write(fd, `server_side_encryption = \n`);
+            }
     }
     await close(fd);
     return folderPath;

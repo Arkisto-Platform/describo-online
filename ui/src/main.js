@@ -11,9 +11,13 @@ import router from "./routes";
 import { store } from "./store";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
+
 import OktaPlugin from "./plugins/okta";
 import OneDrivePlugin from "./plugins/onedrive";
 import OwncloudPlugin from "./plugins/owncloud";
+import S3Plugin from "./plugins/s3";
+import ViewerPlugin from "./plugins/viewers";
+
 import log from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 const level = process.env.NODE_ENV === "development" ? "debug" : "warn";
@@ -36,9 +40,11 @@ import HTTPService from "./components/http.service";
         Vue.use(ElementUI, { locale });
 
         // enable defined components
+        Vue.use(ViewerPlugin);
         enableOkta({ Vue, log, router, configuration });
         enableOnedrive({ Vue, log, configuration });
         enableOwncloud({ Vue, log, router, configuration });
+        enableS3({ Vue, log, configuration });
 
         store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;
@@ -80,6 +86,16 @@ function enableOwncloud({ Vue, log, router, configuration }) {
             $http: Vue.prototype.$http,
             configuration: "/session/configuration/owncloud",
             oauthToken: "/session/get-oauth-token/owncloud",
+        });
+    }
+}
+
+function enableS3({ Vue, log, configuration }) {
+    if (configuration.services.s3) {
+        Vue.use(S3Plugin, {
+            log,
+            $http: Vue.prototype.$http,
+            configuration: "/session/configuration/s3",
         });
     }
 }

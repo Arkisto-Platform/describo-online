@@ -31,6 +31,9 @@
         "webpack-node-externals": "^3.0.0"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.32.0",
+        "@aws-sdk/lib-storage": "^3.32.0",
+        "@aws-sdk/s3-request-presigner": "^3.32.0",
         "@okta/jwt-verifier": "^2.3.0",
         "debug": "^4.3.2",
         "fs-extra": "^10.0.0",
