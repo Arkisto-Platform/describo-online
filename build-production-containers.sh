@@ -7,10 +7,11 @@ fi
 VERSION="${1}"
 
 cd api
-npm version ${VERSION}
+npm version --no-git-tag-version ${VERSION}
 cd ../ui
-npm version ${VERSION}
+npm version --no-git-tag-version ${VERSION}
 cd ..
+git tag v${VERSION}
 
 read -p '>> Build the code? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
