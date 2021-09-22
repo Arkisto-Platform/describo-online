@@ -51,6 +51,6 @@ if [ "$resp" == "y" ] ; then
     docker login
     docker push arkisto/describo-online-api:latest
     docker push arkisto/describo-online-api:${VERSION}
-    docker push arkistor/describo-online-ui:latest
+    docker push arkisto/describo-online-ui:latest
     docker push arkisto/describo-online-ui:${VERSION}
 fi
