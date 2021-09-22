@@ -411,14 +411,19 @@ export async function postFilesRouteHandler(req, res, next) {
 }
 
 export async function getPresignedUrlRouteHandler(req, res, next) {
-    const { bucket, config } = await getS3Handle({ sessionId: req.session.id, publicUrl: true });
-    // const target = req.params.file.replace();
     let target = req.body.file;
-    if (["AWS"].includes(config.provider)) {
+    const bucket = target.split("/")[1];
+
+    const handle = await getS3Handle({
+        sessionId: req.session.id,
+        publicUrl: true,
+        bucket,
+    });
+    if (["AWS"].includes(handle.config.provider)) {
         target = target.split("/").slice(2).join("/");
     }
-    let url = await bucket.getPresignedUrl({ target });
-    console.log(url);
+    // const target = req.params.file.replace();
+    let url = await handle.bucket.getPresignedUrl({ target });
     res.send({ url });
     return next();
 }
