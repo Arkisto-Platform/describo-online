@@ -6,13 +6,6 @@ if [ "$#" != 1 ] ; then
 fi
 VERSION="${1}"
 
-cd api
-npm version --no-git-tag-version ${VERSION}
-cd ../ui
-npm version --no-git-tag-version ${VERSION}
-cd ..
-git tag v${VERSION}
-
 read -p '>> Build the code? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     echo '>> Building the API code'
@@ -33,6 +26,13 @@ fi
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
+    cd api
+    npm version --no-git-tag-version ${VERSION}
+    cd ../ui
+    npm version --no-git-tag-version ${VERSION}
+    cd ..
+    git tag v${VERSION}
+
     echo "Building API container"
     docker tag arkisto/describo-online-api:latest arkisto/describo-online-api:${VERSION}
     # docker rmi $(docker images | grep none | awk '{print $3}')
