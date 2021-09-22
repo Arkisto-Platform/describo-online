@@ -138,10 +138,10 @@ async function writeRcloneConfiguration({ resource, rcloneConfiguration, user })
             await write(fd, `type = webdav\n`);
             await write(
                 fd,
-                `url = ${rcloneConfiguration.url}/files/${rcloneConfiguration.token.user_id}\n`
+                `url = ${rcloneConfiguration.url}/files/${rcloneConfiguration.user_id}\n`
             );
             await write(fd, `vendor = owncloud\n`);
-            await write(fd, `bearer_token = ${rcloneConfiguration.token.access_token}\n`);
+            await write(fd, `bearer_token = ${rcloneConfiguration.access_token}\n`);
         case "s3":
             if (rcloneConfiguration.provider === "AWS") {
                 await write(fd, "[s3]\n");

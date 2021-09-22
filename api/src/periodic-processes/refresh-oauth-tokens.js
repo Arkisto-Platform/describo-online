@@ -29,10 +29,10 @@ async function processSessions({ sessions }) {
         for (let serviceName of oauthServices) {
             const data = session.data?.services?.[serviceName];
 
-            if (!data || !data.token.refresh_token) continue;
+            if (!data || !data.refresh_token) continue;
 
             let timeNow = new Date().getTime();
-            let tokenValidTo = new Date(data.token.expires_at).getTime();
+            let tokenValidTo = new Date(data.expires_at).getTime();
             let timeLeft = (tokenValidTo - timeNow) / 1000;
             let config, service;
             if (timeNow < 0) {
@@ -48,7 +48,7 @@ async function processSessions({ sessions }) {
                     case "owncloud":
                         config = await refreshOwncloudOauthToken({
                             service,
-                            refresh_token: data.token.refresh_token,
+                            refresh_token: data.refresh_token,
                         });
                         break;
                 }

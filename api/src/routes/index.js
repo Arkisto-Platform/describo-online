@@ -184,15 +184,15 @@ async function createApplicationSession(req, res, next) {
     }
 
     try {
-        let services = {};
+        let service = {};
         if (req.body.session?.owncloud) {
-            services.owncloud = assembleOwncloudConfiguration({ body: req.body });
+            service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         }
         let sessionId = await postSession({
             authorization,
             email,
             name,
-            data: { services },
+            data: { service },
         });
         res.send({ sessionId });
         next();
@@ -227,9 +227,10 @@ async function updateApplicationSession(req, res, next) {
         }
         let service = session.data.service;
         if (req.body.session?.owncloud) {
-            service.owncloud = assembleOwncloudConfiguration({ body: req.body });
+            service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         }
-        await session.update({ data: { ...session.data, ...services } });
+
+        await session.update({ data: { ...session.data, ...service } });
 
         res.send({});
         next();

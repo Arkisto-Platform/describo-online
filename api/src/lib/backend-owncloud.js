@@ -3,16 +3,13 @@ import { getLogger } from "../common/logger";
 
 const log = getLogger();
 
-export function assembleOwncloudConfiguration({ body }) {
+export function assembleOwncloudConfiguration({ params }) {
     return {
-        service: "owncloud",
-        url: body.session.owncloud.url,
-        folder: body.session.owncloud.folder,
-        token: {
-            access_token: body.session.owncloud.access_token,
-            refresh_token: body.session.owncloud.refresh_token,
-            user_id: body.session.owncloud.user_id,
-        },
+        url: params.url,
+        folder: params.folder,
+        access_token: params.access_token,
+        refresh_token: params.refresh_token,
+        user_id: params.user_id,
     };
 }
 
@@ -63,11 +60,9 @@ export async function fetchToken({ url, auth }) {
     let token = await response.json();
     let config = {
         url,
-        token: {
-            ...token,
-            date: new Date(),
-            expires_at: new Date(new Date().getTime() + token.expires_in * 1000),
-        },
+        ...token,
+        date: new Date(),
+        expires_at: new Date(new Date().getTime() + token.expires_in * 1000),
     };
     return config;
 }

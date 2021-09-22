@@ -88,8 +88,8 @@ export default {
             let { session, embeddedSession } = await response.json();
             this.embeddedSession = embeddedSession;
             if (this.embeddedSession) {
-                let resource = Object.keys(session.services).pop();
-                let folder = { path: session.services[resource].folder };
+                let resource = Object.keys(session.service).pop();
+                let folder = { path: session.service[resource].folder };
                 if (resource && folder.path) {
                     this.selectedFolder = folder;
                     this.$store.commit("setTargetResource", { resource, folder });
