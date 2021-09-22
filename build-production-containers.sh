@@ -6,6 +6,12 @@ if [ "$#" != 1 ] ; then
 fi
 VERSION="${1}"
 
+cd api
+npm version ${VERSION}
+cd ../ui
+npm version ${VERSION}
+cd ..
+
 read -p '>> Build the code? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     echo '>> Building the API code'
