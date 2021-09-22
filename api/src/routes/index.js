@@ -1,9 +1,9 @@
 import models from "../models";
 import { cloneDeep, omit } from "lodash";
-import { demandKnownUser } from "../middleware";
+import { demandKnownUser, demandValidApplication } from "../common/middleware";
 import { loadConfiguration } from "../common";
 import OktaJwtVerifier from "@okta/jwt-verifier";
-import { postSession, getApplication } from "../lib/session";
+import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import {
@@ -55,8 +55,11 @@ export function setupRoutes({ server }) {
     server.get("/authenticated", route(isAuthenticated));
     server.post("/session/okta", createOktaSession);
     server.get("/session", route(getSession));
-    server.post("/session/application", createApplicationSession);
-    server.put("/session/application/:sessionId", updateApplicationSession);
+    server.post("/session/application", [demandValidApplication, createApplicationSession]);
+    server.put("/session/application/:sessionId", [
+        demandValidApplication,
+        updateApplicationSession,
+    ]);
     server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
     server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
@@ -159,25 +162,9 @@ async function createOktaSession(req, res, next) {
 }
 
 async function createApplicationSession(req, res, next) {
-    let authorization, application;
-    try {
-        authorization = req.headers.authorization.split("Bearer ").pop();
-    } catch (error) {
-        log.error(`createApplicationSession: issue with authorization header: ${error.message}`);
-        return next(new BadRequestError("Unable to get authorization from header"));
-    }
-
-    try {
-        application = await getApplication({ authorization });
-    } catch (error) {
-        log.error(
-            `createApplicationSession: caller not an authorised application - authorization: ${authorization}`
-        );
-        return next(new ForbiddenError());
-    }
-
     const email = req.body.email;
     const name = req.body.name;
+    const authorization = req.headers.authorization.split("Bearer ").pop();
     if (!authorization || !email || !name) {
         log.error(`createApplicationSession: authorization || email || name not provided`);
         return next(new BadRequestError());
@@ -203,23 +190,6 @@ async function createApplicationSession(req, res, next) {
 }
 
 async function updateApplicationSession(req, res, next) {
-    let authorization, application;
-    try {
-        authorization = req.headers.authorization.split("Bearer ").pop();
-    } catch (error) {
-        log.error(`createApplicationSession: issue with authorization header: ${error.message}`);
-        return next(new BadRequestError("Unable to get authorization from header"));
-    }
-
-    try {
-        ({ application } = await getApplication({ authorization }));
-    } catch (error) {
-        log.error(
-            `updateApplicationSession: caller not an authorised application - authorization: ${authorization}`
-        );
-        return next(new ForbiddenError());
-    }
-
     try {
         let session = await models.session.findOne({ where: { id: req.params.sessionId } });
         if (session.creator !== application.name) {
