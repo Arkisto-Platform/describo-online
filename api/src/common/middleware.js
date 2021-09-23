@@ -61,9 +61,8 @@ export async function demandValidApplication(req, res, next) {
     }
 
     try {
-        application = await getApplication({ authorization });
+        ({ application } = await getApplication({ authorization }));
     } catch (error) {
-        console.log(error);
         log.error(
             `createApplicationSession: caller not an authorised application - authorization: ${authorization}`
         );

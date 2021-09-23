@@ -99,7 +99,6 @@ export async function updateApplicationSession(req, res, next) {
         res.send({});
         next();
     } catch (error) {
-        console.log(error);
         log.error(`updateApplicationSession: ${error.message}`);
         return next(new ForbiddenError());
     }
