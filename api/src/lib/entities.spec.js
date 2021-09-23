@@ -24,12 +24,21 @@ describe("Test entity and property management operations", () => {
     let collection, rootDataset;
     beforeAll(async () => {
         collection = await models.collection.create({ name: chance.name() });
+    });
+    beforeEach(async () => {
         let entity = {
             "@id": "./",
             "@type": "Dataset",
             name: "root dataset",
         };
         rootDataset = await insertEntity({ entity, collectionId: collection.id });
+    });
+    afterEach(async () => {
+        try {
+            await models.entity.destroy({ where: {} });
+        } catch (error) {
+            // console.log(error);
+        }
     });
     afterAll(async () => {
         await models.collection.destroy({ where: { id: collection.id } });
@@ -603,7 +612,8 @@ describe("Test entity and property management operations", () => {
             },
         ];
         let entities = await insertFilesAndFolders({ collectionId: collection.id, files });
-        for (let entity of entities) {
+        for (let e of entities) {
+            let entity = e.entity;
             let entityId = entity.id;
             entity = await getEntity({ id: entityId, collectionId: collection.id });
             expect(entity.id).toEqual(entityId);
@@ -611,11 +621,11 @@ describe("Test entity and property management operations", () => {
                 id: entityId,
                 collectionId: collection.id,
             });
-            expect(properties.length).toEqual(3);
+            if (entity.eid === "filea.mpg") expect(properties.length).toEqual(3);
+            if (entity.eid === "./") expect(properties.length).toEqual(1);
         }
-        await removeEntities({ entities });
     });
-    test("it should be able to create a folder entity connected to the root datast", async () => {
+    test("it should be able to create a folder entity connected to the root dataset", async () => {
         // create a folder
         let files = [
             {
@@ -627,7 +637,8 @@ describe("Test entity and property management operations", () => {
         ];
         let entities = await insertFilesAndFolders({ collectionId: collection.id, files });
 
-        for (let entity of entities) {
+        for (let e of entities) {
+            let entity = e.entity;
             let entityId = entity.id;
             entity = await getEntity({ id: entityId, collectionId: collection.id });
             expect(entity.id).toEqual(entityId);
@@ -635,9 +646,9 @@ describe("Test entity and property management operations", () => {
                 id: entityId,
                 collectionId: collection.id,
             });
-            expect(properties.length).toEqual(2);
+            if (entity.eid === "data") expect(properties.length).toEqual(2);
+            if (entity.eid === "./") expect(properties.length).toEqual(1);
         }
-        await removeEntities({ entities });
     });
     test("it should not duplicate an entry", async () => {
         let files = [
@@ -661,10 +672,10 @@ describe("Test entity and property management operations", () => {
             include: [{ model: models.property }],
         });
         expect(entities.length).toEqual(1);
-        await removeEntities({ entities });
     });
     test("it should be able to create a hierarchy of content", async () => {
         // create a bunch of files and folders
+        let e = await models.entity.findAll();
         let files = [
             {
                 path: "test",
@@ -700,8 +711,6 @@ describe("Test entity and property management operations", () => {
         expect(forward.length).toBe(2);
         let reverse = entity.properties.filter((p) => p.direction === "R");
         expect(reverse.length).toBe(1);
-
-        await removeEntities({ entities });
     });
     test("it should generate all parent paths", async () => {
         // create a bunch of files and folders

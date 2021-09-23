@@ -10,3 +10,14 @@ export async function loadConfiguration() {
     configuration = await readJSON(configuration);
     return configuration;
 }
+
+export function filterPrivateInformation({ configuration }) {
+    for (let service of Object.keys(configuration.api.services)) {
+        for (let instance of configuration.api.services[service]) {
+            for (let privateField of privateFields) {
+                delete instance[privateField];
+            }
+        }
+    }
+    return configuration;
+}

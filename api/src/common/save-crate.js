@@ -2,7 +2,7 @@ import { Crate } from "../lib/crate";
 import { getLogger } from "./logger";
 const log = getLogger();
 
-export async function saveCrate({ session, user, collectionId, actions }) {
+export async function saveCrate({ session, user, collectionId, actions = [] }) {
     try {
         const crateMgr = new Crate();
         let hrstart = process.hrtime();
@@ -20,7 +20,6 @@ export async function saveCrate({ session, user, collectionId, actions }) {
             });
         }
         let hrend = process.hrtime(hrstart);
-        // log.debug(JSON.stringify(crate, null, 2));
         await crateMgr.saveCrate({
             session,
             user,

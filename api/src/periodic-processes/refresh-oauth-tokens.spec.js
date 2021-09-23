@@ -19,19 +19,17 @@ describe("Test refreshing access token stored in user sessions", () => {
             name: chance.word(),
             email: chance.email(),
             session: {
-                services: {
+                service: {
                     owncloud: {
                         service: "owncloud",
                         url: "http://owncloud_server:8080/remote.php/dav",
                         folder: "/ro-crate test/",
-                        token: {
-                            access_token: "r4w7PPN",
-                            refresh_token: "RwHe8bK",
-                            user_id: "admin",
-                            expires_in: 60,
-                            expires_at: new Date(new Date().getTime() + 60 * 1000),
-                            date: new Date(),
-                        },
+                        access_token: "r4w7PPN",
+                        refresh_token: "RwHe8bK",
+                        user_id: "admin",
+                        expires_in: 60,
+                        expires_at: new Date(new Date().getTime() + 60 * 1000),
+                        date: new Date(),
                     },
                 },
             },
@@ -53,8 +51,8 @@ describe("Test refreshing access token stored in user sessions", () => {
         await refreshOauthTokens();
 
         session = await models.session.findOne({ where: { id: session.id } });
-        expect(session.data.services.owncloud.token.access_token).toEqual("a");
-        expect(session.data.services.owncloud.token.refresh_token).toEqual("b");
+        expect(session.data.service.owncloud.access_token).toEqual("a");
+        expect(session.data.service.owncloud.refresh_token).toEqual("b");
 
         await models.user.destroy({ where: { email: user.email } });
         await models.session.destroy({ where: { id: session.id } });

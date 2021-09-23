@@ -5,13 +5,13 @@ describe("Test loading the configuration", () => {
     test("it should be able to load the default configuration for the environment", async () => {
         let configuration = await loadConfiguration();
         expect(configuration).toHaveProperty("api");
-        expect(configuration.api).toHaveProperty("authentication");
+        expect(configuration.api).toHaveProperty("services");
     });
     test("it should be able to filter private fields from the configuration", async () => {
         let configuration = await loadConfiguration();
         configuration = filterPrivateInformation({ configuration });
-        for (let service of Object.keys(configuration.api.authentication)) {
-            expect(configuration.api.authentication[service]).not.toHaveProperty("clientSecret");
+        for (let service of Object.keys(configuration.api.services)) {
+            expect(configuration.api.services[service]).not.toHaveProperty("clientSecret");
         }
     });
 });

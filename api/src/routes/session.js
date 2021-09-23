@@ -6,6 +6,7 @@ import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken, assembleOwncloudConfiguration } from "../lib/backend-owncloud";
+import { getApplication } from "../lib/session";
 
 import { getLogger } from "../common/logger";
 const log = getLogger();
@@ -81,6 +82,8 @@ export async function createApplicationSession(req, res, next) {
 }
 
 export async function updateApplicationSession(req, res, next) {
+    const authorization = req.headers.authorization.split("Bearer ").pop();
+    const { application } = await getApplication({ authorization });
     try {
         let session = await models.session.findOne({ where: { id: req.params.sessionId } });
         if (session.creator !== application.name) {

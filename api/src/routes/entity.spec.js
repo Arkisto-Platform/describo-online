@@ -456,11 +456,11 @@ describe("Test entity and property route operations", () => {
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
     });
-    test("it should be able to create new file and folder entities", async () => {
+    test.skip("it should be able to create new file and folder entities", async () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id, local: { file: "/tmp/crate.json" } } },
         });
         let files = [
             {

@@ -1,6 +1,6 @@
 import "regenerator-runtime";
 import fetch from "node-fetch";
-import path from "path";
+import models from "../models";
 import { createSessionForTest } from "../common";
 import { insertCollection } from "../lib/collections";
 import { updateUserSession } from "../lib/user";

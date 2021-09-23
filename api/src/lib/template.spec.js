@@ -23,7 +23,7 @@ describe("Test template management operations", () => {
     });
     afterAll(async () => {
         await removeCollection({ id: collection.id });
-        await removeUser({ id: user.id });
+        await removeUser({ email: user.email });
         await models.sequelize.close();
     });
     test("it should save an entity template", async () => {

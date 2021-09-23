@@ -5,9 +5,11 @@ const api = "http://localhost:8080";
 import Chance from "chance";
 const chance = new Chance();
 
-export { loadConfiguration } from "./configuration";
+export { loadConfiguration, filterPrivateInformation } from "./configuration";
 export { getLogger } from "./logger";
 export { getS3Handle } from "./getS3Handle";
+export { saveCrate } from "./save-crate";
+import { loadConfiguration } from ".";
 
 export async function createSessionForTest() {
     const origConfig = await loadConfiguration();

@@ -352,7 +352,6 @@ export async function insertFilesAndFolders({ collectionId, files }) {
         if (entity.etype === "Dataset") {
             properties = properties.filter((p) => !datasetFilterProperties.includes(p.name));
         }
-
         for (let property of properties) {
             let clause = {
                 name: property.name,
@@ -383,6 +382,7 @@ export async function insertFilesAndFolders({ collectionId, files }) {
             });
             parent = parent.filter((p) => p.eid === file.parent && p.etype === "Dataset").pop();
         }
+
         let association = {
             collectionId,
             entityId: parent.id,

@@ -27,7 +27,7 @@ async function processSessions({ sessions }) {
     const configuration = await loadConfiguration();
     for (let session of sessions) {
         for (let serviceName of oauthServices) {
-            const data = session.data?.services?.[serviceName];
+            const data = session.data?.service?.[serviceName];
 
             if (!data || !data.refresh_token) continue;
 
@@ -37,7 +37,7 @@ async function processSessions({ sessions }) {
             let config, service;
             if (timeNow < 0) {
                 // token is waaaay old - remove the config from the session
-                delete session.data.services[serviceName];
+                delete session.data.service[serviceName];
                 await session.update({ data: session.data });
             } else if (timeLeft < tokenMinTime) {
                 log.debug(`Refreshing owncloud token for user`);
@@ -55,7 +55,7 @@ async function processSessions({ sessions }) {
                 data = {
                     ...session.data,
                     ...{
-                        services: {
+                        service: {
                             [serviceName]: config,
                         },
                     },
