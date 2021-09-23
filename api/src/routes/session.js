@@ -66,6 +66,8 @@ export async function createApplicationSession(req, res, next) {
         let service = {};
         if (req.body.session?.owncloud) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
+        } else if (req.body.session?.s3) {
+            service.s3 = { ...req.body.session.s3 };
         }
         let sessionId = await postSession({
             authorization,
@@ -90,8 +92,11 @@ export async function updateApplicationSession(req, res, next) {
             return next(new ForbiddenError());
         }
         let service = session.data.service;
+
         if (req.body.session?.owncloud) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
+        } else if (req.body.session?.s3) {
+            service.s3 = { ...req.body.session.s3 };
         }
 
         await session.update({ data: { ...session.data, ...service } });
@@ -162,6 +167,7 @@ export async function getOauthToken(req, res, next) {
 async function saveServiceConfigurationToSession({ sessionId, config, serviceName }) {
     // get the service configuration from the application configuration
     const configuration = await loadConfiguration();
+    // console.log(JSON.stringify(config, null, 2));
 
     let serviceConfiguration = configuration.api.services[serviceName];
     if (serviceConfiguration) {
