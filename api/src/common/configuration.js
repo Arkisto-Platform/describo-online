@@ -1,6 +1,6 @@
 import { readJSON } from "fs-extra";
 
-const privateFields = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
+export const privateFields = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
 
 export async function loadConfiguration() {
     let configuration =
@@ -11,13 +11,23 @@ export async function loadConfiguration() {
     return configuration;
 }
 
-export function filterPrivateInformation({ configuration }) {
-    for (let service of Object.keys(configuration.api.services)) {
-        for (let instance of configuration.api.services[service]) {
-            for (let privateField of privateFields) {
-                delete instance[privateField];
+export function filterPrivateInformation({ configuration, session }) {
+    if (configuration) {
+        for (let service of Object.keys(configuration.api.services)) {
+            for (let instance of configuration.api.services[service]) {
+                for (let privateField of privateFields) {
+                    delete instance[privateField];
+                }
             }
         }
+        return configuration;
+    } else if (session) {
+        for (let service of Object.keys(session.service)) {
+            for (let privateField of privateFields) {
+                delete session.service[service][privateField];
+            }
+        }
+        delete session.current;
+        return session;
     }
-    return configuration;
 }

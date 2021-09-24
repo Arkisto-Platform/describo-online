@@ -1,6 +1,6 @@
 import models from "../models";
 import { cloneDeep, omit, difference } from "lodash";
-import { loadConfiguration } from "../common";
+import { loadConfiguration, filterPrivateInformation } from "../common";
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
@@ -131,7 +131,12 @@ export async function getServiceConfiguration(req, res, next) {
 }
 
 export async function getSession(req, res, next) {
-    res.send({ embeddedSession: req.session.creator ? true : false, session: req.session.data });
+    let session = filterPrivateInformation({ session: req.session.data });
+    session = {
+        embeddedSession: req.session.creator ? true : false,
+        session,
+    };
+    res.send(session);
     next();
 }
 
