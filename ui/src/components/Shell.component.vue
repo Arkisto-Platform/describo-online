@@ -21,6 +21,9 @@
                         @manage-data="activeTab = 'manageData'"
                     />
                 </el-tab-pane>
+                <el-tab-pane label="Manage Templates" name="manageTemplates">
+                    <template-list-component v-if="activeTab === 'manageTemplates'" />
+                </el-tab-pane>
             </el-tabs>
         </div>
     </div>
@@ -33,6 +36,7 @@ import ManageCrateFilesComponent from "@/components/manage-crate-files/Shell.com
 import LoadCollectionComponent from "@/components/LoadCollection.component.vue";
 import RenderEntityComponent from "@/components/manage-entities/RenderEntity.component.vue";
 import EntityListManagerComponent from "@/components/entity-list/Shell.component.vue";
+import TemplateListComponent from "@/components/template-list/TemplateList.component.vue";
 import HTTPService from "@/components/http.service";
 
 export default {
@@ -43,6 +47,7 @@ export default {
         LoadCollectionComponent,
         RenderEntityComponent,
         EntityListManagerComponent,
+        TemplateListComponent,
     },
     data() {
         return {

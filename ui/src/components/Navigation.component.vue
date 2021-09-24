@@ -12,14 +12,14 @@
                 <i class="fas fa-home"></i>
             </div>
             <div>{{ siteName }}</div>
-            <div
+            <!-- <div
                 @click="navTo({ path: '/templates' })"
                 class="text-base pt-1 cursor-pointer"
                 :class="{ 'text-blue-500': currentRoute === 'templates' }"
             >
                 <i class="fas fa-list"></i>
                 Manage My Templates
-            </div>
+            </div> -->
             <div class="flex flex-grow"></div>
             <div @click="navTo({ name: 'logout' })" class="text-base pt-1 cursor-pointer">
                 <i class="fas fa-sign-out-alt"></i>

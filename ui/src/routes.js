@@ -4,7 +4,7 @@ import ShellComponent from "@/components/Shell.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
 import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
-import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
+// import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
 import { isAuthenticated } from "./components/auth.service";
 
 Vue.use(VueRouter);
@@ -18,14 +18,14 @@ const routes = [
             requiresAuth: true,
         },
     },
-    {
-        path: "/templates",
-        name: "templates",
-        component: TemplateListManagerComponent,
-        meta: {
-            requiresAuth: true,
-        },
-    },
+    // {
+    //     path: "/templates",
+    //     name: "templates",
+    //     component: TemplateListManagerComponent,
+    //     meta: {
+    //         requiresAuth: true,
+    //     },
+    // },
     {
         name: "login",
         path: "/login",
