@@ -67,7 +67,7 @@ export async function createApplicationSession(req, res, next) {
         if (req.body.session?.owncloud) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         } else if (req.body.session?.s3) {
-            service.s3 = { ...req.body.session.s3 };
+            service.s3 = assembleS3Configuration({ params: req.body.session.s3 });
         }
         let sessionId = await postSession({
             authorization,
@@ -96,7 +96,7 @@ export async function updateApplicationSession(req, res, next) {
         if (req.body.session?.owncloud) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         } else if (req.body.session?.s3) {
-            service.s3 = { ...req.body.session.s3 };
+            service.s3 = assembleS3Configuration({ params: req.body.session.s3 });
         }
 
         await session.update({ data: { ...session.data, ...service } });
