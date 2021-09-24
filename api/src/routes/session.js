@@ -265,7 +265,7 @@ export function assembleS3Configuration({ params }) {
         url: params.url,
         folder: params.folder,
         awsAccessKeyId: params.awsAccessKeyId,
-        awsSecretAccessKeyId: params.awsSecretAccessKeyId,
+        awsSecretAccessKey: params.awsSecretAccessKey,
         region: params.region,
     };
 }
