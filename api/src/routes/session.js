@@ -1,11 +1,11 @@
 import models from "../models";
-import { cloneDeep, omit } from "lodash";
+import { cloneDeep, omit, difference } from "lodash";
 import { loadConfiguration } from "../common";
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { postSession } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
-import { getOwncloudOauthToken, assembleOwncloudConfiguration } from "../lib/backend-owncloud";
+import { getOwncloudOauthToken } from "../lib/backend-owncloud";
 import { getApplication } from "../lib/session";
 
 import { getLogger } from "../common/logger";
@@ -202,4 +202,70 @@ async function saveServiceConfigurationToSession({ sessionId, config, serviceNam
 
     // save the session
     await session.update({ data });
+}
+
+export function assembleOwncloudConfiguration({ params }) {
+    const requiredParams = ["url", "access_token", "user_id"];
+    const optionalParams = ["folder", "refresh_token"];
+
+    let definedParams = Object.keys(params);
+    const missingRequiredParams = difference(requiredParams, definedParams);
+    if (missingRequiredParams.length) {
+        const msg = `Missing required params when setting up owncloud config: ${missingRequiredParams}`;
+        log.error(msg);
+        throw new BadRequestError(msg);
+    }
+    const unusedParams = difference(definedParams, [...requiredParams, ...optionalParams]);
+    if (unusedParams.length) {
+        log.warn(`Extra params defined for owncloud config but not used: ${unusedParams}`);
+    }
+    return {
+        url: params.url,
+        folder: params.folder,
+        access_token: params.access_token,
+        refresh_token: params.refresh_token,
+        user_id: params.user_id,
+    };
+}
+
+export function assembleS3Configuration({ params }) {
+    const requiredParams = ["provider", "awsAccessKeyId", "awsSecretAccessKey"];
+    const optionalParams = ["region", "folder"];
+    if (!params.region) params.region = "us-east-1";
+
+    if (!params.provider) {
+        const msg = `Missing required param when setting up s3 config: 'provider'`;
+        log.error(msg);
+        throw new BadRequestError(msg);
+    }
+    if (!["Minio", "AWS"].includes(params.provider)) {
+        const msg = `'Provider' param must equal 'AWS' || 'Minio'`;
+        log.error(msg);
+        throw new BadRequestError(msg);
+    }
+
+    let definedParams = Object.keys(params);
+    const missingRequiredParams = difference(requiredParams, definedParams);
+    if (missingRequiredParams.length) {
+        const msg = `Missing required params when setting up s3 config: ${missingRequiredParams}`;
+        log.error(msg);
+        throw new BadRequestError(msg);
+    }
+    if (params.provider === "Minio" && !params.url) {
+        const msg = `Missing required param when setting up Minio s3 config: 'url'`;
+        log.error(msg);
+        throw new BadRequestError(msg);
+    }
+    const unusedParams = difference(definedParams, [...requiredParams, ...optionalParams]);
+    if (unusedParams.length) {
+        log.warn(`Extra params defined for s3 config but not used: ${unusedParams}`);
+    }
+    return {
+        provider: params.provider,
+        url: params.url,
+        folder: params.folder,
+        awsAccessKeyId: params.awsAccessKeyId,
+        awsSecretAccessKeyId: params.awsSecretAccessKeyId,
+        region: params.region,
+    };
 }

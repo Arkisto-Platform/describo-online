@@ -3,16 +3,6 @@ import { getLogger } from "../common/logger";
 
 const log = getLogger();
 
-export function assembleOwncloudConfiguration({ params }) {
-    return {
-        url: params.url,
-        folder: params.folder,
-        access_token: params.access_token,
-        refresh_token: params.refresh_token,
-        user_id: params.user_id,
-    };
-}
-
 export async function getOwncloudOauthToken({ service, code }) {
     let url = service.internalUrl ? service.internalUrl : service.url;
     url = `${url}${service.oauthTokenEndpoint}?grant_type=authorization_code`;
