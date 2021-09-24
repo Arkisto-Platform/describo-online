@@ -32,6 +32,8 @@ if [ "$resp" == "y" ] ; then
     npm version --no-git-tag-version ${VERSION}
     cd ..
     git tag v${VERSION}
+    git commit -a -m "tag and bump version"
+    
 
     echo "Building API container"
     docker tag arkisto/describo-online-api:latest arkisto/describo-online-api:${VERSION}
