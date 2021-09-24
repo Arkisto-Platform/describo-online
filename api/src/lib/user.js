@@ -90,17 +90,19 @@ export async function createUserSession({ email, data, creator = "", oktaToken, 
         where: { email },
         include: [{ model: models.session }],
     });
+    let session;
     if (user?.session) {
-        await models.session.destroy({ where: { id: user.session.id } });
+        session = user.session;
+        session.update({ data, oktaToken, oktaExpiry, creator });
+    } else {
+        session = await models.session.create({
+            userId: user.id,
+            data,
+            oktaToken,
+            oktaExpiry,
+            creator,
+        });
     }
-
-    let session = await models.session.create({
-        userId: user.id,
-        data,
-        oktaToken,
-        oktaExpiry,
-        creator,
-    });
     return session.get();
 }
 

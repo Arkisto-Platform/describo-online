@@ -152,7 +152,7 @@ describe("Test user management operations", () => {
         session = { b: "c" };
         s = await createUserSession({ email, data: session });
 
-        expect((await getUserSession({ email })).session.data).toEqual(session);
+        expect(s.data).toEqual(session);
 
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });
