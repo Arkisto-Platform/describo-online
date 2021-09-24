@@ -37,6 +37,10 @@ const mutations = {
     setSelectedEntity(state, payload) {
         state.selectedEntity = { ...payload };
     },
+    setSessionInformation(state, payload) {
+        state.session = { ...state.session, ...payload };
+        console.log("session commit");
+    },
 };
 
 const actions = {

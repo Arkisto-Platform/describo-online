@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col">
+    <div class="flex flex-col" v-if="ready">
         <navigation-component />
         <div class="p-2 flex flex-col space-y-1">
             <select-target-component />
@@ -33,6 +33,7 @@ import ManageCrateFilesComponent from "@/components/manage-crate-files/Shell.com
 import LoadCollectionComponent from "@/components/LoadCollection.component.vue";
 import RenderEntityComponent from "@/components/manage-entities/RenderEntity.component.vue";
 import EntityListManagerComponent from "@/components/entity-list/Shell.component.vue";
+import HTTPService from "@/components/http.service";
 
 export default {
     components: {
@@ -46,6 +47,7 @@ export default {
     data() {
         return {
             activeTab: "manageData",
+            ready: false,
         };
     },
     computed: {
@@ -59,9 +61,23 @@ export default {
             return this.$store.state.selectedEntity.id;
         },
     },
+    beforeMount() {
+        this.restoreSession();
+    },
     mounted() {
         this.$store.dispatch("loadConfiguration");
     },
-    methods: {},
+    methods: {
+        async restoreSession() {
+            let httpService = new HTTPService({ $auth: this.$auth });
+            let response = await httpService.get({ route: "/session" });
+            if (response.status !== 200) {
+                // do nothing
+            }
+            let { session, embeddedSession } = await response.json();
+            this.$store.commit("setSessionInformation", { ...session, embedded: embeddedSession });
+            this.ready = true;
+        },
+    },
 };
 </script>

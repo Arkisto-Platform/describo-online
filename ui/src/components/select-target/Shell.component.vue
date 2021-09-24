@@ -1,6 +1,6 @@
 <template>
-    <el-card class="box-card">
-        <div slot="header" class="flex flex-row" v-if="!embeddedSession">
+    <el-card class="box-card" v-if="!embeddedSession">
+        <div slot="header" class="flex flex-row">
             <div class="flex flex-row" v-if="!target.resource && !target.folder">
                 Select a resource to work with
                 <div v-if="target.resource" class="ml-2">:&nbsp;{{ target.resource }}</div>
@@ -13,14 +13,14 @@
             </div>
         </div>
         <div class="flex flex-col">
-            <div class="flex flex-row space-x-2" v-if="!target.resource && !embeddedSession">
+            <div class="flex flex-row space-x-2" v-if="!target.resource">
                 <onedrive-authenticator-component v-if="onedriveEnabled" />
                 <owncloud-authenticator-component v-if="owncloudEnabled" />
                 <s3-authenticator-component v-if="s3Enabled" />
             </div>
 
             <file-browser-component
-                v-if="target.resource && !selectedFolder && !embeddedSession"
+                v-if="target.resource && !selectedFolder"
                 class="m-4"
                 :resource="target.resource"
                 mode="openDirectory"
@@ -31,12 +31,7 @@
                 <div class="mr-2">Selected Resource:</div>
                 <div>{{ target.resource }}:{{ target.folder.path }}</div>
                 <div class="flex-grow"></div>
-                <el-button
-                    type="danger"
-                    @click="selectNewTargetFolder"
-                    size="small"
-                    v-if="!embeddedSession"
-                >
+                <el-button type="danger" @click="selectNewTargetFolder" size="small">
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
@@ -45,7 +40,6 @@
 </template>
 
 <script>
-import HTTPService from "@/components/http.service";
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
 
 export default {
@@ -80,14 +74,9 @@ export default {
     },
     methods: {
         async setup() {
-            let httpService = new HTTPService({ $auth: this.$auth });
-            let response = await httpService.get({ route: "/session" });
-            if (response.status !== 200) {
-                // do nothing
-            }
-            let { session, embeddedSession } = await response.json();
-            this.embeddedSession = embeddedSession;
-            if (this.embeddedSession) {
+            const session = this.$store.state.session;
+            if (session.embedded) {
+                this.embeddedSession = true;
                 let resource = Object.keys(session.service).pop();
                 let folder = { path: session.service[resource].folder };
                 if (resource && folder.path) {
