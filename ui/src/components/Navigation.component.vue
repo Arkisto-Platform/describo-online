@@ -1,16 +1,16 @@
 <template>
     <div>
         <div
-            class="flex flex-row space-x-4 p-2 bg-indigo-100 py-4 px-10 text-xl text-gray-800"
+            class="flex flex-row space-x-4 bg-indigo-100 p-4 text-xl text-gray-800"
             v-if="!embeddedSession"
         >
-            <div
+            <!-- <div
                 @click="navTo('/')"
                 class="cursor-pointer"
                 :class="{ 'text-blue-500': currentRoute === 'root' }"
             >
                 <i class="fas fa-home"></i>
-            </div>
+            </div> -->
             <div>{{ siteName }}</div>
             <!-- <div
                 @click="navTo({ path: '/templates' })"
