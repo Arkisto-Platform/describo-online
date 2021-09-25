@@ -39,7 +39,6 @@ const mutations = {
     },
     setSessionInformation(state, payload) {
         state.session = { ...state.session, ...payload };
-        console.log("session commit");
     },
 };
 
