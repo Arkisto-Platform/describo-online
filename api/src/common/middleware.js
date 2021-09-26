@@ -3,6 +3,7 @@ import { getUserSession } from "../lib/user";
 const expectedAuthorizationTypes = ["okta", "sid"];
 import { getLogger } from "./logger";
 import { getApplication } from "../lib/session";
+import models from "../models";
 const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {
