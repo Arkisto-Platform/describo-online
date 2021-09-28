@@ -1,4 +1,5 @@
 import { readJSON } from "fs-extra";
+import { isEmpty } from "lodash";
 
 export const privateFields = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
 
@@ -21,7 +22,7 @@ export function filterPrivateInformation({ configuration, session }) {
             }
         }
         return configuration;
-    } else if (session) {
+    } else if (session && !isEmpty(session)) {
         for (let service of Object.keys(session.service)) {
             for (let privateField of privateFields) {
                 delete session.service[service][privateField];

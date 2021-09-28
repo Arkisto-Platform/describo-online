@@ -132,12 +132,17 @@ export async function getServiceConfiguration(req, res, next) {
 
 export async function getSession(req, res, next) {
     let session = filterPrivateInformation({ session: req.session.data });
-    session = {
-        embeddedSession: req.session.creator ? true : false,
-        session,
-    };
-    res.send(session);
-    next();
+    if (session) {
+        session = {
+            embeddedSession: req.session.creator ? true : false,
+            session,
+        };
+        res.send(session);
+        next();
+    } else {
+        res.send({});
+        next();
+    }
 }
 
 export async function getOauthToken(req, res, next) {
