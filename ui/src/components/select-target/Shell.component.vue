@@ -17,6 +17,7 @@
                 <onedrive-authenticator-component v-if="onedriveEnabled" />
                 <owncloud-authenticator-component v-if="owncloudEnabled" />
                 <s3-authenticator-component v-if="s3Enabled" />
+                <reva-authenticator-component v-if="revaEnabled" />
             </div>
 
             <file-browser-component
@@ -67,6 +68,9 @@ export default {
         },
         s3Enabled: function() {
             return this.$store.state.configuration.services?.s3 ? true : false;
+        },
+        revaEnabled: function() {
+            return this.$store.state.configuration.services?.reva ? true : false;
         },
     },
     mounted() {

@@ -1,16 +1,32 @@
 import models from "../models";
 import { cloneDeep, omit, difference } from "lodash";
-import { loadConfiguration, filterPrivateInformation } from "../common";
+import {
+    route,
+    demandValidApplication,
+    loadConfiguration,
+    filterPrivateInformation,
+    getLogger,
+} from "../common";
 import OktaJwtVerifier from "@okta/jwt-verifier";
-import { postSession } from "../lib/session";
+import { postSession, getApplication } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken } from "../lib/backend-owncloud";
-import { getApplication } from "../lib/session";
 
-import { getLogger } from "../common/logger";
 const log = getLogger();
 
+export async function setupRoutes({ server }) {
+    server.post("/session/okta", createOktaSession);
+    server.get("/session", route(getSession));
+    server.post("/session/application", [demandValidApplication, createApplicationSession]);
+    server.put("/session/application/:sessionId", [
+        demandValidApplication,
+        updateApplicationSession,
+    ]);
+    server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
+    server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
+    server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
+}
 export async function createOktaSession(req, res, next) {
     let config = (await loadConfiguration()).ui;
 

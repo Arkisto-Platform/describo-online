@@ -16,6 +16,7 @@ import OktaPlugin from "./plugins/okta";
 import OneDrivePlugin from "./plugins/onedrive";
 import OwncloudPlugin from "./plugins/owncloud";
 import S3Plugin from "./plugins/s3";
+import RevaPlugin from "./plugins/reva";
 import ViewerPlugin from "./plugins/viewers";
 
 import log from "loglevel";
@@ -45,6 +46,7 @@ import HTTPService from "./components/http.service";
         enableOnedrive({ Vue, log, configuration });
         enableOwncloud({ Vue, log, router, configuration });
         enableS3({ Vue, log, configuration });
+        enableReva({ Vue, log, configuration });
 
         store.commit("saveConfiguration", { configuration });
         Vue.config.productionTip = false;
@@ -96,6 +98,16 @@ function enableS3({ Vue, log, configuration }) {
             log,
             $http: Vue.prototype.$http,
             configuration: "/session/configuration/s3",
+        });
+    }
+}
+
+function enableReva({ Vue, log, configuration }) {
+    if (configuration.services.reva) {
+        Vue.use(RevaPlugin, {
+            log,
+            $http: Vue.prototype.$http,
+            configuration: "/session/configuration/reva",
         });
     }
 }

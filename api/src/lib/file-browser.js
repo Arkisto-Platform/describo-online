@@ -1,8 +1,10 @@
 import { ensureDir, open, write, close, pathExists, remove } from "fs-extra";
+const util = require("util");
 import { spawn } from "child_process";
+const exec = util.promisify(require("child_process").exec);
 import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
 import path from "path";
-import { camelCase } from "lodash";
+import { camelCase, uniqBy } from "lodash";
 import { getLogger } from "../common/logger";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
@@ -19,7 +21,8 @@ export async function listFolder({ session, user, resource, folderPath }) {
             args.push(`${resource}:`);
         }
         let content = await runCommand({ cwd, args });
-        return processOutput(content, folderPath);
+        content = processOutput(content, folderPath);
+        return uniqBy(content, "path");
     } catch (error) {
         handleError(error);
     }
@@ -120,7 +123,7 @@ export function localWorkingDirectory({ user }) {
 }
 
 async function writeRcloneConfiguration({ resource, rcloneConfiguration, user }) {
-    // console.log(JSON.stringify(rcloneConfiguration, null, 2));
+    // console.log("rclone configuration", JSON.stringify(rcloneConfiguration, null, 2));
     const folderPath = localWorkingDirectory({ user });
     const filePath = path.join(folderPath, "rclone.conf");
     await ensureDir(folderPath);
@@ -142,6 +145,15 @@ async function writeRcloneConfiguration({ resource, rcloneConfiguration, user })
             );
             await write(fd, `vendor = owncloud\n`);
             await write(fd, `bearer_token = ${rcloneConfiguration.access_token}\n`);
+        case "reva":
+            let response = await exec(`${rclone()} obscure ${rcloneConfiguration.password}`);
+            const obscuredPassword = response.stdout;
+            await write(fd, `[reva]\n`);
+            await write(fd, `type = webdav\n`);
+            await write(fd, `vendor = other\n`);
+            await write(fd, `url = ${rcloneConfiguration.url}\n`);
+            await write(fd, `user = ${rcloneConfiguration.username}\n`);
+            await write(fd, `pass = ${obscuredPassword}\n`);
         case "s3":
             if (rcloneConfiguration.provider === "AWS") {
                 await write(fd, "[s3]\n");

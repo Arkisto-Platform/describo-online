@@ -1,5 +1,4 @@
-import { demandKnownUser, demandValidApplication } from "../common/middleware";
-import { loadConfiguration } from "../common";
+import { loadConfiguration, route } from "../common";
 import {
     readFolderRouteHandler,
     createFolderRouteHandler,
@@ -39,32 +38,15 @@ import {
     postReplaceCrateWithTemplateRouteHandler,
 } from "./template";
 
-import {
-    createOktaSession,
-    createApplicationSession,
-    updateApplicationSession,
-    saveServiceConfiguration,
-    getServiceConfiguration,
-    getSession,
-    getOauthToken,
-} from "./session";
+import { setupRoutes as setupSessionRoutes } from "./session";
 
 import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export function setupRoutes({ server }) {
+    setupSessionRoutes({ server });
     server.get("/configuration", getConfiguration);
     server.get("/authenticated", route(isAuthenticated));
-    server.post("/session/okta", createOktaSession);
-    server.get("/session", route(getSession));
-    server.post("/session/application", [demandValidApplication, createApplicationSession]);
-    server.put("/session/application/:sessionId", [
-        demandValidApplication,
-        updateApplicationSession,
-    ]);
-    server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
-    server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
-    server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
     server.post("/folder/create", route(createFolderRouteHandler));
     server.post("/folder/read", route(readFolderRouteHandler));
     server.post("/folder/delete", route(deleteFolderRouteHandler));
@@ -104,10 +86,6 @@ export function setupRoutes({ server }) {
             return next();
         });
     }
-}
-
-function route(handler) {
-    return [demandKnownUser, handler];
 }
 
 async function getConfiguration(req, res, next) {

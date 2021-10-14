@@ -71,3 +71,7 @@ export async function demandValidApplication(req, res, next) {
     }
     next();
 }
+
+export function route(handler) {
+    return [demandKnownUser, handler];
+}

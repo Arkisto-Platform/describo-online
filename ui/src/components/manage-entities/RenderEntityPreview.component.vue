@@ -18,6 +18,13 @@
             :path="resolveFilePath(entity.eid)"
             :entity="entity"
         />
+        <reva-file-preview-component
+            v-if="target.resource === 'reva' && entity.etype === 'File'"
+            class="w-full"
+            style="height: 500px;"
+            :path="resolveFilePath(entity.eid)"
+            :entity="entity"
+        />
     </div>
 </template>
 
