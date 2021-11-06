@@ -1,9 +1,8 @@
 import "regenerator-runtime";
 import { loadConfiguration } from "../common";
-import { isMatch, cloneDeep } from "lodash";
+import { cloneDeep } from "lodash";
 import { postSession } from "./session";
 import { writeJSON } from "fs-extra";
-import path from "path";
 import { getUserSession } from "../lib/user";
 import models from "../models";
 

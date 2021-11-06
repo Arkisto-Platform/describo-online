@@ -34,7 +34,7 @@ describe("Test session setup operations", () => {
         };
         config = assembleOwncloudConfiguration({ params });
     });
-    test("it should be fail to setup an owncloud session - missing required params", async () => {
+    test("it should fail to setup an owncloud session - missing required params", async () => {
         let params = {
             url: "http://localhost:8000",
             access_token: "x",
@@ -119,6 +119,86 @@ describe("Test session setup operations", () => {
 
         await writeJSON("/srv/configuration/development-configuration.json", origConfig);
     });
+    test("it should be able to get the same session id", async () => {
+        const origConfig = await loadConfiguration();
+
+        let testConfig = cloneDeep(origConfig);
+        testConfig.api.applications = [{ name: "test", secret: "xxx" }];
+        await writeJSON("/srv/configuration/development-configuration.json", testConfig);
+        let user = {
+            email: "test@test.com",
+            name: "test user",
+        };
+
+        let response = await fetch(`${api}/session/application`, {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer xxx",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+        });
+        expect(response.status).toBe(200);
+        response = await response.json();
+        let sessionId = response.sessionId;
+
+        response = await fetch(`${api}/session/application`, {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer xxx",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+        });
+        expect(response.status).toBe(200);
+        response = await response.json();
+        expect(sessionId).toEqual(response.sessionId);
+
+        await writeJSON("/srv/configuration/development-configuration.json", origConfig);
+    });
+    test("it should be able to set up two different sessions", async () => {
+        const origConfig = await loadConfiguration();
+        let testConfig = cloneDeep(origConfig);
+        testConfig.api.applications = [{ name: "test", secret: "xxx" }];
+        await writeJSON("/srv/configuration/development-configuration.json", testConfig);
+
+        let user = {
+            email: chance.email(),
+            name: "test user",
+        };
+
+        let response = await fetch(`${api}/session/application`, {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer xxx",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+        });
+        expect(response.status).toBe(200);
+        response = await response.json();
+        const sessionId1 = response.sessionId;
+
+        user = {
+            email: chance.email(),
+            name: "test user",
+        };
+
+        response = await fetch(`${api}/session/application`, {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer xxx",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+        });
+        expect(response.status).toBe(200);
+        response = await response.json();
+        const sessionId2 = response.sessionId;
+        expect(sessionId1).not.toEqual(sessionId2);
+
+        await writeJSON("/srv/configuration/development-configuration.json", origConfig);
+    });
     test("it should be able to update an existing session", async () => {
         const origConfig = await loadConfiguration();
 
@@ -165,38 +245,6 @@ describe("Test session setup operations", () => {
         let s = await getUserSession({ sessionId });
         expect(s.session.data.service.owncloud.url).toEqual("2");
 
-        await writeJSON("/srv/configuration/development-configuration.json", origConfig);
-    });
-    test("it should be able to create a session and login - bypassing okta auth", async () => {
-        const origConfig = await loadConfiguration();
-
-        let testConfig = cloneDeep(origConfig);
-        testConfig.api.applications = [{ name: "test", secret: "xxx" }];
-        await writeJSON("/srv/configuration/development-configuration.json", testConfig);
-        const user = {
-            email: "test2@test.com",
-            name: "test user 2",
-        };
-
-        let response = await fetch(`${api}/session/application`, {
-            method: "POST",
-            headers: {
-                Authorization: "Bearer xxx",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(user),
-        });
-        expect(response.status).toBe(200);
-        let { sessionId } = await response.json();
-
-        response = await fetch(`${api}/authenticated`, {
-            method: "GET",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-        });
-        expect(response.status).toBe(200);
         await writeJSON("/srv/configuration/development-configuration.json", origConfig);
     });
     test("it should be able to get service configuration", async () => {

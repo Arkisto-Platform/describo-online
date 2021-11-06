@@ -1,7 +1,6 @@
 import { loadConfiguration } from "../common";
 import { ForbiddenError } from "restify-errors";
 import { createUser, createUserSession } from "./user";
-const models = require("../models");
 
 export async function postSession({ authorization, email, name, data }) {
     let { application } = await getApplication({ authorization });
