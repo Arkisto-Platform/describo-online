@@ -4,8 +4,7 @@ import ShellComponent from "@/components/Shell.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
 import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
-// import TemplateListManagerComponent from "@/components/template-list/Shell.component.vue";
-import { isAuthenticated } from "./components/auth.service";
+import { isAuthenticated } from "./components/http.service";
 
 Vue.use(VueRouter);
 
@@ -18,14 +17,6 @@ const routes = [
             requiresAuth: true,
         },
     },
-    // {
-    //     path: "/templates",
-    //     name: "templates",
-    //     component: TemplateListManagerComponent,
-    //     meta: {
-    //         requiresAuth: true,
-    //     },
-    // },
     {
         name: "login",
         path: "/login",
@@ -54,12 +45,14 @@ async function onAuthRequired(to, from, next) {
         let isAuthed;
         try {
             isAuthed = await isAuthenticated();
-            if (!isAuthed && from.path !== "/login") return next({ path: "/login" });
+            if (!isAuthed && from.name !== "login") return next({ path: "/login" });
+            return next();
         } catch (error) {
-            if (!isAuthed && from.path !== "/login") return next({ path: "/login" });
+            if (!isAuthed && from.name !== "login") return next({ path: "/login" });
         }
+    } else {
+        next();
     }
-    next();
 }
 
 export default router;

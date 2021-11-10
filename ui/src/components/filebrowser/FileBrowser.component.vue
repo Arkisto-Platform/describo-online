@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { flattenDeep, uniq, cloneDeep, uniqBy, compact, debounce } from "lodash";
+import { flattenDeep, uniq, cloneDeep, startsWith, compact, debounce } from "lodash";
 import InformationComponent from "../Information.component.vue";
 
 export default {
@@ -88,7 +88,7 @@ export default {
             data: [],
             httpService: undefined,
             props: {
-                label: "path",
+                label: "name",
                 children: "children",
                 isLeaf: "isLeaf",
             },
@@ -167,7 +167,11 @@ export default {
                 let node = this.$refs.tree.getCheckedNodes()[0];
                 const path = node.parent ? `${node.parent}/${node.path}` : node.path;
                 const id = node.id;
-                this.$emit("selected-folder", { path: `/${path}`, id });
+                if (startsWith(path, "/")) {
+                    this.$emit("selected-folder", { path: `${path}`, id });
+                } else {
+                    this.$emit("selected-folder", { path: `/${path}`, id });
+                }
             } else {
                 await this.debouncedAddParts();
             }

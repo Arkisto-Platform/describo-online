@@ -67,13 +67,14 @@ export async function loadRouteHandler(req, res, next) {
                 total: 7,
             });
 
-            const cwd = await setup({
+            const { workingDirectory, configuration } = await setup({
                 session: req.session,
                 user: req.user,
                 resource,
             });
-            localFile = path.join(cwd, "current", defaultCrateFileName);
-            await ensureDir(path.join(cwd, "current"));
+            localFile = path.join(workingDirectory, "current", defaultCrateFileName);
+            console.log("localFile", localFile);
+            await ensureDir(path.join(workingDirectory, "current"));
             await writeJSON(localFile, crateMetadata);
 
             crateFile = {
@@ -172,6 +173,7 @@ export async function loadRouteHandler(req, res, next) {
         if (error.message === "That collection is already loaded.") {
             req.io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
         } else {
+            console.log(error);
             log.error(`loadRouteHandler: ${error.message}`);
             return next(error);
         }

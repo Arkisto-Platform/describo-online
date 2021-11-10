@@ -56,11 +56,11 @@ describe("Test user management operations", () => {
         const email = chance.email();
         const name = chance.word();
         const session = { a: "b" };
-        const oktaToken = chance.word();
-        let oktaExpiry = new Date();
-        oktaExpiry = oktaExpiry.setSeconds(oktaExpiry.getSeconds() + 10);
+        const token = chance.word();
+        let expiry = new Date();
+        expiry = expiry.setSeconds(expiry.getSeconds() + 10);
         let user = await createUser({ email, name });
-        let s = await createUserSession({ email, data: session, oktaToken, oktaExpiry });
+        let s = await createUserSession({ email, data: session, token, expiry });
         expect(s.data).toEqual(session);
 
         await models.user.destroy({ where: { email } });
@@ -94,17 +94,17 @@ describe("Test user management operations", () => {
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });
     });
-    test("it should be able to get a session using the oktaToken", async () => {
+    test("it should be able to get a session using the token", async () => {
         const email = chance.email();
         const name = chance.word();
         let session = { a: "b" };
-        const oktaToken = chance.word();
-        let oktaExpiry = new Date();
-        oktaExpiry = oktaExpiry.setSeconds(oktaExpiry.getSeconds() + 10);
+        const token = chance.word();
+        let expiry = new Date();
+        expiry = expiry.setSeconds(expiry.getSeconds() + 10);
         let user = await createUser({ email, name });
-        let s = await createUserSession({ email, data: session, oktaToken, oktaExpiry });
+        let s = await createUserSession({ email, data: session, token, expiry });
 
-        session = await getUserSession({ oktaToken });
+        session = await getUserSession({ token });
         expect(Object.keys(session).sort()).toEqual(["expiresAt", "session", "user"]);
         expect(session.user.id).toEqual(user.id);
 
@@ -137,7 +137,7 @@ describe("Test user management operations", () => {
         let user = await createUser({ email, name });
         let s = await createUserSession({ email, data: session });
 
-        session = await getUserSession({ oktaToken: "xxxy" });
+        session = await getUserSession({ token: "xxxy" });
         expect(session).toEqual({ session: null, user: null });
 
         await models.user.destroy({ where: { email } });
@@ -167,9 +167,10 @@ describe("Test user management operations", () => {
         s = await updateUserSession({ sessionId: s.id, email, data: { b: "c" } });
         expect(s.data).toEqual({ a: "b", b: "c" });
 
-        s = await updateUserSession({ sessionId: s.id, email, oktaToken: "a", oktaExpiry: "b" });
-        expect(s.oktaToken).toEqual("a");
-        expect(s.oktaExpiry).toEqual("b");
+        let date = new Date();
+        s = await updateUserSession({ sessionId: s.id, email, token: "a", expiry: date });
+        expect(s.token).toEqual("a");
+        expect(s.expiry).toEqual(date);
 
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });

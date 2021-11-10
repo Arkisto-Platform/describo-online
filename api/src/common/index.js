@@ -1,15 +1,16 @@
+export { loadConfiguration, filterPrivateInformation } from "./configuration";
+export { route, demandKnownUser, demandValidApplication } from "./middleware";
+export { getLogger } from "./logger";
+export { getS3Handle } from "./getS3Handle";
+export { saveCrate } from "./save-crate";
+export { generateToken, verifyToken } from "./jwt";
+
 import fetch from "node-fetch";
 import { writeJSON } from "fs-extra";
 import { cloneDeep } from "lodash";
 const api = "http://localhost:8080";
 import Chance from "chance";
 const chance = new Chance();
-
-export { loadConfiguration, filterPrivateInformation } from "./configuration";
-export { route, demandKnownUser, demandValidApplication } from "./middleware";
-export { getLogger } from "./logger";
-export { getS3Handle } from "./getS3Handle";
-export { saveCrate } from "./save-crate";
 import { loadConfiguration } from ".";
 
 export async function createSessionForTest() {

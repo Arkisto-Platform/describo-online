@@ -19,7 +19,7 @@ export async function createUser({ email, name }) {
         .get();
 }
 
-export async function getUserSession({ sessionId, oktaToken, email }) {
+export async function getUserSession({ sessionId, token, email }) {
     let user, session, expiresAt;
     try {
         if (sessionId) {
@@ -39,10 +39,10 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 session = session.get({ plain: true });
                 delete session.user;
             }
-        } else if (oktaToken) {
+        } else if (token) {
             session = await models.session.findOne({
-                where: { oktaToken },
-                attributes: ["id", "data", "creator", "oktaExpiry"],
+                where: { token },
+                attributes: ["id", "data", "creator", "expiry"],
                 include: [
                     {
                         model: models.user,
@@ -51,7 +51,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
                 ],
             });
             if (session) {
-                expiresAt = session.oktaExpire;
+                expiresAt = session.expiry;
                 user = session.user.get({ plain: true });
                 session = session.get({ plain: true });
                 delete session.user;
@@ -85,7 +85,7 @@ export async function getUserSession({ sessionId, oktaToken, email }) {
     }
 }
 
-export async function createUserSession({ email, data, creator = "", oktaToken, oktaExpiry }) {
+export async function createUserSession({ email, data, creator = "", token, expiry }) {
     let user = await models.user.findOne({
         where: { email },
         include: [{ model: models.session }],
@@ -93,26 +93,26 @@ export async function createUserSession({ email, data, creator = "", oktaToken, 
     let session;
     if (user?.session) {
         session = user.session;
-        session.update({ data, oktaToken, oktaExpiry, creator });
+        session.update({ data, token, expiry, creator });
     } else {
         session = await models.session.create({
             userId: user.id,
             data,
-            oktaToken,
-            oktaExpiry,
+            token,
+            expiry,
             creator,
         });
     }
-    return session.get();
+    return session;
 }
 
-export async function updateUserSession({ sessionId, data, oktaToken, oktaExpiry }) {
+export async function updateUserSession({ sessionId, data, token, expiry }) {
     let session = await models.session.findOne({ where: { id: sessionId } });
     let update = {};
     if (data) update.data = { ...session.data, ...data };
-    if (oktaToken) {
-        update.oktaToken = oktaToken;
-        update.oktaExpiry = oktaExpiry;
+    if (token) {
+        update.token = token;
+        update.expiry = expiry;
     }
 
     return (await session.update(update)).get();

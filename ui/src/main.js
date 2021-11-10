@@ -107,7 +107,9 @@ function enableReva({ Vue, log, configuration }) {
         Vue.use(RevaPlugin, {
             log,
             $http: Vue.prototype.$http,
-            configuration: "/session/configuration/reva",
+            configuration: configuration.services.reva,
+            configurationRoute: "/session/configuration/reva",
+            authenticationRoute: "/authenticate/reva",
         });
     }
 }

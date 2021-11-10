@@ -6,17 +6,20 @@ import {
     loadConfiguration,
     filterPrivateInformation,
     getLogger,
+    generateToken,
 } from "../common";
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { postSession, getApplication } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken } from "../lib/backend-owncloud";
+import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api";
 
 const log = getLogger();
 
 export async function setupRoutes({ server }) {
     server.post("/session/okta", createOktaSession);
+    server.post("/session/reva", createRevaSession);
     server.get("/session", route(getSession));
     server.post("/session/application", [demandValidApplication, createApplicationSession]);
     server.put("/session/application/:sessionId", [
@@ -26,22 +29,23 @@ export async function setupRoutes({ server }) {
     server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
     server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
+    server.post("/authenticate/reva", authenticateToRevaHandler);
 }
 export async function createOktaSession(req, res, next) {
-    let config = (await loadConfiguration()).ui;
+    let configuration = await loadConfiguration();
 
-    let token;
+    let token, expiry;
     try {
-        token = req.headers.authorization.split("okta ").pop();
+        token = req.headers.authorization.split("Bearer ").pop();
     } catch (error) {
         log.error(`createOktaSession: issue with authorization header: ${error.message}`);
         return next(new UnauthorizedError("Unable to get authorization from header"));
     }
     const oktaJwtVerifier = new OktaJwtVerifier({
-        issuer: config.services.okta.issuer,
-        clientId: config.services.okta.clientId,
+        issuer: configuration.ui.services.okta.issuer,
+        clientId: configuration.ui.services.okta.clientId,
         assertClaims: {
-            cid: config.services.okta.clientId,
+            cid: configuration.ui.services.okta.clientId,
         },
     });
     let jwt;
@@ -58,14 +62,49 @@ export async function createOktaSession(req, res, next) {
         return next(new BadRequestError());
     }
 
-    await createUser({ name, email });
-    let session = await createUserSession({
+    let user = await createUser({ name, email });
+    ({ token, expiry } = await generateToken({ configuration, user }));
+    await createUserSession({
         email,
         data: {},
-        oktaToken: token,
-        oktaExpiry: jwt.claims.exp,
+        token,
+        expiry,
     });
-    res.send({});
+    res.send({ token });
+    return next();
+}
+
+export async function createRevaSession(req, res, next) {
+    let configuration = await loadConfiguration();
+
+    let token, expiry;
+    try {
+        token = req.headers.authorization.split("Bearer ").pop();
+    } catch (error) {
+        log.error(`createRevaSession: issue with authorization header: ${error.message}`);
+        return next(new UnauthorizedError("Unable to get authorization from header"));
+    }
+    let response = await whoami({ token, gateway: req.body.gateway });
+    if (!response.user) {
+        return next(new UnauthorizedError("Reva token verification failed"));
+    }
+
+    const email = req.body.email;
+    const name = req.body.name;
+    if (!email || !name) {
+        log.error(`createSession: email || name not provided`);
+        return next(new BadRequestError());
+    }
+
+    let user = await createUser({ name, email });
+    ({ token, expiry } = await generateToken({ configuration, user }));
+    await createUserSession({
+        email,
+        data: {},
+        token,
+        expiry,
+    });
+    res.send({ token });
     return next();
 }
 
@@ -193,7 +232,6 @@ export async function getOauthToken(req, res, next) {
 async function saveServiceConfigurationToSession({ sessionId, config, serviceName }) {
     // get the service configuration from the application configuration
     const configuration = await loadConfiguration();
-    // console.log(JSON.stringify(config, null, 2));
 
     let serviceConfiguration = configuration.api.services[serviceName];
     if (serviceConfiguration) {
@@ -294,4 +332,11 @@ export function assembleS3Configuration({ params }) {
         awsSecretAccessKey: params.awsSecretAccessKey,
         region: params.region,
     };
+}
+
+export async function authenticateToRevaHandler(req, res, next) {
+    const { gateway, username, password, createSession } = req.body;
+    let { token, user } = await authenticateToReva({ gateway, username, password });
+    res.send({ token, user });
+    next();
 }

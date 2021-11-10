@@ -1,6 +1,7 @@
 import { UnauthorizedError, ForbiddenError } from "restify-errors";
+import { verifyToken, loadConfiguration } from ".";
 import { getUserSession } from "../lib/user";
-const expectedAuthorizationTypes = ["okta", "sid"];
+const expectedAuthorizationTypes = ["Bearer", "sid"];
 import { getLogger } from "./logger";
 import { getApplication } from "../lib/session";
 import models from "../models";
@@ -8,13 +9,13 @@ const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {
     if (!req.headers.authorization) {
-        log.error(`demandKnownUser: Authorization header not preset in request`);
+        log.error(`demandKnownUser: Authorization header not present in request`);
         return next(new UnauthorizedError());
     }
     let [authType, token] = req.headers.authorization.split(" ");
     if (!expectedAuthorizationTypes.includes(authType)) {
         log.error(
-            `demandKnownUser: unknown authorization presented: expected okta || sid got authType`
+            `demandKnownUser: unknown authorization presented: expected ${expectedAuthorizationTypes} got ${authType}`
         );
         return next(new UnauthorizedError());
     }
@@ -24,10 +25,15 @@ export async function demandKnownUser(req, res, next) {
             ({ session, user, expiresAt } = await getUserSession({
                 sessionId: token,
             }));
-        } else if (authType === "okta") {
-            // try {
+        } else if (authType === "Bearer") {
+            try {
+                let configuration = await loadConfiguration();
+                await verifyToken({ token, configuration });
+            } catch (error) {
+                return next(new UnauthorizedError("Token invalid or expired"));
+            }
             ({ session, user, expiresAt } = await getUserSession({
-                oktaToken: token,
+                token,
             }));
         }
 

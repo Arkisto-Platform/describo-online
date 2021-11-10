@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { setSessionSID } from "./auth.service";
+import { setSessionSID } from "./http.service";
 
 export default {
     data() {

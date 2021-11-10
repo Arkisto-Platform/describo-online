@@ -16,7 +16,16 @@
                 "redirectUri": "http://localhost:9000/onedrive-callback"
             },
             "owncloud": true,
-            "s3": true
+            "s3": true,
+            "reva": [
+                { "name": "Reva Development", "gateway": "reva-gateway:19000", "mode": "api" },
+                {
+                    "name": "Reva Rclone Development",
+                    "gateway": "reva-gateway:19000",
+                    "webdav": "http://reva-gateway:19001/remote.php/webdav",
+                    "mode": "rclone"
+                }
+            ]
         },
         "maxSessionLifetime": "86400",
         "maxEntitiesPerTemplate": "100"

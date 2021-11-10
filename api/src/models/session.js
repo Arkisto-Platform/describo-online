@@ -10,11 +10,11 @@ module.exports = function (sequelize, DataTypes) {
                 allowNull: false,
                 defaultValue: DataTypes.UUIDV4,
             },
-            oktaToken: {
+            token: {
                 type: DataTypes.TEXT,
             },
-            oktaExpiry: {
-                type: DataTypes.STRING,
+            expiry: {
+                type: DataTypes.DATE,
             },
             data: {
                 type: DataTypes.JSON,
@@ -27,7 +27,7 @@ module.exports = function (sequelize, DataTypes) {
             timestamps: true,
             indexes: [
                 {
-                    fields: ["oktaToken"],
+                    fields: ["token"],
                 },
             ],
         }
