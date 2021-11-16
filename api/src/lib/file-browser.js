@@ -1,7 +1,5 @@
 import { ensureDir } from "fs-extra";
 const util = require("util");
-import { spawn } from "child_process";
-const exec = util.promisify(require("child_process").exec);
 import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
 import path from "path";
 import { orderBy } from "lodash";
@@ -64,6 +62,12 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
 
     try {
         if (resource === "reva" && configuration.mode === "api") {
+            await revaapi.uploadFile({
+                gateway: configuration.gateway,
+                token: configuration.token,
+                remoteFile: path.join(parent, "ro-crate-metadata.json"),
+                localFile,
+            });
         } else {
             await rclone.syncLocalFileToRemote({
                 session,
