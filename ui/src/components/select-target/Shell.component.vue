@@ -6,7 +6,7 @@
                 <div v-if="target.resource" class="ml-2">:&nbsp;{{ target.resource }}</div>
             </div>
             <div class="flex-grow"></div>
-            <div v-if="target.resource">
+            <div v-if="target.resource && !revaDeployment">
                 <el-button type="danger" size="small" @click="selectNewResourceAndTarget">
                     Change resource
                 </el-button>
@@ -52,6 +52,7 @@ export default {
             configuration: {},
             selectedFolder: undefined,
             embeddedSession: false,
+            revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
         };
     },
     computed: {
