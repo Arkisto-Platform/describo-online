@@ -1,11 +1,16 @@
 <template>
     <div class="flex flex-row flex-grow p-1">
         <div class="w-64 flex flex-col">
-            <div><display-property-name-component :label="name" /></div>
-            <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
-            <div v-if="isRequired && !isValid" class="-center text-red-600 animate-pulse">
-                required
+            <div>
+                <display-property-name-component
+                    :label="name"
+                    class="inline-block"
+                    :class="{ 'text-red-600': isRequired && !isValid }"
+                />
+                <el-badge is-dot class="animate-pulse -ml-1 -mt-2" v-if="isRequired && !isValid">
+                </el-badge>
             </div>
+            <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
         </div>
         <div class="flex flex-col flex-grow space-y-2">
             <information-component type="info" align="left" v-if="showHelp">
