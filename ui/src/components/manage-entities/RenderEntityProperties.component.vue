@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col space-y-2 divide-y divide-grey-200">
         <div
-            v-for="(properties, name) of properties"
+            v-for="(values, name) of properties"
             :key="generateKey('forward', name)"
             class="flex flex-row pt-2"
             :class="{
@@ -9,54 +9,28 @@
                 'bg-red-200 my-1 p-1 rounded': update.erro === name,
             }"
         >
-            <div class="w-64">
-                {{ name }}
-            </div>
-            <div class="w-full flex flex-col space-y-2">
-                <div class="flex flex-row space-x-2">
-                    <div v-if="help(name)">
-                        <el-button @click="toggleHelp(name)" type="primary" size="mini">
-                            <i class="fas fa-question-circle"></i>
-                        </el-button>
-                    </div>
-                    <add-component
-                        class="flex-grow"
-                        v-if="inputs"
-                        :property="name"
-                        :definition="definition(name)"
-                        :embedded="false"
-                        @create:property="createProperty"
-                        @create:entity="createEntityAndLink"
-                        @link:entity="linkEntity"
-                        @add:template="addTemplateAndLinkEntity"
-                    />
-                </div>
-                <information-component type="info" align="left" v-if="showHelp === name">
-                    {{ help(name) }}
-                </information-component>
-                <render-entity-property-component
-                    v-for="property of properties"
-                    :key="property.id"
-                    :property="property"
-                    @save:property="saveProperty"
-                    @refresh="$emit('refresh')"
-                />
-            </div>
+            <render-entity-property-data-component
+                :name="name"
+                :values="values"
+                :definition="definition(name)"
+                @create:property="createProperty"
+                @create:entity="createEntity"
+                @link:entity="linkEntity"
+                @add:template="addTemplate"
+                @save:property="saveProperty"
+                @delete:property="deleteProperty"
+            />
         </div>
     </div>
 </template>
 
 <script>
-import RenderEntityPropertyComponent from "./RenderEntityProperty.component.vue";
-import AddComponent from "./Add.component.vue";
+import RenderEntityPropertyDataComponent from "./RenderEntityPropertyData.component.vue";
 import DataService from "./data.service.js";
-import InformationComponent from "../Information.component.vue";
 
 export default {
     components: {
-        RenderEntityPropertyComponent,
-        AddComponent,
-        InformationComponent,
+        RenderEntityPropertyDataComponent,
     },
     props: {
         entity: {
@@ -98,12 +72,6 @@ export default {
         },
         definition(name) {
             return this.inputs ? this.inputs.filter((i) => i?.name === name)[0] : [];
-        },
-        help(name) {
-            return this.definition(name)?.help;
-        },
-        toggleHelp(name) {
-            this.showHelp = this.showHelp !== name ? name : false;
         },
         async loadTgtEntityData() {
             for (let property of Object.keys(this.properties)) {
@@ -149,7 +117,14 @@ export default {
             });
             this.$emit("refresh");
         },
-        async createEntityAndLink({ property, entityName, etype }) {
+        async deleteProperty({ entityId, propertyId }) {
+            await this.dataService.deleteProperty({
+                entityId,
+                propertyId,
+            });
+            this.$emit("refresh");
+        },
+        async createEntity({ property, entityName, etype }) {
             let { entity } = await this.dataService.createEntity({
                 name: entityName,
                 etype,
@@ -159,8 +134,7 @@ export default {
                 property,
                 tgtEntityId: entity.id,
             });
-            this.$store.commit("setSelectedEntity", { id: entity.id });
-            // this.$emit("refresh");
+            this.$emit("refresh");
         },
         async linkEntity({ property, tgtEntityId }) {
             await this.dataService.associate({
@@ -170,7 +144,7 @@ export default {
             });
             this.$emit("refresh");
         },
-        async addTemplateAndLinkEntity({ property, templateId }) {
+        async addTemplate({ property, templateId }) {
             let { entity } = await this.dataService.addTemplate({ templateId });
             this.linkEntity({ property, tgtEntityId: entity.id });
         },

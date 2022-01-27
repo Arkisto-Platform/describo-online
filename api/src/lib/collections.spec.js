@@ -1,14 +1,17 @@
 import "regenerator-runtime";
-import {
-    findCollection,
-    insertCollection,
-    removeCollection,
-} from "./collections";
+import { findCollection, insertCollection, removeCollection } from "./collections";
 import { insertEntity, attachProperty } from "./entities";
 import models from "../models";
 const chance = require("chance").Chance();
 
 describe("Test collection management operations", () => {
+    const profile = {
+        name: "schema.org",
+        version: "latest",
+        description: "All of schema.org",
+        file: "schema.org",
+    };
+
     beforeEach(async () => {
         await models.property.truncate({ cascade: true });
         await models.entity.truncate({ cascade: true });
@@ -80,7 +83,7 @@ describe("Test collection management operations", () => {
             "@type": "Person",
             name: "a person",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         let property = await attachProperty({
             collectionId: collection.id,
             entityId: entity.id,
@@ -110,6 +113,7 @@ describe("Test collection management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection1.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection1.id,
@@ -130,6 +134,7 @@ describe("Test collection management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection2.id,
+            profile,
         });
         property = await attachProperty({
             collectionId: collection2.id,

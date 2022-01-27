@@ -1,0 +1,38 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "Defines two enable classes with definitions but Dataset has an input that points to an undefined type (CreativeWork)",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["CreativeWork"]
+                }
+            ]
+        },
+        "Person": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Text"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": ["Dataset", "Person"]
+}

@@ -8,12 +8,13 @@ import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
 
-// server.get("/template", route(getTemplatesRouteHandler));
-// server.get("/template/:templateId", route(getTemplateRouteHandler));
-// server.post("/template", route(postTemplateRouteHandler));
-// server.post("/template/:templateId", route(delTemplateRouteHandler));
-
 const api = "http://localhost:8080";
+const profile = {
+    name: "schema.org",
+    version: "latest",
+    description: "All of schema.org",
+    file: "schema.org",
+};
 describe("Test template route operations", () => {
     let collection, sessionId, user;
     afterAll(async () => {
@@ -24,7 +25,7 @@ describe("Test template route operations", () => {
         collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
         let entity = await models.entity.findOne({
             where: { etype: "Person", collectionId: collection.id },
@@ -228,7 +229,7 @@ async function loadData({ name }) {
         ],
     };
     const collection = await insertCollection({ name });
-    let crateManager = new Crate();
+    let crateManager = new Crate({ profile });
     await crateManager.importCrateIntoDatabase({
         collection,
         crate,

@@ -3,17 +3,19 @@ const { Op } = require("sequelize");
 const sequelize = models.sequelize;
 import path from "path";
 import { cloneDeep, orderBy, flattenDeep, uniqBy, isArray } from "lodash";
-import { getTypeDefinition } from "./profile";
+import { loadProfile, loadClassDefinition } from "./profile";
 
-export async function insertEntity({ entity, collectionId }) {
+export async function insertEntity({ entity, collectionId, profile }) {
     verifyEntity({ entity });
-    let hierarchy = (
-        await getTypeDefinition({
-            collectionId,
-            name: entity["@type"] ? entity["@type"] : entity.etype,
-        })
-    )?.hierarchy;
-    if (!hierarchy) {
+    profile = await loadProfile({ file: profile.file });
+
+    let hierarchy;
+    try {
+        ({ hierarchy } = await loadClassDefinition({
+            className: entity["@type"] ? entity["@type"] : entity.etype,
+            profile,
+        }));
+    } catch (error) {
         hierarchy = [entity["@type"] ? entity["@type"] : entity.etype, "Thing"];
     }
     entity = await models.entity.create({
@@ -31,15 +33,9 @@ export async function insertEntity({ entity, collectionId }) {
     return entity.get();
 
     function verifyEntity({ entity }) {
-        // if (!entity["@id"]) {
-        //     throw new Error(`Entity missing '@id' property`);
-        // }
         if (!entity["@type"] && !entity.etype) {
             throw new Error(`Entity missing '@type' property`);
         }
-        // if (!entity["name"]) {
-        //     throw new Error(`Entity missing 'name' property`);
-        // }
     }
 }
 

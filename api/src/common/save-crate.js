@@ -4,7 +4,7 @@ const log = getLogger();
 
 export async function saveCrate({ session, user, collectionId, actions = [] }) {
     try {
-        const crateMgr = new Crate();
+        const crateMgr = new Crate({ profile: session.data.profile });
         let hrstart = process.hrtime();
         let crate;
         if (actions?.length) {

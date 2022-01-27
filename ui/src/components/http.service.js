@@ -1,9 +1,9 @@
 const sidProperty = "describoOnlineSID";
 const tokenProperty = "describoOnlineAuthToken";
 
-export async function isAuthenticated() {
+export async function isAuthenticated({ router }) {
     try {
-        const httpService = new HTTPService({});
+        const httpService = new HTTPService({ router });
         let response = await httpService.get({ route: "/authenticated" });
         if (response.status === 200) {
             return true;
@@ -60,8 +60,11 @@ export function removeToken() {
     window.sessionStorage.removeItem(tokenProperty);
 }
 
-export default class HTTPService {
-    constructor({}) {}
+export class HTTPService {
+    constructor({ router, loginPath = "/login" }) {
+        this.router = router;
+        this.loginPath = loginPath;
+    }
 
     async getHeaders() {
         let authorization = "";
@@ -83,6 +86,7 @@ export default class HTTPService {
             method: "GET",
             headers,
         });
+        this.checkAuthorised({ status: response.status });
         return response;
     }
 
@@ -93,6 +97,7 @@ export default class HTTPService {
             headers,
             body: JSON.stringify(body),
         });
+        this.checkAuthorised({ status: response.status });
         return response;
     }
 
@@ -103,6 +108,7 @@ export default class HTTPService {
             headers,
             body: JSON.stringify(body),
         });
+        this.checkAuthorised({ status: response.status });
         return response;
     }
 
@@ -112,6 +118,13 @@ export default class HTTPService {
             method: "delete",
             headers,
         });
+        this.checkAuthorised({ status: response.status });
         return response;
+    }
+
+    checkAuthorised({ status }) {
+        if (status === 401) {
+            this.router.push(this.loginPath);
+        }
     }
 }

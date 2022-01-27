@@ -58,7 +58,7 @@ export async function loadRouteHandler(req, res, next) {
         });
         let crateFile = content.filter((e) => validCrateFileNames.includes(e.name));
 
-        const crateManager = new Crate();
+        const crateManager = new Crate({ profile: req.session.data.profile });
         if (crateFile.length === 0) {
             // stamp a new crate file and load it back to the resource
             req.io.emit("loadRouteHandler", {

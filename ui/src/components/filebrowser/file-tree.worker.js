@@ -6,8 +6,6 @@ self.addEventListener("message", (m) => {
     });
     (async () => {
         // await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
-        console.log("***", m.data);
-        console.log("here");
         // const content = await ftloader.load({
         //     filterFiles: m.data.filterFiles,
         //     path: m.data.path,

@@ -1,13 +1,13 @@
 <template>
-    <el-card class="box-card" v-if="!embeddedSession">
-        <div slot="header" class="flex flex-row">
+    <div class="bg-white p-4" v-if="!embeddedSession">
+        <div class="flex flex-row text-sm">
             <div class="flex flex-row" v-if="!target.resource && !target.folder">
                 Select a resource to work with
                 <div v-if="target.resource" class="ml-2">:&nbsp;{{ target.resource }}</div>
             </div>
             <div class="flex-grow"></div>
             <div v-if="target.resource && !revaDeployment">
-                <el-button type="danger" size="small" @click="selectNewResourceAndTarget">
+                <el-button type="danger" size="mini" @click="selectNewResourceAndTarget">
                     Change resource
                 </el-button>
             </div>
@@ -22,22 +22,22 @@
 
             <file-browser-component
                 v-if="target.resource && !selectedFolder"
-                class="m-4"
                 :resource="target.resource"
                 mode="openDirectory"
                 :enable-file-selector="true"
                 @selected-folder="setSelectedFolder"
             />
-            <div class="flex flex-row" v-if="target.resource && target.folder">
-                <div class="mr-2">Selected Resource:</div>
-                <div>{{ target.resource }}:{{ target.folder.path }}</div>
-                <div class="flex-grow"></div>
-                <el-button type="danger" @click="selectNewTargetFolder" size="small">
-                    <i class="fas fa-trash"></i>
-                </el-button>
+            <div class="flex flex-row space-x-2 text-sm" v-if="target.resource && target.folder">
+                <div>
+                    <el-button type="danger" @click="selectNewTargetFolder" size="mini">
+                        <i class="fas fa-trash"></i>
+                    </el-button>
+                </div>
+                <div class="pt-1">Resource:</div>
+                <div class="pt-1">{{ target.resource }}:{{ target.folder.path }}</div>
             </div>
         </div>
-    </el-card>
+    </div>
 </template>
 
 <script>
@@ -101,21 +101,16 @@ export default {
         },
         selectNewTargetFolder() {
             this.selectedFolder = undefined;
+            const targetResource = this.target.resource;
+            this.$store.commit("reset");
             this.$store.commit("setTargetResource", {
-                resource: this.target.resource,
+                resource: targetResource,
                 folder: undefined,
             });
-            this.$store.commit("setActiveCollection", {});
-            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
         selectNewResourceAndTarget() {
             this.selectedFolder = undefined;
-            this.$store.commit("setTargetResource", {
-                resource: undefined,
-                folder: undefined,
-            });
-            this.$store.commit("setActiveCollection", {});
-            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+            this.$store.commit("reset");
         },
     },
 };

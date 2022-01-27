@@ -1,0 +1,38 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "Defines two enable classes with definitions but Person has an input that points to an undefined type (Url)",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Date"]
+                }
+            ]
+        },
+        "Person": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Url"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": ["Dataset", "Person"]
+}

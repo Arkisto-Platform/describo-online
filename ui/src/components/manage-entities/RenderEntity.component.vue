@@ -2,7 +2,6 @@
     <div class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
         <div
-            v-if="entity"
             class="flex"
             :class="{
                 'flex-row space-x-1': entity.etype === 'File',
@@ -10,6 +9,7 @@
             }"
         >
             <div
+                v-if="!loading && !error"
                 :class="{
                     'w-1/2 lg:w-3/5': entity.etype === 'File',
                     'w-full': entity.etype !== 'File',
@@ -20,29 +20,49 @@
                     :definition="definition"
                     @refresh="getEntity"
                 />
-                <div v-if="entity && entity.id" class="border-t my-4 border-gray-200">
-                    <!-- render entity name and id -->
-                    <render-entity-header-component :entity="entity" class="my-1" />
+                <!-- render entity id -->
+                <render-entity-id-component
+                    class="mb-2"
+                    :entity="entity"
+                    :data-service="dataService"
+                    @get-entity="getEntity"
+                    v-if="entity.eid !== './'"
+                />
 
-                    <!-- render entity properties -->
-                    <render-entity-properties-component
-                        v-if="definition && entity.forwardProperties"
-                        :entity="entity"
-                        :properties="entity.forwardProperties"
-                        :inputs="definition.inputs"
-                        @refresh="getEntity"
-                    />
+                <!-- render entity type -->
+                <render-entity-type-component
+                    class="mb-2"
+                    :entity="entity"
+                    v-if="entity.eid !== './'"
+                />
 
-                    <!--render entities it links to  -->
-                    <render-entity-reverse-properties-component
-                        class="mt-2"
-                        v-if="entity.reverseProperties"
-                        :properties="entity.reverseProperties"
-                    />
-                </div>
-                <div v-if="error" class="bg-red-200 p-2 text-center rounded">
-                    {{ error }}
-                </div>
+                <!-- render entity name / label -->
+                <render-entity-name-component
+                    class="mb-2"
+                    :entity="entity"
+                    :input-definitions="definition.inputs"
+                    :data-service="dataService"
+                    @get-entity="getEntity"
+                ></render-entity-name-component>
+
+                <!-- render entity properties -->
+                <render-entity-properties-component
+                    v-if="definition && entity.forwardProperties"
+                    :entity="entity"
+                    :properties="entity.forwardProperties"
+                    :inputs="definition.inputs"
+                    @refresh="getEntity"
+                />
+
+                <!--render entities it links to  -->
+                <render-entity-reverse-properties-component
+                    class="mt-2"
+                    v-if="entity.reverseProperties"
+                    :properties="entity.reverseProperties"
+                />
+            </div>
+            <div v-if="error" class="bg-red-200 p-2 text-center rounded">
+                {{ error }}
             </div>
 
             <div
@@ -62,22 +82,24 @@
 import { isUUID } from "validator";
 import TextComponent from "./Text.component.vue";
 import EntityIdComponent from "./EntityId.component.vue";
-import RenderEntityHeaderComponent from "./RenderEntityHeader.component.vue";
+import RenderEntityIdComponent from "./RenderEntityId.component.vue";
+import RenderEntityTypeComponent from "./RenderEntityType.component.vue";
+import RenderEntityNameComponent from "./RenderEntityName.component.vue";
 import RenderEntityPropertiesComponent from "./RenderEntityProperties.component.vue";
 import RenderEntityReversePropertiesComponent from "./RenderEntityReverseProperties.component.vue";
-import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
 import RenderEntityControlsComponent from "./RenderEntityControls.component.vue";
 import RenderEntityPreviewComponent from "./RenderEntityPreview.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
+        RenderEntityIdComponent,
+        RenderEntityTypeComponent,
+        RenderEntityNameComponent,
         RenderEntityPreviewComponent,
         RenderEntityControlsComponent,
-        RenderEntityHeaderComponent,
         RenderEntityPropertiesComponent,
         RenderEntityReversePropertiesComponent,
-        AddPropertyDialogComponent,
         EntityIdComponent,
         TextComponent,
     },
@@ -92,20 +114,26 @@ export default {
     },
     data() {
         return {
-            entityCount: 0,
-            maxEntitiesPerTemplate: this.$store.state.configuration.maxEntitiesPerTemplate,
-            loading: false,
             dataService: undefined,
-            entity: undefined,
-            definition: undefined,
+            loading: true,
+            entity: {},
+            definition: {},
             error: undefined,
-            addPropertyDialogVisible: false,
-            crateName: undefined,
         };
+    },
+    computed: {
+        profile() {
+            return this.$store.state.profile;
+        },
     },
     watch: {
         id: function() {
             this.getEntity();
+        },
+        profile: function() {
+            if (this.profile?.name) {
+                this.getEntity();
+            }
         },
     },
     mounted() {
@@ -120,34 +148,57 @@ export default {
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
         async getEntity() {
-            this.definition = undefined;
-            this.error = undefined;
             this.loading = true;
+            this.error = undefined;
             await new Promise((resolve) => setTimeout(resolve, 200));
             try {
-                let { count } = await this.dataService.getEntityCount();
-                this.entityCount = count;
                 let { entity } = await this.dataService.getEntity({
                     id: this.id,
                 });
                 this.entity = { ...entity };
-                this.loading = false;
+
+                this.definition = await this.addStaticValues({ id: this.id, type: entity.etype });
 
                 let { properties } = await this.dataService.getEntityProperties({ id: entity.id });
                 this.entity = {
                     ...this.entity,
-                    forwardProperties: { ...properties.forwardProperties },
-                    reverseProperties: { ...properties.reverseProperties },
+                    ...properties,
                 };
 
-                let { definition } = await this.dataService.getEntityTypeDefinition({
-                    type: entity.etype,
-                });
-                this.definition = definition;
+                if (this.definition?.classDefinitionType === "override") {
+                    this.definition.inputs.forEach((input) => {
+                        if (input.name === "name") return;
+                        if (this.entity.forwardProperties[input.name]) {
+                            this.entity.forwardProperties[
+                                input.name
+                            ] = this.entity.forwardProperties[input.name];
+                        } else {
+                            this.entity.forwardProperties[input.name] = [];
+                        }
+                    });
+                }
             } catch (error) {
                 this.error = error.message;
             }
             this.loading = false;
+        },
+        async addStaticValues({ id, type }) {
+            let { properties } = await this.dataService.getEntityProperties({ id });
+            const { forwardProperties } = properties;
+
+            let { definition } = await this.dataService.getEntityTypeDefinition({ type });
+            if (definition?.classDefinitionType === "override") {
+                for (let input of definition.inputs) {
+                    if (input.type === "Value" && !forwardProperties?.[input.name]?.length) {
+                        await this.dataService.createProperty({
+                            srcEntityId: this.entity.id,
+                            property: input.name,
+                            value: input.value,
+                        });
+                    }
+                }
+            }
+            return definition;
         },
     },
 };

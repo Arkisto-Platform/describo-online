@@ -15,7 +15,7 @@
         <delete-property-component
             class="bg-yellow-200 cursor-pointer rounded-r pl-4 pt-2 pr-1"
             :property="entity"
-            @refresh="$emit('refresh')"
+            @delete:property="deleteProperty"
         />
     </div>
 </template>
@@ -43,6 +43,9 @@ export default {
             this.$store.commit("setSelectedEntity", {
                 id: this.entity.tgtEntityId,
             });
+        },
+        deleteProperty(data) {
+            this.$emit("delete:property", data);
         },
     },
 };

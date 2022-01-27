@@ -28,19 +28,24 @@ services:
     minio:
         image: minio/minio:latest
         restart: always
-        entrypoint: sh
         ports:
             - 10000:9000
             - 10001:10001
         environment:
             MINIO_ROOT_USER: minio
             MINIO_ROOT_PASSWORD: minio_pass
-        entrypoint:
-            bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data --console-address ":10001"'
+        entrypoint: bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data
+            --console-address ":10001"'
         volumes:
             - MINIO_VOLUME:/data
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:10001/minio/health/live"]
+            test:
+                [
+                    "CMD",
+                    "curl",
+                    "-f",
+                    "http://localhost:10001/minio/health/live"
+                ]
             interval: 30s
             timeout: 20s
             retries: 3
@@ -57,14 +62,27 @@ services:
             DB_USER: "root"
             DB_PASSWORD: "root"
             DB_DATABASE: "describo"
+            ADMIN_PASSWORD: "adminpass"
         volumes:
             - ./api:/srv/api:delegated
+            - ./profiles:/srv/profiles:delegated
+            - ./testing-profiles:/srv/testing-profiles:delegated
             - ./configuration:/srv/configuration
             - .git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
             - ./scripts/wait-for-it.sh:/wait-for-it.sh
         working_dir: /srv/api
-        command: ["/wait-for-it.sh", "db:5432", "-t", "10", "--", "npm", "run", "develop"]
+        command:
+            [
+                "/wait-for-it.sh",
+                "db:5432",
+                "-t",
+                "10",
+                "--",
+                "npm",
+                "run",
+                "develop"
+            ]
 
     ui:
         image: node:14-buster
@@ -79,7 +97,7 @@ services:
             - ../describo-ui-plugins:/srv/ui/src/plugins:delegated
             - ui_node_modules:/srv/ui/node_modules:delegated
         working_dir: /srv/ui
-        command: ["npm", "run", "develop"]
+        command: [ "npm", "run", "develop" ]
 
     edge:
         image: nginx:latest
@@ -90,6 +108,16 @@ services:
         volumes:
             - ./nginx.conf:/etc/nginx/conf.d/default.conf
             - ./scripts/wait-for-it.sh:/wait-for-it.sh
-        command: ["/wait-for-it.sh", "app:8080", "-t", "10", "--", "nginx", "-g", "daemon off;"]
+        command:
+            [
+                "/wait-for-it.sh",
+                "app:8080",
+                "-t",
+                "10",
+                "--",
+                "nginx",
+                "-g",
+                "daemon off;"
+            ]
         ports:
             - 9000:9000

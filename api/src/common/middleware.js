@@ -58,6 +58,23 @@ export async function demandKnownUser(req, res, next) {
     }
 }
 
+export async function demandAdmin(req, res, next) {
+    if (!req.headers.authorization) {
+        log.error(`demandKnownUser: Authorization header not present in request`);
+        return next(new UnauthorizedError());
+    }
+    let [authType, token] = req.headers.authorization.split(" ");
+    try {
+        if (token !== process.env.ADMIN_PASSWORD) {
+            return next(new UnauthorizedError());
+        }
+    } catch (error) {
+        log.error(`demandKnownUser: something just went wrong ${error.message}`);
+        return next(new UnauthorizedError());
+    }
+    next();
+}
+
 export async function demandValidApplication(req, res, next) {
     let authorization, application;
     try {
@@ -80,4 +97,8 @@ export async function demandValidApplication(req, res, next) {
 
 export function route(handler) {
     return [demandKnownUser, handler];
+}
+
+export function routeAdmin(handler) {
+    return [demandAdmin, handler];
 }

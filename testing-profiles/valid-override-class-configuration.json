@@ -1,0 +1,24 @@
+{
+    "metadata": {
+        "name": "Valid profile with Dataset override configuration",
+        "description": "A profile showing a single class definition overriding the inbuilt schema.org class definition",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["CreativeWork", "URL"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": []
+}

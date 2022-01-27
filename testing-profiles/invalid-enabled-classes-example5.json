@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile that defines enabled classes and type def's - not allowed",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Date"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": ["Dataset"],
+    "typeDefinitions": [
+        "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions.json"
+    ]
+}

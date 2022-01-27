@@ -8,6 +8,12 @@ import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
 
+const profile = {
+    name: "schema.org",
+    version: "latest",
+    description: "All of schema.org",
+    file: "schema.org",
+};
 const api = "http://localhost:8080";
 describe("Test entity and property route operations", () => {
     let sessionId, user;
@@ -21,7 +27,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
 
         let response = await fetch(`${api}/entity/RootDataset`, {
@@ -43,7 +49,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
 
         let response = await fetch(`${api}/entity/RootDataset/properties`, {
@@ -75,7 +81,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
 
         // lookup an id
@@ -145,7 +151,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
         const entity = {
             name: chance.name(),
@@ -168,7 +174,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
         let entity = {
             name: chance.name(),
@@ -207,7 +213,7 @@ describe("Test entity and property route operations", () => {
         let collection = await loadData({ name: chance.sentence() });
         await updateUserSession({
             sessionId,
-            data: { current: { collectionId: collection.id } },
+            data: { current: { collectionId: collection.id }, profile },
         });
         let entity = {
             name: chance.name(),
@@ -456,33 +462,6 @@ describe("Test entity and property route operations", () => {
         await removeCollection({ id: collection.id });
         await removeUser({ email: user.email });
     });
-    test.skip("it should be able to create new file and folder entities", async () => {
-        let collection = await loadData({ name: chance.sentence() });
-        await updateUserSession({
-            sessionId,
-            data: { current: { collectionId: collection.id, local: { file: "/tmp/crate.json" } } },
-        });
-        let files = [
-            {
-                path: "filea.mpg",
-                parent: "/test",
-                isDir: false,
-                mimeType: "audio/mpeg",
-                modTime: "2020-10-28T00:01:47Z",
-            },
-        ];
-        let response = await fetch(`${api}/files`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ files }),
-        });
-        expect(response.status).toBe(200);
-        await removeCollection({ id: collection.id });
-        await removeUser({ email: user.email });
-    });
 });
 
 async function loadData({ name }) {
@@ -511,8 +490,9 @@ async function loadData({ name }) {
             },
         ],
     };
+
     const collection = await insertCollection({ name });
-    let crateManager = new Crate();
+    let crateManager = new Crate({ profile });
     await crateManager.importCrateIntoDatabase({
         collection,
         crate,

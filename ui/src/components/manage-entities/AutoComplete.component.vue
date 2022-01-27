@@ -1,33 +1,15 @@
 <template>
-    <!-- <el-autocomplete
-        class="w-full"
-        v-model="selection"
-        :clearable="true"
-        :fetch-suggestions="querySearch"
-        :trigger-on-focus="true"
-        value-key="id"
-        placeholder="Please Input"
-        @select="handleSelect"
-    >
-        <template slot-scope="{ item }">
-            <div class="flex flex-row space-x-2 my-1">
-                <div class="text-sm">{{ item.etype }}:</div>
-                <div class="text-sm" v-if="item.name">{{ item.name }}</div>
-                <div class="text-sm text-right" v-else>{{ item.eid }}</div>
-            </div>
-        </template>
-    </el-autocomplete> -->
     <el-select
         class="w-full"
         v-model="selection"
         placeholder=""
-        filterable
-        clearable
-        remote
-        autocomplete
-        automatic-dropdown
-        @change="handleSelect"
+        :filterable="true"
+        :clearable="true"
+        :automatic-dropdown="true"
+        :allow-create="true"
+        :remote="true"
         :remote-method="querySearch"
+        @change="handleSelect"
     >
         <el-option-group v-for="group in options" :key="group.label" :label="group.label">
             <el-option
@@ -50,7 +32,6 @@
 </template>
 
 <script>
-import { debounce } from "lodash";
 import DataService from "./data.service.js";
 
 export default {
@@ -58,13 +39,6 @@ export default {
         type: {
             type: String,
             required: true,
-        },
-        by: {
-            type: String,
-            required: true,
-            validator: (val) => {
-                return ["id", "name"].includes(val);
-            },
         },
     },
     data() {
@@ -120,9 +94,11 @@ export default {
             if (this.selection.type === "internal") {
                 let entity = this.entities.filter((e) => e.id === this.selection.id)[0];
                 if (entity) this.$emit("link:entity", { entity });
-            } else {
+            } else if (this.selection.type === "template") {
                 let template = this.templates.filter((t) => t.id === this.selection.id)[0];
                 if (template) this.$emit("add:template", { template });
+            } else {
+                this.$emit("create:entity", { name: this.selection });
             }
         },
     },

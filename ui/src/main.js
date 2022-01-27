@@ -27,14 +27,14 @@ const prefixer = prefix.noConflict();
 prefixer.reg(log);
 prefixer.apply(log);
 import { io } from "socket.io-client";
-import HTTPService from "./components/http.service";
+import { HTTPService } from "./components/http.service";
 
 (async () => {
     let response = await fetch("/api/configuration");
     if (response.status === 200) {
         let { configuration } = await response.json();
 
-        Vue.prototype.$http = new HTTPService({ $auth: Vue.prototype.$auth });
+        Vue.prototype.$http = new HTTPService({ router, loginPath: "/login" });
         Vue.prototype.$log = log;
         Vue.prototype.$socket = io();
 

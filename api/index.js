@@ -7,6 +7,7 @@ const { loadConfiguration } = require("./src/common");
 const { getLogger } = require("./src/common/logger");
 const corsMiddleware = require("restify-cors-middleware");
 const periodicProcesses = require("./src/periodic-processes");
+const { pathExists, writeJson } = require("fs-extra");
 const log = getLogger();
 
 // DEVELOPER NOTE
@@ -72,7 +73,13 @@ global.fetch = require("node-fetch");
     setupRoutes({ server });
 
     // kick off periodic processes to run every
+    log.info(
+	`Running periodic processes every ${configuration.api.periodicProcessInterval / 60} minutes`
+    );
     setInterval(runPeriodicProcesses, configuration.api.periodicProcessInterval * 1000);
+
+    log.info(`Get type definitions`);
+    await getTypeDefinitions({ configuration });
 
     const app = server.listen(configuration.api.port, function () {
         console.log("ready on %s", server.url);
@@ -83,5 +90,21 @@ async function runPeriodicProcesses() {
     for (let process of Object.keys(periodicProcesses)) {
         log.info(`Kick off: ${process}`);
         periodicProcesses[process]();
+    }
+}
+
+async function getTypeDefinitions({ configuration }) {
+    if (!(await pathExists("/srv/type-definitions.json")) && configuration.api?.typeDefinitions) {
+	let response = await fetch(configuration.api?.typeDefinitions);
+	const typeDefinitions = await response.json();
+	await writeJson("/srv/type-definitions.json", typeDefinitions);
+    }
+    if (
+	!(await pathExists("/srv/type-definitions-lookup.json")) &&
+	configuration.api?.typeDefinitionsLookup
+    ) {
+	let response = await fetch(configuration.api?.typeDefinitionsLookup);
+	const typeDefinitionsLookup = await response.json();
+	await writeJson("/srv/type-definitions-lookup.json", typeDefinitionsLookup);
     }
 }

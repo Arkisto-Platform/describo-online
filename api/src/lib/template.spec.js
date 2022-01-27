@@ -17,8 +17,14 @@ const chance = new Chance();
 
 describe("Test template management operations", () => {
     let collection, user, rootDataset;
+    const profile = {
+        name: "schema.org",
+        version: "latest",
+        description: "All of schema.org",
+        file: "schema.org",
+    };
     beforeAll(async () => {
-        collection = await loadData({ name: chance.sentence() });
+        collection = await loadData({ name: chance.sentence(), profile });
         user = await createUser({ name: chance.name(), email: chance.email() });
     });
     afterAll(async () => {
@@ -45,6 +51,7 @@ describe("Test template management operations", () => {
             userId: user.id,
             collectionId: collection.id,
             name: "my template",
+            profile,
         });
         template = await getTemplate({ userId: user.id, templateId: template.id });
 
@@ -116,15 +123,16 @@ describe("Test template management operations", () => {
             userId: user.id,
             entityId: entity.id,
             collectionId: collection.id,
+            profile,
         });
         template = await getTemplate({ userId: user.id, templateId: template.id });
-        // console.log(template.src);
 
         await models.entity.destroy({ where: { id: entity.id } });
         ({ entity } = await addTemplate({
             templateId: template.id,
             userId: user.id,
             collectionId: collection.id,
+            profile,
         }));
 
         let { properties } = await getEntityProperties({
@@ -133,8 +141,8 @@ describe("Test template management operations", () => {
         });
         properties = properties.map((p) => ({ [p.name]: p.value }));
         expect(properties).toEqual([
-            { firstName: "a" },
-            { lastName: "person" },
+            { givenName: "a" },
+            { familyName: "person" },
             { description: "something" },
             { description: "and another thing" },
         ]);
@@ -149,12 +157,14 @@ describe("Test template management operations", () => {
             userId: user.id,
             name: "my crate",
             collectionId: collection.id,
+            profile,
         });
         template = await getTemplate({ userId: user.id, templateId: template.id });
         await replaceCrateWithTemplate({
             userId: user.id,
             collectionId: collection.id,
             templateId: template.id,
+            profile,
         });
 
         const entities = await models.entity.findAll({ where: { collectionId: collection.id } });
@@ -164,7 +174,7 @@ describe("Test template management operations", () => {
     });
 });
 
-async function loadData({ name }) {
+async function loadData({ name, profile }) {
     const crate = {
         "@context": ["https://w3id.org/ro/crate/1.1/context"],
         "@graph": [
@@ -187,14 +197,14 @@ async function loadData({ name }) {
                 "@id": "person1",
                 "@type": "Person",
                 name: "a person",
-                firstName: "a",
-                lastName: "person",
+                givenName: "a",
+                familyName: "person",
                 description: ["something", "and another thing"],
             },
         ],
     };
     const collection = await insertCollection({ name });
-    let crateManager = new Crate();
+    let crateManager = new Crate({ profile });
     await crateManager.importCrateIntoDatabase({
         collection,
         crate,

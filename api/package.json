@@ -37,6 +37,7 @@
         "@aws-sdk/s3-request-presigner": "^3.32.0",
         "@cs3org/node-cs3apis": "0.0.26",
         "@okta/jwt-verifier": "^2.3.0",
+        "ajv": "^6.12.5",
         "date-fns": "^2.25.0",
         "debug": "^4.3.2",
         "fs-extra": "^10.0.0",

@@ -1,0 +1,23 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile showing a property that has a pre-defined value",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "inherit",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "value": "red"
+                }
+            ]
+        }
+    },
+    "enabledClasses": []
+}

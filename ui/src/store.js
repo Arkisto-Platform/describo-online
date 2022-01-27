@@ -1,28 +1,14 @@
 import { cloneDeep } from "lodash";
 import Vue from "vue";
 import Vuex from "vuex";
-import VuexPersistence from "vuex-persist";
-// const vuexLocal = new VuexPersistence({
-//     storage: window.sessionStorage,
-//     reducer: (state) => {
-//         let saveState = {
-//             session: {
-//                 create: state.session.create,
-//             },
-//             target: state.target,
-//         };
-//         return saveState;
-//     },
-//     filter: (mutation) => {
-//         return ["reset", "setTargetResource", "setActiveCollection"].includes(mutation.type);
-//     },
-// });
-
 Vue.use(Vuex);
 
 const mutations = {
     reset: (state) => {
-        state = cloneDeep(resetState());
+        const s = resetState();
+        Object.keys(s).forEach((key) => {
+            state[key] = s[key];
+        });
     },
     saveConfiguration: (state, payload) => {
         state.configuration = { ...payload.configuration };
@@ -40,6 +26,9 @@ const mutations = {
     setSessionInformation(state, payload) {
         state.session = { ...state.session, ...payload };
     },
+    setProfile(state, payload) {
+        state.profile = { ...payload };
+    },
 };
 
 const actions = {
@@ -53,24 +42,31 @@ const actions = {
 };
 
 export const store = new Vuex.Store({
-    state: resetState(),
+    state: {
+        ...resetState(),
+        configuration: undefined,
+    },
     mutations,
     actions,
     modules: {},
-    // plugins: [vuexLocal.plugin],
 });
 
 function resetState() {
-    return {
+    return cloneDeep({
         session: {
             create: new Date(),
         },
-        configuration: undefined,
         target: {
             resource: undefined,
             folder: undefined,
         },
+        profile: {
+            name: undefined,
+            version: undefined,
+            description: undefined,
+            file: undefined,
+        },
         collection: {},
         selectedEntity: { id: "RootDataset" },
-    };
+    });
 }

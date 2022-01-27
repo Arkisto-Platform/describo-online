@@ -13,7 +13,6 @@ export default class DataService {
             return this.handleError({ response });
         } else {
             let { entity } = await response.json();
-            entity.properties = [];
             return { entity };
         }
     }
@@ -65,7 +64,7 @@ export default class DataService {
 
     async getEntityTypeDefinition({ type }) {
         let response = await this.$http.get({
-            route: `/definition?name=${encodeURIComponent(type)}`,
+            route: `/definition/${encodeURIComponent(type)}`,
         });
         if (response.status !== 200) {
             return this.handleError({ response });
@@ -258,7 +257,7 @@ export default class DataService {
     async replaceCrateWithTemplate({ templateId }) {
         this.$log.debug("replace crate with template", templateId);
         let response = await this.$http.post({
-            route: `/template/replace`,
+            route: `/crate/replace-crate-with-template`,
             body: { templateId },
         });
         if (response.status !== 200) {
@@ -268,10 +267,10 @@ export default class DataService {
         }
     }
 
-    async addTemplate({ templateId }) {
+    async addTemplateToCrate({ templateId }) {
         this.$log.debug("add template", templateId);
         let response = await this.$http.post({
-            route: `/template/add`,
+            route: `/crate/add-template`,
             body: { templateId },
         });
         if (response.status !== 200) {

@@ -12,8 +12,6 @@
 </template>
 
 <script>
-import DataService from "./data.service.js";
-
 export default {
     props: {
         type: {
@@ -31,19 +29,12 @@ export default {
     data() {
         return {};
     },
-    mounted() {
-        this.dataService = new DataService({
-            $http: this.$http,
-            $log: this.$log,
-        });
-    },
     methods: {
         async deleteProperty() {
-            await this.dataService.deleteProperty({
+            this.$emit("delete:property", {
                 entityId: this.property.entityId,
                 propertyId: this.property.id,
             });
-            this.$emit("refresh");
         },
     },
 };

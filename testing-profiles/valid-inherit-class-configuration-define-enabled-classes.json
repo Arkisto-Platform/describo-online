@@ -1,0 +1,38 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile that builds on 'inherit-class-configuration' and defines enabled classes",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Date"]
+                }
+            ]
+        },
+        "Person": {
+            "definition": "override",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["Text"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": ["Dataset", "Person"]
+}

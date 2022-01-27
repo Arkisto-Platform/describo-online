@@ -1,11 +1,11 @@
 const models = require("../models");
 const { Op } = require("sequelize");
 import { getEntity, getEntityProperties, insertEntity, attachProperty } from "./entities";
-import { getTypeDefinition } from "./profile";
+import { loadClassDefinition, loadProfile } from "./profile";
 import { groupBy } from "lodash";
 import { Crate } from "./crate";
 
-export async function insertTemplate({ userId, entityId, collectionId, name }) {
+export async function insertTemplate({ userId, entityId, collectionId, name, profile }) {
     if (entityId) {
         // locate the entity, freeze it and store it as a template
         let entity = await getEntity({ id: entityId, collectionId });
@@ -29,26 +29,29 @@ export async function insertTemplate({ userId, entityId, collectionId, name }) {
         return template;
     } else {
         // find the collection, freeze it and store it as a template
-        let crate = new Crate();
+        let crate = new Crate({ profile });
         crate = await crate.exportCollectionAsROCrate({ collectionId });
         return await models.template.create({ userId, name, src: crate });
     }
 }
 
-export async function addTemplate({ userId, collectionId, templateId }) {
-    let template = (await models.template.findOne({ where: { id: templateId, userId } })).src;
+export async function addTemplate({ userId, collectionId, templateId, profile }) {
+    let template = await models.template.findOne({ where: { id: templateId, userId } });
     let entity = {
-        name: template.name,
-        eid: template.eid,
-        etype: template.etype,
+        name: template.src.name,
+        eid: template.src.eid,
+        etype: template.src.etype,
     };
     try {
-        entity = await insertEntity({ entity, collectionId });
-        const typeDefinition = await getTypeDefinition({ collectionId, name: template.etype });
-        let properties = Object.keys(template).filter((p) => !["eid", "etype", "name"].includes(p));
+        entity = await insertEntity({ entity, collectionId, profile });
+        const typeDefinition = await loadClassDefinition({ className: entity.etype, profile });
+        let properties = Object.keys(template.src).filter(
+            (p) => !["eid", "etype", "name"].includes(p)
+        );
+        // console.log(typeDefinition.inputs.map((i) => i.name));
         for (let property of properties) {
             let definition = typeDefinition.inputs.filter((i) => i.name === property)[0];
-            for (let entry of template[property]) {
+            for (let entry of template.src[property]) {
                 await attachProperty({
                     collectionId,
                     entityId: entity.id,
@@ -64,7 +67,7 @@ export async function addTemplate({ userId, collectionId, templateId }) {
     return { entity };
 }
 
-export async function replaceCrateWithTemplate({ userId, collectionId, templateId }) {
+export async function replaceCrateWithTemplate({ userId, collectionId, templateId, profile }) {
     await models.entity.destroy({ where: { collectionId } });
     let collection = await models.collection.findOne({ where: { id: collectionId } });
     collection.metadata = {};
@@ -72,7 +75,7 @@ export async function replaceCrateWithTemplate({ userId, collectionId, templateI
 
     const template = (await getTemplate({ userId, templateId })).src;
 
-    let crate = new Crate();
+    let crate = new Crate({ profile });
     crate = await crate.importCrateIntoDatabase({ collection, crate: template, sync: true });
 }
 

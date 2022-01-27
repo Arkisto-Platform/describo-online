@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="flex flex-row flex-wrap space-x-1" v-if="allowedTypes.length < 5">
+        <div class="flex flex-row flex-wrap space-x-1" v-if="allowedTypes.length < 8">
             <div v-for="(type, idx) of allowedTypes" :key="idx">
                 <el-button
                     @click="add(type)"
-                    type="success"
+                    type="primary"
                     size="mini"
                     class="focus:outline-none focus:border-2 focus:border-green-600"
                 >
@@ -34,15 +34,11 @@
 </template>
 
 <script>
+import { isArray, isString } from "lodash";
 export default {
     props: {
-        embedded: {
-            type: Boolean,
-            default: false,
-            validator: (val) => [true, false].includes(val),
-        },
         types: {
-            type: Array,
+            type: String | Array,
             required: true,
         },
     },
@@ -50,8 +46,7 @@ export default {
         return {
             selectedType: undefined,
             allowedTypes: [],
-            typeExclusions: [],
-            // typeExclusions: ["File", "Dataset"],
+            typeExclusions: ["File", "Dataset"],
         };
     },
     watch: {
@@ -61,11 +56,14 @@ export default {
     },
     mounted() {
         this.init();
-        if (this.embedded && this.types.length === 1) this.add(this.types[0]);
     },
     methods: {
         init() {
-            this.allowedTypes = this.types.filter((type) => !this.typeExclusions.includes(type));
+            if (isArray(this.types)) {
+                this.allowedTypes = this.types.filter(
+                    (type) => !this.typeExclusions.includes(type)
+                );
+            }
         },
         add(type) {
             this.selectedType = type;

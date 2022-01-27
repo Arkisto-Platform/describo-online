@@ -1,4 +1,5 @@
 import { BadRequestError, NotFoundError, ForbiddenError } from "restify-errors";
+import { route } from "../common";
 import {
     getEntity,
     getEntityCount,
@@ -16,6 +17,23 @@ import {
 } from "../lib/entities";
 import { saveCrate, getLogger, getS3Handle } from "../common";
 const log = getLogger();
+
+export async function setupRoutes({ server }) {
+    server.post("/entity/lookup", route(findEntityRouteHandler));
+    server.get("/entity", route(getEntitiesRouteHandler));
+    server.get("/entity/:entityId", route(getEntityRouteHandler));
+    server.get("/entity/:entityId/properties", route(getEntityPropertiesRouteHandler));
+    server.get("/entity/count", route(getEntityCountRouteHandler));
+    server.post("/entity", route(postEntityRouteHandler));
+    server.put("/entity/:entityId", route(putEntityRouteHandler));
+    server.del("/entity/:entityId", route(delEntityRouteHandler));
+    server.post("/entity/:entityId/property", route(postEntityPropertyRouteHandler));
+    server.put("/entity/:entityId/property/:propertyId", route(putEntityPropertyRouteHandler));
+    server.del("/entity/:entityId/property/:propertyId", route(delEntityPropertyRouteHandler));
+    server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
+    server.post("/files", route(postFilesRouteHandler));
+    server.post("/s3/presigned-url", route(getPresignedUrlRouteHandler));
+}
 
 export async function getEntityRouteHandler(req, res, next) {
     const collectionId = req.session.data?.current?.collectionId;
@@ -177,7 +195,7 @@ export async function postEntityRouteHandler(req, res, next) {
     }
     let entity = req.body.entity;
     try {
-        entity = await insertEntity({ entity, collectionId });
+        entity = await insertEntity({ entity, collectionId, profile: req.session.data.profile });
         if (!req.headers["x-testing"]) {
             await saveCrate({
                 session: req.session,

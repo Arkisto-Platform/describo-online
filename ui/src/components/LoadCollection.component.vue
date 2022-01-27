@@ -1,11 +1,6 @@
 <template>
     <el-card class="box-card" v-if="msg">
         <div class="flex flex-row">
-            <!-- <div>
-                <el-button @click="loadFolder" :disabled="loading">
-                    load folder
-                </el-button>
-            </div> -->
             <div class="ml-2 pt-2">{{ msg }}</div>
         </div>
     </el-card>

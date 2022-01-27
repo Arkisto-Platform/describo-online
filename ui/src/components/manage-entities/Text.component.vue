@@ -36,6 +36,9 @@ export default {
         value: {
             type: String,
         },
+        definition: {
+            type: Object,
+        },
         autoSave: {
             type: Boolean,
             default: true,

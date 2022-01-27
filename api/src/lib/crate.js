@@ -8,7 +8,7 @@ import {
     getEntity,
     getEntityProperties,
 } from "./entities";
-import { getTypeDefinition } from "./profile";
+import { loadClassDefinition, loadProfile } from "./profile";
 import models from "../models";
 import { syncLocalFileToRemote } from "../lib/file-browser";
 import fetch from "node-fetch";
@@ -21,7 +21,18 @@ const rootDescriptorIdPrefix = "#:localid:describo:";
 const rootDescriptors = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
 
 export class Crate {
-    constructor() {}
+    constructor({ profile }) {
+        if (profile) {
+            this.profile = profile;
+        } else {
+            this.profile = {
+                name: "schema.org",
+                version: "latest",
+                description: "All of schema.org",
+                file: "schema.org",
+            };
+        }
+    }
 
     async loadCrateFromFile({ file }) {
         let collection;
@@ -174,16 +185,19 @@ export class Crate {
             }
             if (isArray(entity["@type"])) entity["@type"] = entity["@type"].join(", ");
             if (isArray(entity.name)) entity.name = entity.name.join(", ");
-            entity.uuid = (await insertEntity({ collectionId: collection.id, entity })).id;
+            entity.uuid = (
+                await insertEntity({ collectionId: collection.id, entity, profile: this.profile })
+            ).id;
         }
 
         // now iterate over each entity
         const entitiesById = groupBy(entities, "@id");
         i = 0;
         for (let entity of entities) {
-            const typeDefinition = await getTypeDefinition({
-                collectionId: collection.id,
-                name: entity["@type"],
+            let profile = await loadProfile({ file: this.profile.file });
+            const typeDefinition = await loadClassDefinition({
+                className: entity["@type"],
+                profile,
             });
 
             i += 1;

@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile showing which type definitions to load and use",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "inherit",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": true,
+                    "type": ["CreativeWork", "URL"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": [],
+    "typeDefinitions": [
+        "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions.json",
+        "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions.json"
+    ]
+}

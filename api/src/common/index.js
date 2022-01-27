@@ -1,5 +1,5 @@
 export { loadConfiguration, filterPrivateInformation } from "./configuration";
-export { route, demandKnownUser, demandValidApplication } from "./middleware";
+export { route, routeAdmin, demandKnownUser, demandValidApplication } from "./middleware";
 export { getLogger } from "./logger";
 export { getS3Handle } from "./getS3Handle";
 export { saveCrate } from "./save-crate";

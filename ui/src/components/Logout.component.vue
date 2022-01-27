@@ -18,6 +18,7 @@ export default {
         async logout() {
             removeSessionSID();
             removeToken();
+            this.$store.commit("reset");
             this.$router.push("/login");
         },
     },

@@ -21,6 +21,13 @@ const chance = new Chance();
 import { uniq } from "lodash";
 
 describe("Test entity and property management operations", () => {
+    let profile = {
+        name: "schema.org",
+        version: "latest",
+        description: "All of schema.org",
+        file: "schema.org",
+    };
+
     let collection, rootDataset;
     beforeAll(async () => {
         collection = await models.collection.create({ name: chance.name() });
@@ -31,7 +38,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Dataset",
             name: "root dataset",
         };
-        rootDataset = await insertEntity({ entity, collectionId: collection.id });
+        rootDataset = await insertEntity({ entity, collectionId: collection.id, profile });
     });
     afterEach(async () => {
         try {
@@ -50,7 +57,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         let result = await models.entity.findAll({
             where: { eid: "1", etype: "Person", name: "test" },
         });
@@ -64,7 +71,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         try {
             let result = await updateEntity({
                 collectionId: "4dcb643c-bfcf-43e9-86b4-77d2e20e7a2d",
@@ -83,7 +90,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         try {
             let result = await attachProperty({
                 collectionId: "4dcb643c-bfcf-43e9-86b4-77d2e20e7a2d",
@@ -102,7 +109,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         try {
             let result = await updateProperty({
                 collectionId: "4dcb643c-bfcf-43e9-86b4-77d2e20e7a2d",
@@ -121,7 +128,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         let property = await attachProperty({
             collectionId: collection.id,
             entityId: entity.id,
@@ -145,7 +152,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         try {
             let result = await removeEntity({
                 collectionId: "4dcb643c-bfcf-43e9-86b4-77d2e20e7a2d",
@@ -162,7 +169,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Camel",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
         let result = await models.entity.findAll({
             where: { eid: "1", etype: "Camel", name: "test" },
         });
@@ -176,7 +183,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
 
         entity = await updateEntity({
             collectionId: collection.id,
@@ -210,6 +217,7 @@ describe("Test entity and property management operations", () => {
             entity = await insertEntity({
                 entity,
                 collectionId: collection.id,
+                profile,
             });
         } catch (error) {
             expect(error.message).toEqual(`Entity missing '@type' property`);
@@ -224,6 +232,7 @@ describe("Test entity and property management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection.id,
@@ -247,6 +256,7 @@ describe("Test entity and property management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection.id,
@@ -276,6 +286,7 @@ describe("Test entity and property management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection.id,
@@ -304,6 +315,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -313,6 +325,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         await associate({
             collectionId: collection.id,
@@ -345,6 +358,7 @@ describe("Test entity and property management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection.id,
@@ -374,6 +388,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -383,6 +398,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         await associate({
             collectionId: collection.id,
@@ -415,6 +431,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -424,6 +441,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         try {
             await associate({
@@ -446,6 +464,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -455,6 +474,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         let property = await attachProperty({
             collectionId: collection.id,
@@ -494,6 +514,7 @@ describe("Test entity and property management operations", () => {
         entity = await insertEntity({
             entity,
             collectionId: collection.id,
+            profile,
         });
         const entityId = entity.id;
         let property = await attachProperty({
@@ -519,6 +540,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -528,6 +550,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         await associate({
             collectionId: collection.id,
@@ -558,6 +581,7 @@ describe("Test entity and property management operations", () => {
         entityA = await insertEntity({
             entity: entityA,
             collectionId: collection.id,
+            profile,
         });
         let entityB = {
             "@id": "B",
@@ -567,6 +591,7 @@ describe("Test entity and property management operations", () => {
         entityB = await insertEntity({
             entity: entityB,
             collectionId: collection.id,
+            profile,
         });
         let entityC = {
             "@id": "C",
@@ -576,6 +601,7 @@ describe("Test entity and property management operations", () => {
         entityC = await insertEntity({
             entity: entityC,
             collectionId: collection.id,
+            profile,
         });
         await associate({
             collectionId: collection.id,
@@ -784,7 +810,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
 
         let find = await findEntity({ collectionId: collection.id, eid: "1" });
         expect(find.length).toEqual(1);
@@ -806,7 +832,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
 
         let find = await getEntityCount({ collectionId: collection.id });
         expect(find).toEqual(2);
@@ -819,7 +845,7 @@ describe("Test entity and property management operations", () => {
             "@type": "Person",
             name: "test",
         };
-        entity = await insertEntity({ entity, collectionId: collection.id });
+        entity = await insertEntity({ entity, collectionId: collection.id, profile });
 
         let find = await getEntities({ collectionId: collection.id });
         expect(find.total).toEqual(2);

@@ -2,9 +2,15 @@
     <div class="flex flex-col" v-if="ready">
         <navigation-component />
         <div class="p-2 flex flex-col space-y-1">
-            <select-target-component />
+            <div class="flex" :class="{ 'flex-col': !profile, 'flex-grow flex-row': profile }">
+                <select-target-component :class="{ 'w-full': !profile, 'w-1/2': profile }" />
+                <select-profile-component
+                    v-if="target.resource && target.folder"
+                    :class="{ 'w-full': !profile, 'w-1/2': profile }"
+                />
+            </div>
 
-            <load-collection-component v-if="target.resource && target.folder" />
+            <load-collection-component v-if="target.resource && target.folder && profile" />
             <el-tabs type="border-card" v-model="activeTab" v-if="collectionId && target.resource">
                 <el-tab-pane label="Build the Collection" name="manageData">
                     <render-entity-component
@@ -37,12 +43,13 @@ import LoadCollectionComponent from "@/components/LoadCollection.component.vue";
 import RenderEntityComponent from "@/components/manage-entities/RenderEntity.component.vue";
 import EntityListManagerComponent from "@/components/entity-list/Shell.component.vue";
 import TemplateListComponent from "@/components/template-list/TemplateList.component.vue";
-import HTTPService from "@/components/http.service";
+import SelectProfileComponent from "@/components/select-profile/Shell.component.vue";
 
 export default {
     components: {
         NavigationComponent,
         SelectTargetComponent,
+        SelectProfileComponent,
         ManageCrateFilesComponent,
         LoadCollectionComponent,
         RenderEntityComponent,
@@ -62,6 +69,9 @@ export default {
         target() {
             return this.$store.state.target;
         },
+        profile: function() {
+            return this.$store.state.profile.file ? true : false;
+        },
         selectedEntityId() {
             return this.$store.state.selectedEntity.id;
         },
@@ -74,10 +84,8 @@ export default {
     },
     methods: {
         async restoreSession() {
-            let httpService = new HTTPService({ $auth: this.$auth });
-            let response = await httpService.get({ route: "/session" });
+            let response = await this.$http.get({ route: "/session" });
             if (response.status !== 200) {
-                // do nothing
             }
             let { session, embeddedSession } = await response.json();
             this.$store.commit("setSessionInformation", { ...session, embedded: embeddedSession });

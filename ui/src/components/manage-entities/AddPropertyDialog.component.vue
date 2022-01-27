@@ -1,35 +1,44 @@
 <template>
-    <div v-if="visible" class="flex flex-col m-4 p-2 border bg-indigo-100">
-        <div class="flex flex-row">
-            <div class="pt-2 mr-2">Add a property to this entity</div>
-            <div class="flex-grow">
-                <el-select
-                    class="w-full"
-                    v-model="property"
-                    filterable
+    <div v-if="visible" class="flex flex-col space-y-2">
+        <div v-if="!selectedProperty" class="flex flex-col">
+            <div>
+                <el-input
+                    v-model="filter"
+                    size="mini"
+                    placeholder="filter the attribute set"
                     clearable
-                    placeholder="Select a property to add"
-                    @change="handlePropertySelection"
-                >
-                    <el-option
-                        v-for="item in inputs"
-                        :key="item.name"
-                        :label="item.name"
-                        :value="item.name"
-                    >
-                        <div class="flex flex-row">
-                            <div class="w-64 text-gray-600">
-                                {{ item.name }}
-                            </div>
-                            <div class="w-96 text-gray-500">
-                                {{ item.help }}
+                ></el-input>
+            </div>
+            <div class="flex flex-row space-x-2">
+                <!-- <div class="w-48 text-sm pt-1">Add a property to this entity</div> -->
+                <div class="flex-grow">
+                    <div class="h-48 overflow-scroll border p-4 bg-white flex flex-col space-y-1">
+                        <div
+                            v-for="(item, idx) in properties"
+                            :key="idx"
+                            class="cursor-pointer p-1 hover:bg-gray-100"
+                            @click="handlePropertySelection(item)"
+                        >
+                            <div class="flex flex-row">
+                                <div class="w-64 text-gray-600" v-if="item.label">
+                                    {{ item.label }}
+                                </div>
+                                <div class="w-64 text-gray-600" v-else>
+                                    {{ item.name }}
+                                </div>
+                                <div class="text-gray-500 w-full">
+                                    {{ item.help }}
+                                </div>
                             </div>
                         </div>
-                    </el-option>
-                </el-select>
+                    </div>
+                </div>
             </div>
-            <div class="">
-                <el-button @click="close"><i class="fas fa-times"></i></el-button>
+        </div>
+        <div class="flex flex-row">
+            <div class="flex-grow"></div>
+            <div>
+                <el-button @click="close" size="mini"><i class="fas fa-times"></i></el-button>
             </div>
         </div>
         <div v-if="selectedProperty" class="flex flex-col">
@@ -38,8 +47,9 @@
             </div>
             <add-component
                 class="mt-4"
-                :property="property"
+                :property="selectedProperty.name"
                 :definition="selectedProperty"
+                :embedded="true"
                 @create:property="createProperty"
                 @create:entity="createAndLinkEntity"
                 @link:entity="linkEntity"
@@ -50,7 +60,6 @@
 </template>
 
 <script>
-import DataService from "./data.service.js";
 import AddComponent from "./Add.component.vue";
 
 export default {
@@ -69,23 +78,28 @@ export default {
     },
     data() {
         return {
-            property: undefined,
             selectedProperty: undefined,
             addType: undefined,
+            filter: undefined,
         };
+    },
+    computed: {
+        properties: function() {
+            if (!this.filter) return this.inputs;
+            return this.inputs.filter((i) => {
+                let re = new RegExp(this.filter, "i");
+                return i.name.match(re);
+            });
+        },
     },
     methods: {
         close() {
-            this.property = undefined;
             this.selectedProperty = undefined;
             this.addType = undefined;
             this.$emit("close");
         },
-        handlePropertySelection() {
-            this.selectedProperty = undefined;
-            this.$nextTick(() => {
-                this.selectedProperty = this.inputs.filter((i) => i.name === this.property)[0];
-            });
+        handlePropertySelection(item) {
+            this.selectedProperty = item;
         },
         add({ type }) {
             this.addType = type;

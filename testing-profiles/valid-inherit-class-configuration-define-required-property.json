@@ -1,0 +1,25 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile showing a single class definition that inherits the schema.org class definition and adds a property to it",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "inherit",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "required": true,
+                    "multiple": true,
+                    "type": ["CreativeWork", "URL"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": []
+}

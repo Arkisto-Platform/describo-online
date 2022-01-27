@@ -26,21 +26,31 @@
                 v-if="isNumber(property.value)"
             />
             <text-component
-                v-if="isText(property.value)"
+                v-if="isText(property.value) && !isValue() && !isSelect()"
                 :property="property.name"
                 :value.sync="property.value"
+                :definition="definition"
+                @save:property="savePropertyValue"
+            />
+            <value-component :definition="definition" v-if="isValue()" />
+            <select-component
+                v-if="isSelect()"
+                :property="property.name"
+                :value.sync="property.value"
+                :definition="definition"
                 @save:property="savePropertyValue"
             />
             <delete-property-component
                 class="pl-2"
                 type="delete"
                 :property="property"
-                @refresh="$emit('refresh')"
+                @delete:property="deleteProperty"
+                v-if="!isValue()"
             />
         </div>
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
-            <render-linked-item-component :entity="property" @refresh="$emit('refresh')" />
+            <render-linked-item-component :entity="property" @delete:property="deleteProperty" />
         </div>
     </div>
 </template>
@@ -54,8 +64,9 @@ import DateComponent from "./Date.component.vue";
 import DateTimeComponent from "./DateTime.component.vue";
 import TimeComponent from "./Time.component.vue";
 import NumberComponent from "./Number.component.vue";
-import DataService from "./data.service.js";
-import { parse, parseISO, isValid, startOfDay } from "date-fns";
+import ValueComponent from "./Value.component.vue";
+import SelectComponent from "./Select.component.vue";
+import { parseISO, startOfDay } from "date-fns";
 import { isDate, isDecimal, isInt, isFloat, isNumeric } from "validator";
 
 export default {
@@ -68,11 +79,16 @@ export default {
         DateTimeComponent,
         NumberComponent,
         TimeComponent,
+        ValueComponent,
+        SelectComponent,
     },
     props: {
         property: {
             type: Object,
             required: true,
+        },
+        definition: {
+            type: Object,
         },
     },
     data() {
@@ -89,6 +105,9 @@ export default {
                 property: data.property,
                 value: data.value,
             });
+        },
+        deleteProperty(data) {
+            this.$emit("delete:property", data);
         },
         isDate(string) {
             const date = parseISO(string);
@@ -120,6 +139,12 @@ export default {
         },
         isNumber(string) {
             return isDecimal(string) || isInt(string) || isFloat(string) || isNumeric(string);
+        },
+        isValue() {
+            return this.definition?.type === "Value";
+        },
+        isSelect() {
+            return this.definition?.values?.includes(this.property.value);
         },
     },
 };

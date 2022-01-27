@@ -2,8 +2,6 @@ import "regenerator-runtime";
 import fetch from "node-fetch";
 import models from "../models";
 import { createSessionForTest } from "../common";
-import { insertCollection } from "../lib/collections";
-import { updateUserSession } from "../lib/user";
 
 const chance = require("chance").Chance();
 const api = "http://localhost:8080";
@@ -17,155 +15,67 @@ describe("Test profile handling routes", () => {
         await models.user.destroy({ where: { email: user.email } });
         await models.sequelize.close();
     });
-    test("it should be able to create a profile", async () => {
-        const name = chance.word();
-        let collection = await insertCollection({ name });
+    test("it should be able to load installed profiles", async () => {
         let response = await fetch(`${api}/profile`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                profile: {},
-                collectionId: collection.id,
-            }),
-        });
-        response = await response.json();
-        expect(response.profile.name).toEqual(name);
-        expect(response.profile.collectionId).toEqual(collection.id);
-    });
-    test("it should fail to create a profile - bad collectionId", async () => {
-        const name = chance.word();
-        let response = await fetch(`${api}/profile`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                profile: {},
-                collectionId: chance.guid(),
-            }),
-        });
-        expect(response.status).toBe(400);
-    });
-    test("it should fail to create a profile - no name", async () => {
-        const name = chance.word();
-        let collection = await insertCollection({ name });
-        let response = await fetch(`${api}/profile`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                profile: {},
-                collectionId: collection.id,
-            }),
-        });
-        expect(response.status).toBe(400);
-    });
-    test("it should be able to retrieve a profile", async () => {
-        const name = chance.word();
-        let collection = await insertCollection({ name });
-        await updateUserSession({
-            sessionId,
-            data: { current: { collectionId: collection.id } },
-        });
-        let response = await fetch(`${api}/profile`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                profile: {},
-                collectionId: collection.id,
-            }),
-        });
-        response = await response.json();
-        const profileId = response.profile.id;
-
-        response = await fetch(`${api}/profile/${profileId}`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        response = await response.json();
-        expect(response.profile.name).toEqual(name);
-        expect(response.profile.id).toEqual(profileId);
+        expect(response.status).toEqual(200);
+        let { profiles } = await response.json();
+        expect(profiles.length).toEqual(1);
     });
-    test("it should be able to update a profile", async () => {
-        let name = chance.word();
-        let collection = await insertCollection({ name });
-        let response = await fetch(`${api}/profile`, {
-            method: "POST",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                profile: {},
-                collectionId: collection.id,
-            }),
-        });
-        response = await response.json();
-        const profileId = response.profile.id;
+    test("it should be able to save a selected profile to the session", async () => {
+        let { profile, response } = await setupSessionProfile({ sessionId });
+        expect(response.status).toEqual(200);
 
-        name = chance.word();
-        response = await fetch(`${api}/profile/${profileId}`, {
-            method: "PUT",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                profile: { key: "value" },
-            }),
-        });
-        response = await response.json();
-        expect(response.profile.name).toEqual(name);
-        expect(response.profile.profile).toEqual({ key: "value" });
+        let session = await models.session.findOne({ where: { id: sessionId } });
+        expect(session.get("data").profile).toEqual(profile);
     });
-    test("it should be able to lookup profile entities", async () => {
-        let collection = await insertCollection({ name: chance.word() });
-
-        await updateUserSession({
-            sessionId,
-            data: { current: { collectionId: collection.id } },
-        });
-        let response = await fetch(`${api}/definition/lookup?query=Airline`, {
+    test("it should be able to lookup a definition", async () => {
+        let { profile, response } = await setupSessionProfile({ sessionId });
+        response = await fetch(`${api}/definition/Dataset`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
         });
-        let { matches } = await response.json();
-        expect(matches.length).toBe(3);
-    });
-    test("it should be able to get a type definition", async () => {
-        let collection = await insertCollection({ name: chance.name() });
-        await updateUserSession({
-            sessionId,
-            data: { current: { collectionId: collection.id } },
-        });
-        let response = await fetch(`${api}/definition?name=Airline`, {
-            method: "GET",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-        });
+        expect(response.status).toEqual(200);
         let { definition } = await response.json();
-        expect(definition.name).toBe("Airline");
+        expect(definition.inputs.length).toEqual(132);
+    });
+    test("it should be able to lookup a definition", async () => {
+        let { profile, response } = await setupSessionProfile({ sessionId });
+        response = await fetch(`${api}/definition/Dataset`, {
+            method: "GET",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+        });
+        // expect(response.status).toEqual(200);
+        let { definition } = await response.json();
+        expect(definition.inputs.length).toEqual(132);
     });
 });
+
+async function setupSessionProfile({ sessionId }) {
+    let profile = {
+        name: "schema.org",
+        version: "latest",
+        description: "All of schema.org",
+        file: "schema.org",
+    };
+    let response = await fetch(`${api}/profile`, {
+        method: "POST",
+        headers: {
+            Authorization: `sid ${sessionId}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ profile }),
+    });
+    return { profile, response };
+}

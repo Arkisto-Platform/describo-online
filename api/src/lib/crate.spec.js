@@ -17,6 +17,12 @@ import models from "../models";
 import { createSessionForTest } from "../common";
 import Chance from "chance";
 const chance = new Chance();
+const profile = {
+    name: "schema.org",
+    version: "latest",
+    description: "All of schema.org",
+    file: "schema.org",
+};
 
 const testFiles = path.join("/tmp", "test-files");
 describe("Test loading a crate from a file", () => {
@@ -47,7 +53,7 @@ describe("Test loading a crate from a file", () => {
         };
         const testFileName = path.join(testFiles, "test1.json");
         await writeJSON(testFileName, crate);
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -81,7 +87,7 @@ describe("Test loading a crate from a file", () => {
         };
         const testFileName = path.join(testFiles, "test2.json");
         await writeJSON(testFileName, crate);
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -116,7 +122,7 @@ describe("Test loading a crate from a file", () => {
         };
         const testFileName = path.join(testFiles, "test3.json");
         await writeJSON(testFileName, crate);
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -151,7 +157,7 @@ describe("Test loading a crate from a file", () => {
         };
         const testFileName = path.join(testFiles, "test4.json");
         await writeJSON(testFileName, crate);
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -188,7 +194,7 @@ describe("Test loading a crate from a file", () => {
         };
         const testFileName = path.join(testFiles, "test5.json");
         await writeJSON(testFileName, crate);
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -217,7 +223,7 @@ describe("Test loading a crate from a file", () => {
                 },
             ],
         };
-        let rootDescriptor = new Crate().getRootDescriptor({ crate });
+        let rootDescriptor = new Crate({ profile }).getRootDescriptor({ crate });
         expect(rootDescriptor).toEqual(crate["@graph"][0]);
     });
     test("it should get the root dataset", async () => {
@@ -238,7 +244,7 @@ describe("Test loading a crate from a file", () => {
                 },
             ],
         };
-        let { rootDescriptor, rootDataset } = new Crate().getRootDataset({
+        let { rootDescriptor, rootDataset } = new Crate({ profile }).getRootDataset({
             crate,
         });
         expect(rootDataset).toEqual(crate["@graph"][1]);
@@ -262,7 +268,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         try {
-            let { rootDescriptor, rootDataset } = new Crate().getRootDataset({
+            let { rootDescriptor, rootDataset } = new Crate({ profile }).getRootDataset({
                 crate,
             });
         } catch (error) {
@@ -295,7 +301,7 @@ describe("Test loading a crate from a file", () => {
             about: { "@id": "./" },
         };
 
-        crate = new Crate().updateRootDescriptor({
+        crate = new Crate({ profile }).updateRootDescriptor({
             crate,
             rootDescriptor: newDescriptor,
         });
@@ -322,7 +328,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         let collection = await insertCollection({ name: "test1" });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         await crateManager.importCrateIntoDatabase({
             collection,
             crate,
@@ -348,7 +354,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         let collection = await insertCollection({ name: "test1" });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         try {
             await crateManager.importCrateIntoDatabase({
                 collection,
@@ -392,7 +398,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         let collection = await insertCollection({ name: "test1" });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         try {
             await crateManager.importCrateIntoDatabase({
                 collection,
@@ -427,7 +433,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         let collection = await insertCollection({ name: "test1" });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         await crateManager.importCrateIntoDatabase({
             collection,
             crate,
@@ -473,7 +479,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         const collection = await insertCollection({ name });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         await crateManager.importCrateIntoDatabase({
             collection,
             crate,
@@ -517,7 +523,7 @@ describe("Test loading a crate from a file", () => {
             ],
         };
         let collection = await insertCollection({ name: "test1" });
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         await crateManager.importCrateIntoDatabase({
             collection,
             crate,
@@ -539,7 +545,7 @@ describe("Test loading a crate from a file", () => {
         await removeCollection({ id: collection.id });
     });
     test("should assemble property values", async () => {
-        let crateManager = new Crate();
+        let crateManager = new Crate({ profile });
         const collection = await models.collection.create({
             name: chance.name(),
         });
@@ -646,7 +652,7 @@ describe("Test loading a crate from a file", () => {
         const testFileName = path.join(testFiles, "test1.json");
         await writeJSON(testFileName, crate);
 
-        crate = new Crate();
+        crate = new Crate({ profile });
         let { crate: newCrate, collection } = await crate.loadCrateFromFile({
             file: testFileName,
         });
@@ -702,6 +708,7 @@ describe("Test loading a crate from a file", () => {
         let newEntity = await insertEntity({
             collectionId,
             entity: { name: "test", etype: "Person" },
+            profile,
         });
         updatedCrate = await save([{ name: "insert", entity: newEntity }]);
         expect(updatedCrate["@graph"].length).toEqual(3);

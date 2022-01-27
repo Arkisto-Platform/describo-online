@@ -1,0 +1,24 @@
+{
+    "metadata": {
+        "name": "My profile",
+        "description": "A profile showing a property that defines a set of values to choose from - and allows only one to be selected",
+        "version": 0.1
+    },
+    "classes": {
+        "Dataset": {
+            "definition": "inherit",
+            "subClassOf": [],
+            "inputs": [
+                {
+                    "id": "http://some.url/property",
+                    "name": "property",
+                    "label": "My Property",
+                    "help": "Some help text",
+                    "multiple": false,
+                    "values": ["red", "green", "blue"]
+                }
+            ]
+        }
+    },
+    "enabledClasses": []
+}

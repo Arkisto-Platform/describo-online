@@ -18,9 +18,9 @@ import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_
 const log = getLogger();
 
 export async function setupRoutes({ server }) {
+    server.get("/session", route(getSession));
     server.post("/session/okta", createOktaSession);
     server.post("/session/reva", createRevaSession);
-    server.get("/session", route(getSession));
     server.post("/session/application", [demandValidApplication, createApplicationSession]);
     server.put("/session/application/:sessionId", [
         demandValidApplication,
@@ -31,6 +31,22 @@ export async function setupRoutes({ server }) {
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
     server.post("/authenticate/reva", authenticateToRevaHandler);
 }
+
+export async function getSession(req, res, next) {
+    let session = filterPrivateInformation({ session: req.session.data });
+    if (session) {
+        session = {
+            embeddedSession: req.session.creator ? true : false,
+            session,
+        };
+        res.send(session);
+        next();
+    } else {
+        res.send({});
+        next();
+    }
+}
+
 export async function createOktaSession(req, res, next) {
     let configuration = await loadConfiguration();
 
@@ -183,21 +199,6 @@ export async function getServiceConfiguration(req, res, next) {
 
     res.send({ configuration });
     next();
-}
-
-export async function getSession(req, res, next) {
-    let session = filterPrivateInformation({ session: req.session.data });
-    if (session) {
-        session = {
-            embeddedSession: req.session.creator ? true : false,
-            session,
-        };
-        res.send(session);
-        next();
-    } else {
-        res.send({});
-        next();
-    }
 }
 
 export async function getOauthToken(req, res, next) {

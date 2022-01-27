@@ -5,35 +5,26 @@
             <div>
                 <el-button
                     @click="loadRootDataset"
-                    size="small"
+                    size="mini"
                     :disabled="entity && entity.eid === './'"
                 >
                     Load Root Dataset
                 </el-button>
             </div>
-            <div>
-                <el-button @click="showAddPropertyDialog" size="small">
+            <div v-if="definition.classDefinitionType !== 'override'">
+                <el-button @click="toggleAddPropertyDialog" size="mini">
                     <i class="fas fa-code"></i> Add Property
                 </el-button>
             </div>
             <div class="flex flex-grow"></div>
-            <div
-                class="flex flex-row space-x-2 flex-grow"
-                v-if="entity && entity.eid === './' && entityCount < maxEntitiesPerTemplate"
-            >
-                <el-input
-                    v-model="crateName"
-                    size="small"
-                    placeholder="provide a name for the crate template"
-                />
-                <el-button @click="saveCrateAsTemplate" size="small" :disabled="!crateName">
-                    <i class="fas fa-save"></i>
-                    Save Crate as Template
-                </el-button>
-            </div>
-            <div class="flex flex-rows space-x-1" v-if="entity && entity.eid !== './'">
+            <div class="flex flex-row space-x-1">
                 <div>
-                    <el-button @click="saveEntityAsTemplate" type="primary" size="small">
+                    <el-button
+                        @click="toggleSaveCrateDialog"
+                        type="primary"
+                        size="mini"
+                        v-if="isRootDataset"
+                    >
                         <div class="inline-block">
                             <i class="fas fa-save"></i>
                         </div>
@@ -41,12 +32,35 @@
                             class="inline-block ml-1 xl:inline-block xl:ml-1"
                             :class="{ hidden: entity.etype === 'File' }"
                         >
-                            Save Entity as Template
+                            Save Crate as Template
                         </div>
                     </el-button>
                 </div>
                 <div>
-                    <el-button @click="deleteEntity" type="danger" size="small">
+                    <el-button
+                        @click="saveEntityAsTemplate"
+                        type="primary"
+                        size="mini"
+                        v-if="!isRootDataset"
+                    >
+                        <div class="inline-block">
+                            <i class="fas fa-save"></i>
+                        </div>
+                        <div
+                            class="inline-block ml-1 xl:inline-block xl:ml-1"
+                            :class="{ hidden: entity.etype === 'File' }"
+                        >
+                            Save Entity Template
+                        </div>
+                    </el-button>
+                </div>
+                <div>
+                    <el-button
+                        @click="deleteEntity"
+                        type="danger"
+                        size="mini"
+                        v-if="!isRootDataset"
+                    >
                         <div class="inline-block">
                             <i class="fas fa-trash"></i>
                         </div>
@@ -61,26 +75,35 @@
             </div>
             <!-- /navbar: controls -->
         </div>
-        <add-property-dialog-component
-            v-if="definition && definition.inputs && definition.inputs.length"
+        <add-property-dialog
+            class="bg-indigo-200 p-6 m-2 rounded"
             :visible="addPropertyDialogVisible"
-            :inputs="definition.inputs"
+            :inputs="inputsWithNameFilteredOut()"
             @close="addPropertyDialogVisible = false"
             @create:property="createProperty"
             @create-and-link:entity="createAndLinkEntity"
             @link:entity="linkEntity"
             @add:template="addTemplateAndLinkEntity"
         />
+        <save-crate-as-template-dialog
+            class="bg-indigo-200 p-6 m-2 rounded"
+            :visible="saveCrateAsTemplateDialogVisible"
+            :entity="entity"
+            @close="toggleSaveCrateDialog"
+            @save:crate-as-template="saveCrateAsTemplate"
+        />
     </div>
 </template>
 
 <script>
-import AddPropertyDialogComponent from "./AddPropertyDialog.component.vue";
+import AddPropertyDialog from "./AddPropertyDialog.component.vue";
+import SaveCrateAsTemplateDialog from "./SaveCrateAsTemplateDialog.component.vue";
 import DataService from "./data.service.js";
 
 export default {
     components: {
-        AddPropertyDialogComponent,
+        AddPropertyDialog,
+        SaveCrateAsTemplateDialog,
     },
     props: {
         entity: {
@@ -94,14 +117,17 @@ export default {
     },
     data() {
         return {
-            entityCount: 0,
-            maxEntitiesPerTemplate: this.$store.state.configuration.maxEntitiesPerTemplate,
             loading: false,
             dataService: undefined,
             error: undefined,
             addPropertyDialogVisible: false,
-            crateName: undefined,
+            saveCrateAsTemplateDialogVisible: false,
         };
+    },
+    computed: {
+        isRootDataset: function() {
+            return this.entity && this.entity.eid === "./";
+        },
     },
     mounted() {
         this.dataService = new DataService({
@@ -113,8 +139,16 @@ export default {
         loadRootDataset() {
             this.$store.commit("setSelectedEntity", { id: "RootDataset" });
         },
-        async showAddPropertyDialog() {
-            this.addPropertyDialogVisible = true;
+        async toggleAddPropertyDialog() {
+            this.saveCrateAsTemplateDialogVisible = false;
+            this.addPropertyDialogVisible = !this.addPropertyDialogVisible;
+        },
+        async toggleSaveCrateDialog() {
+            this.addPropertyDialogVisible = false;
+            this.saveCrateAsTemplateDialogVisible = !this.saveCrateAsTemplateDialogVisible;
+        },
+        inputsWithNameFilteredOut() {
+            return this.definition.inputs.filter((i) => i.name !== "name");
         },
         async createProperty({ property, value }) {
             await this.dataService.createProperty({
@@ -130,7 +164,6 @@ export default {
                 etype,
             });
             await this.linkEntity({ property, tgtEntityId: entity.id });
-            this.$store.commit("setSelectedEntity", { id: entity.id });
         },
         async linkEntity({ property, tgtEntityId }) {
             await this.dataService.associate({
@@ -141,7 +174,7 @@ export default {
             this.$emit("refresh");
         },
         async addTemplateAndLinkEntity({ property, templateId }) {
-            let { entity } = await this.dataService.addTemplate({ templateId });
+            let { entity } = await this.dataService.addTemplateToCrate({ templateId });
             await this.linkEntity({ property, tgtEntityId: entity.id });
         },
         async deleteEntity() {
@@ -151,9 +184,9 @@ export default {
         async saveEntityAsTemplate() {
             await this.dataService.saveEntityAsTemplate({ id: this.entity.id });
         },
-        async saveCrateAsTemplate() {
-            await this.dataService.saveCrateAsTemplate({ name: this.crateName });
-            this.crateName = undefined;
+        async saveCrateAsTemplate({ name }) {
+            await this.dataService.saveCrateAsTemplate({ name });
+            this.toggleSaveCrateDialog();
         },
         resolveFilePath(id) {
             let filePath = `${this.$store.state.target.folder.path}/${id}`;

@@ -4,6 +4,7 @@ import ShellComponent from "@/components/Shell.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
 import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
+import AdminComponent from "@/components/admin/Shell.component.vue";
 import { isAuthenticated } from "./components/http.service";
 
 Vue.use(VueRouter);
@@ -31,6 +32,10 @@ const routes = [
         path: "/application",
         component: ApplicationLoginComponent,
     },
+    {
+        path: "/admin",
+        component: AdminComponent,
+    },
 ];
 
 const router = new VueRouter({
@@ -44,7 +49,7 @@ async function onAuthRequired(to, from, next) {
     if (to.meta?.requiresAuth) {
         let isAuthed;
         try {
-            isAuthed = await isAuthenticated();
+            isAuthed = await isAuthenticated({ router });
             if (!isAuthed && from.name !== "login") return next({ path: "/login" });
             return next();
         } catch (error) {
