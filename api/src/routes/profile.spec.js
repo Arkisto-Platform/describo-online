@@ -25,7 +25,7 @@ describe("Test profile handling routes", () => {
         });
         expect(response.status).toEqual(200);
         let { profiles } = await response.json();
-        expect(profiles.length).toEqual(1);
+        expect(profiles.length).toEqual(2);
     });
     test("it should be able to save a selected profile to the session", async () => {
         let { profile, response } = await setupSessionProfile({ sessionId });

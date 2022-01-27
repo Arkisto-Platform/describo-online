@@ -12,8 +12,8 @@ import {
 import { readFile } from "fs-extra";
 
 describe("Test reva file management operations", () => {
-    const username = "einstein";
-    const password = "relativity";
+    const username = "admin";
+    const password = "admin";
     const gateway = "reva-gateway:19000";
     afterAll(async () => {
         await models.sequelize.close();
@@ -40,7 +40,7 @@ describe("Test reva file management operations", () => {
         let { token } = await authenticate({ gateway, username, password });
 
         let { entries } = await listFolder({ gateway, token, folder: "/" });
-        expect(entries.map((e) => e.path).sort()).toEqual(["home", "reva"]);
+        expect(entries.map((e) => e.path).sort()).toEqual(["home"]);
     });
     test("it should be able to upload a file to reva", async () => {
         let { token } = await authenticate({
