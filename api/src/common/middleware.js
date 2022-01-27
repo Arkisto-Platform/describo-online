@@ -95,8 +95,21 @@ export async function demandValidApplication(req, res, next) {
     next();
 }
 
+export async function updateCollectionMetadata(req, res, next) {
+    if (req.route.path.match("/entity")) {
+        const collectionId = req.session.data?.current?.collectionId;
+        if (collectionId) {
+            await models.entity.update(
+                { updatedAt: models.sequelize.literal("CURRENT_TIMESTAMP") },
+                { where: { id: collectionId } }
+            );
+        }
+    }
+    next();
+}
+
 export function route(handler) {
-    return [demandKnownUser, handler];
+    return [demandKnownUser, updateCollectionMetadata, handler];
 }
 
 export function routeAdmin(handler) {
