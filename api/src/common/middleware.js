@@ -96,13 +96,12 @@ export async function demandValidApplication(req, res, next) {
 }
 
 export async function updateCollectionMetadata(req, res, next) {
-    if (req.route.path.match("/entity")) {
+    if (req.route.path.match("/entity") && req.route.method !== "GET") {
         const collectionId = req.session.data?.current?.collectionId;
         if (collectionId) {
-            await models.entity.update(
-                { updatedAt: models.sequelize.literal("CURRENT_TIMESTAMP") },
-                { where: { id: collectionId } }
-            );
+            let collection = await models.collection.findOne({ where: { id: collectionId } });
+            collection.changed("updatedAt", true);
+            collection.save();
         }
     }
     next();
