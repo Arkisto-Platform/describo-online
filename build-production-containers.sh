@@ -26,6 +26,18 @@ fi
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
+    echo "Building API container"
+    docker tag arkisto/describo-online-api:latest arkisto/describo-online-api:${VERSION}
+
+    echo "Building UI container"
+    docker build --rm -t arkisto/describo-online-ui:latest -f Dockerfile.ui-build .
+    docker tag arkisto/describo-online-ui:latest arkisto/describo-online-ui:${VERSION}
+
+    echo
+fi
+
+read -p '>> Tag the repo (select N if you are still testing the builds)? [y|N] ' resp
+if [ "$resp" == "y" ] ; then
     cd api
     npm version --no-git-tag-version ${VERSION}
     cd ../ui
@@ -33,18 +45,6 @@ if [ "$resp" == "y" ] ; then
     cd ..
     git tag v${VERSION}
     git commit -a -m "tag and bump version"
-    
-
-    echo "Building API container"
-    docker tag arkisto/describo-online-api:latest arkisto/describo-online-api:${VERSION}
-    # docker rmi $(docker images | grep none | awk '{print $3}')
-
-    echo "Building UI container"
-    docker build --rm -t arkisto/describo-online-ui:latest -f Dockerfile.ui-build .
-    docker tag arkisto/describo-online-ui:latest arkisto/describo-online-ui:${VERSION}
-
-    # docker rmi $(docker images | grep none | awk '{print $3}')
-    echo
 fi
 
 read -p '>> Push the containers to docker hub? [y|N] ' resp
