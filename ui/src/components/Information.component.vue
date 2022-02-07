@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-row text-gray-800 p-2 rounded text-sm"
+        class="flex flex-row text-gray-800 px-2 py-1 rounded text-sm"
         :class="{
             'justify-left': align === 'left',
             'justify-center': align === 'center',
