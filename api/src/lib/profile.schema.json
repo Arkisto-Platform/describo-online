@@ -62,7 +62,7 @@
                                         ]
                                     }
                                 },
-                                "required": ["id", "name", "label", "help"],
+                                "required": ["id", "name", "help"],
                                 "additionalProperties": true
                             }
                         }
