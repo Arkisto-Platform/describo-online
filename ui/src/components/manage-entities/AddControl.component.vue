@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="flex flex-row flex-wrap space-x-1" v-if="allowedTypes.length < 8">
-            <div v-for="(type, idx) of allowedTypes" :key="idx">
+            <div v-for="(type, idx) of allowedTypes" :key="idx" class="my-1">
                 <el-button
                     @click="add(type)"
                     type="primary"
