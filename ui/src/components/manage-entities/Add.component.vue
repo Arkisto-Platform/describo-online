@@ -2,15 +2,11 @@
     <div class="flex flex-col">
         <div class="flex flex-row space-x-1" v-if="definition">
             <add-control-component
-                :types="definition.type"
                 v-if="definition && definition.type !== 'Value'"
+                :types="definition.type"
                 @add="add"
+                @close="close"
             />
-            <div class="my-1">
-                <el-button @click="close" size="mini" v-if="addType">
-                    <i class="fas fa-times fa-fw"></i>
-                </el-button>
-            </div>
         </div>
 
         <div v-if="addType" class="flex flex-row mt-1" :class="{ 'bg-indigo-200 p-2': !embedded }">

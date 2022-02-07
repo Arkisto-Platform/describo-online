@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="this.types.length !== 1" class="flex flex-row space-x-1">
         <div class="flex flex-row flex-wrap space-x-1" v-if="allowedTypes.length < 8">
             <div v-for="(type, idx) of allowedTypes" :key="idx" class="my-1">
                 <el-button
@@ -30,6 +30,11 @@
                 </el-option>
             </el-select>
         </div>
+        <div class="my-1">
+            <el-button @click="$emit('close')" size="mini">
+                <i class="fas fa-times fa-fw"></i>
+            </el-button>
+        </div>
     </div>
 </template>
 
@@ -56,6 +61,7 @@ export default {
     },
     mounted() {
         this.init();
+        if (this.types.length === 1) this.add(this.types[0]);
     },
     methods: {
         init() {
