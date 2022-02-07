@@ -10,18 +10,19 @@
                 <el-badge is-dot class="animate-pulse -ml-1 -mt-2" v-if="isRequired && !isValid">
                 </el-badge>
             </div>
+            <div class="text-gray-500 text-xs">{{ help }}</div>
             <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
         </div>
         <div class="flex flex-col flex-grow space-y-2">
-            <information-component type="info" align="left" v-if="showHelp">
+            <!-- <information-component type="info" align="left" v-if="showHelp">
                 {{ help }}
-            </information-component>
+            </information-component> -->
             <div class="flex flex-row space-x-2">
-                <div v-if="help">
+                <!-- <div v-if="help">
                     <el-button @click="showHelp = !showHelp" type="primary" size="mini">
                         <i class="fas fa-question-circle"></i>
                     </el-button>
-                </div>
+                </div> -->
                 <add-component
                     class="flex-grow"
                     :property="name"
