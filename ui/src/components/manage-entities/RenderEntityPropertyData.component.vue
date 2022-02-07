@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-row flex-grow p-1">
-        <div class="w-64 flex flex-col">
+        <div class="w-1/3 xl:w-1/5 flex flex-col">
             <div>
                 <display-property-name-component
                     :label="name"
@@ -13,36 +13,28 @@
             <div class="text-gray-500 text-xs">{{ help }}</div>
             <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
         </div>
-        <div class="flex flex-col flex-grow space-y-2">
-            <!-- <information-component type="info" align="left" v-if="showHelp">
-                {{ help }}
-            </information-component> -->
-            <div class="flex flex-row space-x-2">
-                <!-- <div v-if="help">
-                    <el-button @click="showHelp = !showHelp" type="primary" size="mini">
-                        <i class="fas fa-question-circle"></i>
-                    </el-button>
-                </div> -->
-                <add-component
-                    class="flex-grow"
-                    :property="name"
+        <div class="w-2/3 xl:w-4/5 flex flex-col flex-grow">
+            <add-component
+                :property="name"
+                :definition="definition"
+                :embedded="false"
+                @create:property="createProperty"
+                @create:entity="createEntity"
+                @link:entity="linkEntity"
+                @add:template="addTemplate"
+            />
+            <div class="flex flex-row flex-wrap">
+                <render-entity-property-instance-component
+                    class="m-1"
+                    v-for="instance of values"
+                    :key="instance.id"
+                    :property="instance"
                     :definition="definition"
-                    :embedded="false"
-                    @create:property="createProperty"
-                    @create:entity="createEntity"
-                    @link:entity="linkEntity"
-                    @add:template="addTemplate"
+                    @save:property="saveProperty"
+                    @delete:property="deleteProperty"
+                    @refresh="$emit('refresh')"
                 />
             </div>
-            <render-entity-property-instance-component
-                v-for="instance of values"
-                :key="instance.id"
-                :property="instance"
-                :definition="definition"
-                @save:property="saveProperty"
-                @delete:property="deleteProperty"
-                @refresh="$emit('refresh')"
-            />
         </div>
     </div>
 </template>
