@@ -6,7 +6,7 @@
                 v-if="definition && definition.type !== 'Value'"
                 @add="add"
             />
-            <div>
+            <div class="my-1">
                 <el-button @click="close" size="mini" v-if="addType">
                     <i class="fas fa-times fa-fw"></i>
                 </el-button>
