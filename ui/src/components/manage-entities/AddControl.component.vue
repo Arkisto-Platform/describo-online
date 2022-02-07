@@ -31,7 +31,7 @@
             </el-select>
         </div>
         <div class="my-1">
-            <el-button @click="$emit('close')" size="mini">
+            <el-button @click="close" size="mini" v-if="this.selectedType">
                 <i class="fas fa-times fa-fw"></i>
             </el-button>
         </div>
@@ -74,6 +74,10 @@ export default {
         add(type) {
             this.selectedType = type;
             this.$emit("add", { type });
+        },
+        close() {
+            this.selectedType = undefined;
+            this.$emit("close");
         },
     },
 };
