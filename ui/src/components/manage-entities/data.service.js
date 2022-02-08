@@ -267,7 +267,7 @@ export default class DataService {
         }
     }
 
-    async addTemplateToCrate({ templateId }) {
+    async addTemplate({ templateId }) {
         this.$log.debug("add template", templateId);
         let response = await this.$http.post({
             route: `/crate/add-template`,
