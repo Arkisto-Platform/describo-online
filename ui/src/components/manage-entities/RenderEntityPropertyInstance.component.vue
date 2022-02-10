@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="{ 'bg-green-200 p-1 rounded': property.value }">
         <div v-if="property.value" class="flex flex-row">
             <date-component
                 :property="property.name"
@@ -27,6 +27,7 @@
             />
             <text-component
                 v-if="isText(property.value) && !isValue() && !isSelect()"
+                :type="definition.type[0].toLowerCase()"
                 :property="property.name"
                 :value.sync="property.value"
                 :definition="definition"

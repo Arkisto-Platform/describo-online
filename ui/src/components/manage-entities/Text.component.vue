@@ -7,6 +7,7 @@
                 @input="debouncedSave"
                 v-model="internalValue"
                 resize="vertical"
+                :rows="5"
             ></el-input>
         </div>
         <div v-if="!autoSave">
