@@ -23,8 +23,7 @@
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
                 v-if="
-                    (definition && definition.multiple) ||
-                        (definition && !definition.multiple && !values.length)
+                    (definition && definition.multiple) || (!definition.multiple && !values.length)
                 "
             />
             <div class="flex flex-row flex-wrap">
