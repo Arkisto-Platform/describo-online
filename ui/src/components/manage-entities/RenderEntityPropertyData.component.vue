@@ -22,6 +22,10 @@
                 @create:entity="createEntity"
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
+                v-if="
+                    (definition && definition.multiple) ||
+                        (definition && !definition.multiple && !values.length)
+                "
             />
             <div class="flex flex-row flex-wrap">
                 <render-entity-property-instance-component
