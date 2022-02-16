@@ -22,6 +22,7 @@ export async function listFolder({ session, user, resource, folderPath }) {
             });
             return orderBy(content.entries, "name");
         } else {
+            if (resource === "local" && !folderPath) folderPath = "/home";
             content = await rclone.listFolder({ session, user, resource, folderPath });
             return content;
         }

@@ -14,6 +14,7 @@ import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken } from "../lib/backend-owncloud";
 import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api";
+import crypto from "crypto";
 
 const log = getLogger();
 
@@ -30,6 +31,7 @@ export async function setupRoutes({ server }) {
     server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
     server.post("/authenticate/reva", authenticateToRevaHandler);
+    server.post("/authenticate/local", authenticateLocalUser);
 }
 
 export async function getSession(req, res, next) {
@@ -340,4 +342,19 @@ export async function authenticateToRevaHandler(req, res, next) {
     let { token, user } = await authenticateToReva({ gateway, username, password });
     res.send({ token, user });
     next();
+}
+
+export async function authenticateLocalUser(req, res, next) {
+    let configuration = await loadConfiguration();
+    const name = "Local User";
+    const email = "email@localhost.com";
+    let user = await createUser({ name, email });
+    let { token, expiry } = await generateToken({ configuration, user });
+    await createUserSession({
+        email,
+        data: {},
+        token,
+        expiry,
+    });
+    res.send({ token });
 }

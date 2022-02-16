@@ -116,6 +116,10 @@ async function writeRcloneConfiguration({ resource, rcloneConfiguration, user })
     await ensureDir(folderPath);
     const fd = await open(filePath, "w");
     switch (resource) {
+        case "local":
+            await write(fd, `[local]\n`);
+            await write(fd, `type = local\n`);
+            break;
         case "onedrive":
             await write(fd, `[onedrive]\n`);
             await write(fd, `type = onedrive\n`);

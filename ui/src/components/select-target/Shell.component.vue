@@ -1,32 +1,11 @@
 <template>
-    <div class="bg-white p-4" v-if="!embeddedSession">
-        <div class="flex flex-row text-sm">
-            <div class="flex flex-row" v-if="!target.resource && !target.folder">
-                Select a resource to work with
-                <div v-if="target.resource" class="ml-2">:&nbsp;{{ target.resource }}</div>
-            </div>
-            <div class="flex-grow"></div>
+    <div class="flex flex-col bg-white p-4" v-if="!embeddedSession">
+        <div class="flex flex-row space-x-1">
             <div v-if="target.resource && !revaDeployment">
-                <el-button type="danger" size="mini" @click="selectNewResourceAndTarget">
-                    Change resource
+                <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
+                    Use another service
                 </el-button>
             </div>
-        </div>
-        <div class="flex flex-col">
-            <div class="flex flex-row space-x-2" v-if="!target.resource">
-                <onedrive-authenticator-component v-if="onedriveEnabled" />
-                <owncloud-authenticator-component v-if="owncloudEnabled" />
-                <s3-authenticator-component v-if="s3Enabled" />
-                <reva-authenticator-component v-if="revaEnabled" />
-            </div>
-
-            <file-browser-component
-                v-if="target.resource && !selectedFolder"
-                :resource="target.resource"
-                mode="openDirectory"
-                :enable-file-selector="true"
-                @selected-folder="setSelectedFolder"
-            />
             <div class="flex flex-row space-x-2 text-sm" v-if="target.resource && target.folder">
                 <div>
                     <el-button type="danger" @click="selectNewTargetFolder" size="mini">
@@ -37,6 +16,30 @@
                 <div class="pt-1">{{ target.resource }}:{{ target.folder.path }}</div>
             </div>
         </div>
+        <div v-if="!target.resource && !target.folder" class="flex flex-col">
+            <div>
+                Select a resource to work with
+            </div>
+
+            <div class="flex flex-row space-x-1">
+                <div v-if="localEnabled">
+                    <el-button @click="setLocalTarget" type="primary">My Computer</el-button>
+                </div>
+                <onedrive-authenticator-component v-if="onedriveEnabled" />
+                <owncloud-authenticator-component v-if="owncloudEnabled" />
+                <s3-authenticator-component v-if="s3Enabled" />
+                <reva-authenticator-component v-if="revaEnabled" />
+            </div>
+        </div>
+
+        <file-browser-component
+            class="p-2 my-1 border border-solid"
+            v-if="target.resource && !selectedFolder"
+            :resource="target.resource"
+            mode="openDirectory"
+            :enable-file-selector="true"
+            @selected-folder="setSelectedFolder"
+        />
     </div>
 </template>
 
@@ -72,6 +75,9 @@ export default {
         },
         revaEnabled: function() {
             return this.$store.state.configuration.services?.reva ? true : false;
+        },
+        localEnabled: function() {
+            return this.$store.state.configuration.services?.local ? true : false;
         },
     },
     mounted() {
@@ -111,6 +117,14 @@ export default {
         selectNewResourceAndTarget() {
             this.selectedFolder = undefined;
             this.$store.commit("reset");
+        },
+        async setLocalTarget() {
+            await this.$http.post({ route: "/session/configuration/local", body: {} });
+
+            this.$store.commit("setTargetResource", {
+                resource: "local",
+                folder: undefined,
+            });
         },
     },
 };
