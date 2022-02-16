@@ -77,7 +77,7 @@ export default {
             return this.$store.state.configuration.services?.reva ? true : false;
         },
         localEnabled: function() {
-            return this.$store.state.configuration.services?.local ? true : false;
+            return this.$store.state.configuration.services?.localhost ? true : false;
         },
     },
     mounted() {

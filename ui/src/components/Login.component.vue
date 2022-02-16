@@ -3,7 +3,7 @@
         <okta-login-component v-if="login === 'okta'" />
         <reva-login-component v-else-if="login === 'reva'" />
         <div
-            v-else-if="login === 'local'"
+            v-else-if="login === 'localhost'"
             class="w-screen h-screen flex flex-col space-y-4 items-center mt-40"
         >
             <div class="text-3xl text-gray-600">{{ siteName }}</div>
