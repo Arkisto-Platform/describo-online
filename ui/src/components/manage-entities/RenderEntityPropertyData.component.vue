@@ -28,7 +28,7 @@
             />
             <div class="flex flex-row flex-wrap">
                 <render-entity-property-instance-component
-                    class="m-1"
+                    class="my-1 flex-grow"
                     v-for="instance of values"
                     :key="instance.id"
                     :property="instance"
