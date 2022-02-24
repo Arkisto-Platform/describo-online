@@ -34,8 +34,7 @@ services:
         environment:
             MINIO_ROOT_USER: minio
             MINIO_ROOT_PASSWORD: minio_pass
-        entrypoint: bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data
-            --console-address ":10001"'
+        entrypoint: bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data --console-address ":10001"'
         volumes:
             - MINIO_VOLUME:/data
         healthcheck:
