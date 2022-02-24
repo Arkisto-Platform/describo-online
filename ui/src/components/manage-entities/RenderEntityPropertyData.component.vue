@@ -42,7 +42,7 @@
                         type="delete"
                         :property="instance"
                         @delete:property="deleteProperty"
-                        v-if="definition && definition.type !== 'Value'"
+                        v-if="definition && definition.type !== 'Value' && instance.value"
                     />
                 </div>
             </div>
