@@ -177,13 +177,15 @@ export async function loadClassDefinition({ className, profile }) {
         profile = await loadProfile({ file: profile.file });
     }
     const typeDefinitions = await loadTypeDefinitions();
-    const schemaClassDefinition = typeDefinitions[className];
-    const profileClassDefinition = profile.classes[className];
+    let schemaClassDefinition = typeDefinitions[className];
+    let profileClassDefinition = profile.classes[className];
 
     let inputs = [];
     let classes = [];
-    let classDefinitionType = profileClassDefinition.definition;
-    if (!classDefinitionType || classDefinitionType === "inherit") {
+    let classDefinitionType = profileClassDefinition?.definition;
+    if (!schemaClassDefinition && !profileClassDefinition && !classDefinitionType) {
+        classes = ["Thing"];
+    } else if (!classDefinitionType || classDefinitionType === "inherit") {
         // determine the class hierarchy
         classes = uniq([
             className,
@@ -199,9 +201,11 @@ export async function loadClassDefinition({ className, profile }) {
         // filter out itself so we don't end up with the type definitions from schema.org
         classes = classes.filter((c) => c !== className);
     }
+
     // get inputs from all the class definitions in the hierarchy
     inputs = classes.map((className) => typeDefinitions[className].inputs);
-    inputs = flattenDeep([inputs, profileClassDefinition.inputs]);
+    inputs = flattenDeep([inputs, profileClassDefinition?.inputs]);
+    inputs = compact(inputs);
     inputs = uniqBy(inputs, "id");
     inputs = inputs.map((input) => {
         if (!input.label) {
