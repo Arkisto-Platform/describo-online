@@ -1,6 +1,12 @@
 <template>
     <div>
-        <el-select size="mini" v-model="internalValue" placeholder="Select" @change="save">
+        <el-select
+            class="w-full"
+            size="mini"
+            v-model="internalValue"
+            placeholder="Select"
+            @change="save"
+        >
             <el-option
                 v-for="(item, idx) in definition.values"
                 :key="idx"

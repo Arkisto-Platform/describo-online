@@ -23,20 +23,28 @@
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
                 v-if="
-                    (definition && definition.multiple) || (!definition.multiple && !values.length)
+                    (definition && definition.multiple) ||
+                        (definition && !definition.multiple && !values.length)
                 "
             />
-            <div class="flex flex-row flex-wrap">
-                <render-entity-property-instance-component
-                    class="my-1 flex-grow"
-                    v-for="instance of values"
-                    :key="instance.id"
-                    :property="instance"
-                    :definition="definition"
-                    @save:property="saveProperty"
-                    @delete:property="deleteProperty"
-                    @refresh="$emit('refresh')"
-                />
+            <div class="flex flex-col">
+                <div v-for="instance of values" :key="instance.id" class="flex flex-row my-1">
+                    <render-entity-property-instance-component
+                        class="flex-grow"
+                        :property="instance"
+                        :definition="definition"
+                        @save:property="saveProperty"
+                        @delete:property="deleteProperty"
+                        @refresh="$emit('refresh')"
+                    />
+                    <delete-property-component
+                        class="pl-2"
+                        type="delete"
+                        :property="instance"
+                        @delete:property="deleteProperty"
+                        v-if="definition && definition.type !== 'Value'"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -44,6 +52,7 @@
 
 <script>
 import RenderEntityPropertyInstanceComponent from "./RenderEntityPropertyInstance.component.vue";
+import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import InformationComponent from "../Information.component.vue";
 import AddComponent from "./Add.component.vue";
 import DisplayPropertyNameComponent from "./DisplayPropertyName.component.vue";
@@ -51,6 +60,7 @@ import DisplayPropertyNameComponent from "./DisplayPropertyName.component.vue";
 export default {
     components: {
         RenderEntityPropertyInstanceComponent,
+        DeletePropertyComponent,
         InformationComponent,
         AddComponent,
         DisplayPropertyNameComponent,

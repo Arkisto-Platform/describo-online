@@ -69,7 +69,7 @@
                 class="pl-2 flex flex-col justify-items-start"
                 :class="{
                     'w-1/2 lg:w-2/5': entity.etype === 'File',
-                    'w-0': entity.etype !== 'File',
+                    'w-0 hidden': entity.etype !== 'File',
                 }"
             >
                 <render-entity-preview-component :entity="entity" v-loading="loading" />

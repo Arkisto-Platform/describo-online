@@ -26,9 +26,6 @@ export default {
         type: {
             type: String,
             default: "textarea",
-            validator: (val) => {
-                return ["text", "textarea"].includes(val);
-            },
         },
         property: {
             type: String,

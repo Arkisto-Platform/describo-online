@@ -1,15 +1,13 @@
 <template>
-    <div class="flex flex-row">
-        <el-date-picker
-            v-model="internalValue"
-            type="date"
-            placeholder="Pick a date"
-            format="MMMM d, yyyy"
-            @change="save"
-            :clearable="false"
-        >
-        </el-date-picker>
-    </div>
+    <el-date-picker
+        v-model="internalValue"
+        type="date"
+        placeholder="Pick a date"
+        format="MMMM d, yyyy"
+        @change="save"
+        :clearable="false"
+    >
+    </el-date-picker>
 </template>
 
 <script>

@@ -41,13 +41,6 @@
                 :definition="definition"
                 @save:property="savePropertyValue"
             />
-            <delete-property-component
-                class="pl-2"
-                type="delete"
-                :property="property"
-                @delete:property="deleteProperty"
-                v-if="!isValue()"
-            />
         </div>
         <div v-else class="flex flex-row">
             <div v-loading="loading" class="py-2" v-if="loading"></div>
@@ -59,7 +52,6 @@
 <script>
 import RenderLinkedItemComponent from "./RenderLinkedItem.component.vue";
 import RenderReverseItemLinkComponent from "./RenderReverseItemLink.component.vue";
-import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import TextComponent from "./Text.component.vue";
 import DateComponent from "./Date.component.vue";
 import DateTimeComponent from "./DateTime.component.vue";
@@ -74,7 +66,6 @@ export default {
     components: {
         RenderLinkedItemComponent,
         RenderReverseItemLinkComponent,
-        DeletePropertyComponent,
         TextComponent,
         DateComponent,
         DateTimeComponent,
