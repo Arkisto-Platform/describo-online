@@ -194,10 +194,10 @@ export class Crate {
         const entitiesById = groupBy(entities, "@id");
         i = 0;
         for (let entity of entities) {
-            let profile = await loadProfile({ file: this.profile.file });
+            // let profile = await loadProfile({ file: this.profile.file });
             const typeDefinition = await loadClassDefinition({
-                className: entity["@type"],
-                profile,
+                classNames: [entity["@type"]],
+                profile: this.profile,
             });
 
             i += 1;

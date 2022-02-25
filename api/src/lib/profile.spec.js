@@ -137,14 +137,14 @@ describe("Test profile definition lookups", () => {
             path.join("/srv", "testing-profiles", "valid-inherit-class-configuration.json")
         );
 
-        let classInputs = await loadClassDefinition({ className: "Dataset", profile });
-        expect(classInputs.inputs.length).toEqual(133);
+        let { inputs } = await loadClassDefinition({ classNames: ["Dataset"], profile });
+        expect(inputs.length).toEqual(133);
     });
     test("Load a profile and get an override Dataset definition from it", async () => {
         const profile = await readJSON(
             path.join("/srv", "testing-profiles", "valid-override-class-configuration.json")
         );
-        let classInputs = await loadClassDefinition({ className: "Dataset", profile });
+        let classInputs = await loadClassDefinition({ classNames: ["Dataset"], profile });
         expect(classInputs.inputs.length).toEqual(1);
     });
 });

@@ -168,45 +168,66 @@ export async function validateProfile({ profile }) {
     return { valid: errors.length ? false : true, errors, typeDefinitions, typeDefinitionsLookup };
 }
 
-export async function loadTypeDefinitions() {
-    return await readJSON(typeDefinitions);
-}
-
-export async function loadClassDefinition({ className, profile }) {
-    if (profile.file) {
-        profile = await loadProfile({ file: profile.file });
+export async function loadClassDefinition({ classNames, profile }) {
+    if (profile.file && profile.file !== "schema.org") {
+        profile = { ...(await loadProfile({ file: profile.file })), ...profile };
     }
-    const typeDefinitions = await loadTypeDefinitions();
-    let schemaClassDefinition = typeDefinitions[className];
-    let profileClassDefinition = profile.classes[className];
+    // for each class
+    //      check profile for a definition
+    //          if found and override, collect inputs and return
+    //          if found and inherit, collect inputs then watch the hierarchy
+    //          if none, check schema.org
+    //              if found and inherit, collect inputs then watch the hierarchy
+    //              if none set hierarchy to thing and collect inputs
+    const schemaOrgTypeDefinitions = await loadProfile({ file: "schema.org" });
 
     let inputs = [];
-    let classes = [];
-    let classDefinitionType = profileClassDefinition?.definition;
-    if (!schemaClassDefinition && !profileClassDefinition && !classDefinitionType) {
-        classes = ["Thing"];
-    } else if (!classDefinitionType || classDefinitionType === "inherit") {
-        // determine the class hierarchy
-        classes = uniq([
-            className,
-            ...schemaClassDefinition.subClassOf,
-            ...profileClassDefinition.subClassOf,
-        ]);
-        classes = uniq(compact(flattenDeep(mapClassHierarchies(classes))));
-    } else if (classDefinitionType === "override") {
-        // determine the class hierarchy
-        let subClassOf = profileClassDefinition.subClassOf;
-        classes = uniq([className, ...subClassOf]);
-
-        // filter out itself so we don't end up with the type definitions from schema.org
-        classes = classes.filter((c) => c !== className);
+    let hierarchy = [...classNames];
+    let classDefinitionType;
+    for (let className of classNames) {
+        if (profile.classes?.[className]?.definition === "override") {
+            // we have a domain profile for the class and it's override - load this
+            classDefinitionType = "override";
+            inputs.push(profile.classes[className].inputs);
+            let classHierarchy = profile.classes[className].subClassOf;
+            for (let c of classHierarchy) {
+                inputs.push(...profile.classes[c].inputs);
+            }
+        } else if (profile.classes?.[className]?.definition === "inherit") {
+            // we have a domain profile for the class and it's inherit - load this then add schema.org
+            inputs.push(profile.classes[className].inputs);
+            classDefinitionType = "inherit";
+            let classHierarchy = [
+                ...profile.classes[className].subClassOf,
+                ...mapClassHierarchies([className]),
+            ];
+            classHierarchy = flattenDeep(classHierarchy);
+            classHierarchy = compact(classHierarchy);
+            classHierarchy = uniq(classHierarchy);
+            for (let c of classHierarchy) {
+                inputs.push(...schemaOrgTypeDefinitions.classes[c].inputs);
+            }
+            hierarchy.push(...classHierarchy);
+        } else if (schemaOrgTypeDefinitions.classes[className]) {
+            // we don't have a domain profile so look up schema.org
+            classDefinitionType = "inherit";
+            let classHierarchy = mapClassHierarchies([className]);
+            classHierarchy = flattenDeep(classHierarchy);
+            classHierarchy = compact(classHierarchy);
+            classHierarchy = uniq(classHierarchy);
+            for (let c of classHierarchy) {
+                inputs.push(...schemaOrgTypeDefinitions.classes[c].inputs);
+            }
+            hierarchy.push(...classHierarchy);
+        } else {
+            // no profile loaded and no match in schema.org
+            classDefinitionType = "inherit";
+            inputs.push(schemaOrgTypeDefinitions.classes["Thing"].inputs);
+            hierarchy.push("Thing");
+        }
     }
 
-    // get inputs from all the class definitions in the hierarchy
-    inputs = classes.map((className) => typeDefinitions[className].inputs);
-    inputs = flattenDeep([inputs, profileClassDefinition?.inputs]);
-    inputs = compact(inputs);
-    inputs = uniqBy(inputs, "id");
+    inputs = uniqBy(inputs, "name");
     inputs = inputs.map((input) => {
         if (!input.label) {
             return { ...input, label: startCase(input.name) };
@@ -215,14 +236,17 @@ export async function loadClassDefinition({ className, profile }) {
         }
     });
     inputs = orderBy(inputs, ["required", "label"]);
+    hierarchy = uniq(hierarchy);
 
-    let hierarchy = classes.length ? classes : [className];
     return { inputs, hierarchy, classDefinitionType };
 
     function mapClassHierarchies(classes) {
         return classes.map((className) => {
-            if (typeDefinitions[className].subClassOf.length) {
-                return [className, mapClassHierarchies(typeDefinitions[className].subClassOf)];
+            if (schemaOrgTypeDefinitions.classes[className]?.subClassOf.length) {
+                return [
+                    className,
+                    mapClassHierarchies(schemaOrgTypeDefinitions.classes[className]?.subClassOf),
+                ];
             } else {
                 return className;
             }

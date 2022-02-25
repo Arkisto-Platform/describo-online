@@ -2,24 +2,27 @@ import models from "../models";
 import { loadInstalledProfiles, loadProfile, loadClassDefinition } from "../lib/profile";
 import { BadRequestError } from "restify-errors";
 import { route, getLogger } from "../common";
+import path from "path";
 const log = getLogger();
 
 export async function setupRoutes({ server }) {
-    server.get("/definition/:name", route(getTypeDefinitionRouteHandler));
+    server.post("/definition", route(postTypeDefinitionRouteHandler));
     server.get("/definition/lookup", route(lookupProfileRouteHandler));
     server.get("/profile", route(loadInstalledProfilesRouteHandler));
     server.post("/profile", route(saveProfileRouteHandler));
 }
 
-export async function getTypeDefinitionRouteHandler(req, res, next) {
+export async function postTypeDefinitionRouteHandler(req, res, next) {
     try {
-        let name = req.params.name;
-        let profile = await loadProfile({ file: req.session.data.profile.file });
-
-        let definition = await loadClassDefinition({ className: name, profile });
+        // let profile = await loadProfile({ file: req.session.data.profile.file });
+        let definition = await loadClassDefinition({
+            classNames: req.params.types,
+            profile: req.session.data.profile,
+        });
         res.send({ definition });
         return next(0);
     } catch (error) {
+        console.log(error);
         log.error(`getTypeDefinition: ${error.message}`);
         return next(new BadRequestError());
     }
@@ -40,7 +43,9 @@ export async function lookupProfileRouteHandler(req, res, next) {
 }
 
 export async function loadInstalledProfilesRouteHandler(req, res, next) {
-    let profiles = await loadInstalledProfiles({});
+    let profilePath;
+    if (req.query.testing) profilePath = path.join("/srv", "testing-profiles");
+    let profiles = await loadInstalledProfiles({ profilePath });
     res.send({ profiles });
     next();
 }

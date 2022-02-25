@@ -16,7 +16,7 @@ describe("Test profile handling routes", () => {
         await models.sequelize.close();
     });
     test("it should be able to load installed profiles", async () => {
-        let response = await fetch(`${api}/profile`, {
+        let response = await fetch(`${api}/profile?testing=true`, {
             method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
@@ -25,7 +25,7 @@ describe("Test profile handling routes", () => {
         });
         expect(response.status).toEqual(200);
         let { profiles } = await response.json();
-        expect(profiles.length).toEqual(2);
+        expect(profiles.length).toEqual(15);
     });
     test("it should be able to save a selected profile to the session", async () => {
         let { profile, response } = await setupSessionProfile({ sessionId });
@@ -36,27 +36,15 @@ describe("Test profile handling routes", () => {
     });
     test("it should be able to lookup a definition", async () => {
         let { profile, response } = await setupSessionProfile({ sessionId });
-        response = await fetch(`${api}/definition/Dataset`, {
-            method: "GET",
+        response = await fetch(`${api}/definition`, {
+            method: "POST",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify({ types: ["Dataset"] }),
         });
         expect(response.status).toEqual(200);
-        let { definition } = await response.json();
-        expect(definition.inputs.length).toEqual(132);
-    });
-    test("it should be able to lookup a definition", async () => {
-        let { profile, response } = await setupSessionProfile({ sessionId });
-        response = await fetch(`${api}/definition/Dataset`, {
-            method: "GET",
-            headers: {
-                Authorization: `sid ${sessionId}`,
-                "Content-Type": "application/json",
-            },
-        });
-        // expect(response.status).toEqual(200);
         let { definition } = await response.json();
         expect(definition.inputs.length).toEqual(132);
     });

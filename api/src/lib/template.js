@@ -44,7 +44,7 @@ export async function addTemplate({ userId, collectionId, templateId, profile })
     };
     try {
         entity = await insertEntity({ entity, collectionId, profile });
-        const typeDefinition = await loadClassDefinition({ className: entity.etype, profile });
+        const typeDefinition = await loadClassDefinition({ classNames: [entity.etype], profile });
         let properties = Object.keys(template.src).filter(
             (p) => !["eid", "etype", "name"].includes(p)
         );
