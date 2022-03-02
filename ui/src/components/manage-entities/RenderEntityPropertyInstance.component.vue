@@ -35,6 +35,7 @@
             />
             <value-component :definition="definition" v-if="isValue()" />
             <select-component
+                class="w-full"
                 v-if="isSelect()"
                 :property="property.name"
                 :value.sync="property.value"
