@@ -27,6 +27,7 @@
 <script>
 import RenderEntityPropertyDataComponent from "./RenderEntityPropertyData.component.vue";
 import DataService from "./data.service.js";
+import { isString, isPlainObject } from "lodash";
 
 export default {
     components: {
@@ -110,11 +111,24 @@ export default {
             }
         },
         async createProperty({ property, value }) {
-            await this.dataService.createProperty({
-                srcEntityId: this.entity.id,
-                property,
-                value,
-            });
+            if (isString(value)) {
+                await this.dataService.createProperty({
+                    srcEntityId: this.entity.id,
+                    property,
+                    value,
+                });
+            } else if (isPlainObject(value)) {
+                let { entity } = await this.dataService.createEntity({
+                    name: "",
+                    etype: "URL",
+                    eid: value["@id"],
+                });
+                await this.dataService.associate({
+                    srcEntityId: this.entity.id,
+                    property,
+                    tgtEntityId: entity.id,
+                });
+            }
             this.$emit("refresh");
         },
         async deleteProperty({ entityId, propertyId }) {
