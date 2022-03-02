@@ -5,6 +5,7 @@
             'bg-green-200 p-1 rounded': update.success === property,
             'bg-red-200 p-1 rounded': update.error === property,
         }"
+        v-if="propertyDefinition"
     >
         <div class="w-64 pt-2">
             <div v-if="propertyDefinition.label">
@@ -51,7 +52,7 @@ export default {
     data() {
         return {
             property: "name",
-            propertyDefinition: this.inputDefinitions.filter((i) => i.name === "name")[0],
+            propertyDefinition: this.inputDefinitions.filter((i) => i.name === "name")?.[0],
             update: {
                 error: false,
                 success: false,

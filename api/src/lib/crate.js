@@ -12,6 +12,7 @@ import { loadClassDefinition, loadProfile } from "./profile";
 import models from "../models";
 import { syncLocalFileToRemote } from "../lib/file-browser";
 import fetch from "node-fetch";
+import { isURL } from "validator";
 
 import { loadConfiguration } from "../common";
 import { getLogger } from "../common/logger";
@@ -226,8 +227,6 @@ export class Crate {
                             value,
                         });
                     } else if (isPlainObject(value) && "@id" in value) {
-                        // const tgtEntityId = entitiesById[value["@id"]].pop()
-                        //     .uuid;
                         let tgtEntityId = entitiesById[value["@id"]];
                         if (tgtEntityId && tgtEntityId.length) {
                             tgtEntityId = tgtEntityId.pop().uuid;
@@ -237,6 +236,30 @@ export class Crate {
                                 entityId: entity.uuid,
                                 property,
                                 tgtEntityId,
+                            });
+                        } else if (
+                            !tgtEntityId &&
+                            isURL(value["@id"], { protocols: ["http", "https", "ftp", "ftps"] })
+                        ) {
+                            let tgtEntity = await insertEntity({
+                                collectionId: collection.id,
+                                entity: { "@id": value["@id"], "@type": "URL" },
+                                profile: this.profile,
+                            });
+                            await associate({
+                                typeDefinition: propertyDefinition,
+                                collectionId: collection.id,
+                                entityId: entity.uuid,
+                                property,
+                                tgtEntityId: tgtEntity.id,
+                            });
+                        } else {
+                            await attachProperty({
+                                typeDefinition: propertyDefinition,
+                                collectionId: collection.id,
+                                entityId: entity.uuid,
+                                property,
+                                value: value["@id"],
                             });
                         }
                     }

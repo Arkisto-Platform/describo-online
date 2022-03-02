@@ -248,6 +248,28 @@ describe("Test loading a crate from a file", () => {
             crate,
         });
         expect(rootDataset).toEqual(crate["@graph"][1]);
+
+        crate = {
+            "@context": "https://w3id.org/ro/crate/1.1/context",
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: { "@id": "https://w3id.org/ro/crate/1.1" },
+                    about: { "@id": "something" },
+                },
+
+                {
+                    "@id": "something",
+                    "@type": "Dataset",
+                    name: "My crate",
+                },
+            ],
+        };
+        ({ rootDescriptor, rootDataset } = new Crate({ profile }).getRootDataset({
+            crate,
+        }));
+        expect(rootDataset).toEqual(crate["@graph"][1]);
     });
     test("it should not find the root dataset", async () => {
         let crate = {
@@ -776,5 +798,121 @@ describe("Test loading a crate from a file", () => {
                 actions,
             });
         }
+    });
+    test("handling object property values that point outside of a crate - succeed on http", async () => {
+        const name = "asdsadkgsdfgsdf";
+        const crate = {
+            "@context": ["https://w3id.org/ro/crate/1.1/context"],
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: {
+                        "@id": "https://w3id.org/ro/crate/1.1",
+                    },
+                    about: { "@id": "./" },
+                },
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    name: "dataset",
+                    author: "Person",
+                    contributor: [{ "@id": "http://schema.org/Person" }],
+                },
+            ],
+        };
+        const collection = await insertCollection({ name });
+        let crateManager = new Crate({ profile });
+        await crateManager.importCrateIntoDatabase({
+            collection,
+            crate,
+            sync: true,
+        });
+        let entities = await models.entity.findAll({
+            where: { collectionId: collection.id, etype: "URL" },
+        });
+        expect(entities.length).toEqual(1);
+
+        await removeCollection({ id: collection.id });
+    });
+    test("handling object property values that point outside of a crate - succeed on ftps", async () => {
+        const name = "asdsadkgsdfgsdf";
+        const crate = {
+            "@context": ["https://w3id.org/ro/crate/1.1/context"],
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: {
+                        "@id": "https://w3id.org/ro/crate/1.1",
+                    },
+                    about: { "@id": "./" },
+                },
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    name: "dataset",
+                    author: "Person",
+                    contributor: [{ "@id": "ftps://schema.org/Person" }],
+                },
+            ],
+        };
+        const collection = await insertCollection({ name });
+        let crateManager = new Crate({ profile });
+        await crateManager.importCrateIntoDatabase({
+            collection,
+            crate,
+            sync: true,
+        });
+        let entities = await models.entity.findAll({
+            where: { collectionId: collection.id, etype: "URL" },
+        });
+        expect(entities.length).toEqual(1);
+
+        await removeCollection({ id: collection.id });
+    });
+    test("handling object property values that point outside of a crate - fail on arcp", async () => {
+        const name = "asdsadkgsdfgsdf";
+        const crate = {
+            "@context": ["https://w3id.org/ro/crate/1.1/context"],
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: {
+                        "@id": "https://w3id.org/ro/crate/1.1",
+                    },
+                    about: { "@id": "./" },
+                },
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    name: "dataset",
+                    author: "Person",
+                    contributor: [{ "@id": "arcp://schema.org/Person" }],
+                },
+            ],
+        };
+        const collection = await insertCollection({ name });
+        let crateManager = new Crate({ profile });
+        await crateManager.importCrateIntoDatabase({
+            collection,
+            crate,
+            sync: true,
+        });
+        let entities = await models.entity.findAll({
+            where: { collectionId: collection.id, etype: "URL" },
+        });
+        expect(entities.length).toEqual(0);
+
+        entities = await models.entity.findAll({
+            where: { collectionId: collection.id },
+            include: [{ model: models.property }],
+        });
+        expect(entities[0].properties.filter((p) => p.name === "contributor")[0].value).toMatch(
+            /arcp\:/
+        );
+
+        await removeCollection({ id: collection.id });
     });
 });
