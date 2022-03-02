@@ -80,7 +80,10 @@ export default {
             required: true,
         },
         definition: {
-            type: Object,
+            type: Object | undefined,
+            default: () => ({
+                type: " Text",
+            }),
         },
     },
     data() {
