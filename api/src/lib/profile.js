@@ -227,6 +227,7 @@ export async function loadClassDefinition({ classNames, profile }) {
         }
     }
 
+    inputs = flattenDeep(inputs);
     inputs = uniqBy(inputs, "name");
     inputs = inputs.map((input) => {
         if (!input.label) {
