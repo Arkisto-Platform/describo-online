@@ -57,6 +57,12 @@
                     :definition="definition"
                     @save:property="createProperty"
                 />
+                <select-url-component
+                    v-if="addType === 'SelectURL'"
+                    :property="property"
+                    :definition="definition"
+                    @save:property="createProperty"
+                />
             </div>
             <div v-else class="w-full">
                 <div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600 ">
@@ -86,6 +92,7 @@ import DateTimeComponent from "./DateTime.component.vue";
 import TimeComponent from "./Time.component.vue";
 import NumberComponent from "./Number.component.vue";
 import UrlComponent from "./Url.component.vue";
+import SelectUrlComponent from "./SelectUrl.component.vue";
 import SelectComponent from "./Select.component.vue";
 import AutocompleteComponent from "./AutoComplete.component.vue";
 
@@ -98,6 +105,7 @@ export default {
         TimeComponent,
         NumberComponent,
         UrlComponent,
+        SelectUrlComponent,
         SelectComponent,
         AutocompleteComponent,
     },
@@ -127,6 +135,7 @@ export default {
                 "Float",
                 "Integer",
                 "URL",
+                "SelectURL",
                 "Value",
                 "Select",
             ],
