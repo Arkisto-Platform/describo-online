@@ -70,6 +70,7 @@ services:
             - .git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
             - ./scripts/wait-for-it.sh:/wait-for-it.sh
+            - $HOME/Desktop:/home/$USER
         working_dir: /srv/api
         command:
             [
