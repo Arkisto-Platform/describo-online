@@ -168,11 +168,9 @@ export default {
             this.close();
         },
         createObject(data) {
-            this.$emit("create:entity", {
-                eid: data["@id"],
-                etype: data["@type"],
-                entityName: data.name,
+            this.$emit("create:object", {
                 property: this.property,
+                ...data,
             });
             this.close();
         },

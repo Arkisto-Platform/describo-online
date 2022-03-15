@@ -20,6 +20,7 @@
                 :embedded="false"
                 @create:property="createProperty"
                 @create:entity="createEntity"
+                @create:object="createObject"
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
                 v-if="
@@ -98,6 +99,9 @@ export default {
         },
         createEntity(data) {
             this.$emit("create:entity", data);
+        },
+        createObject(data) {
+            this.$emit("create:object", data);
         },
         linkEntity(data) {
             this.$emit("link:entity", data);

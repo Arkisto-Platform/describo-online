@@ -15,6 +15,7 @@
                 :definition="definition(name)"
                 @create:property="createProperty"
                 @create:entity="createEntity"
+                @create:object="createObject"
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
                 @save:property="saveProperty"
@@ -144,6 +145,28 @@ export default {
                 property,
                 tgtEntityId: entity.id,
             });
+            this.$emit("refresh");
+        },
+        async createObject({ property, ...data }) {
+            let { entity } = await this.dataService.createEntity({
+                eid: data["@id"],
+                etype: data["@type"],
+                name: data.name,
+            });
+            await this.dataService.associate({
+                srcEntityId: this.entity.id,
+                property,
+                tgtEntityId: entity.id,
+            });
+
+            let props = Object.keys(data).filter((k) => !["@id", "@type", "name"].includes(k));
+            for (let prop of props) {
+                await this.dataService.createProperty({
+                    srcEntityId: entity.id,
+                    property: prop,
+                    value: data[prop],
+                });
+            }
             this.$emit("refresh");
         },
         async linkEntity({ property, tgtEntityId }) {
