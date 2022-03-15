@@ -117,19 +117,14 @@ export default {
                     property,
                     value,
                 });
+                this.$emit("refresh");
             } else if (isPlainObject(value)) {
-                let { entity } = await this.dataService.createEntity({
+                await this.createEntity({
                     name: "",
                     etype: "URL",
                     eid: value["@id"],
                 });
-                await this.dataService.associate({
-                    srcEntityId: this.entity.id,
-                    property,
-                    tgtEntityId: entity.id,
-                });
             }
-            this.$emit("refresh");
         },
         async deleteProperty({ entityId, propertyId }) {
             await this.dataService.deleteProperty({
@@ -138,10 +133,11 @@ export default {
             });
             this.$emit("refresh");
         },
-        async createEntity({ property, entityName, etype }) {
+        async createEntity({ property, entityName, etype, eid }) {
             let { entity } = await this.dataService.createEntity({
-                name: entityName,
+                eid,
                 etype,
+                name: entityName,
             });
             await this.dataService.associate({
                 srcEntityId: this.entity.id,

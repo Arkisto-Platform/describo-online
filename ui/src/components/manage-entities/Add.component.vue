@@ -63,6 +63,12 @@
                     :definition="definition"
                     @save:property="createProperty"
                 />
+                <select-object-component
+                    v-if="addType === 'SelectObject'"
+                    :property="property"
+                    :definition="definition"
+                    @create:object="createObject"
+                />
             </div>
             <div v-else class="w-full">
                 <div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600 ">
@@ -92,8 +98,9 @@ import DateTimeComponent from "./DateTime.component.vue";
 import TimeComponent from "./Time.component.vue";
 import NumberComponent from "./Number.component.vue";
 import UrlComponent from "./Url.component.vue";
-import SelectUrlComponent from "./SelectUrl.component.vue";
 import SelectComponent from "./Select.component.vue";
+import SelectUrlComponent from "./SelectUrl.component.vue";
+import SelectObjectComponent from "./SelectObject.component.vue";
 import AutocompleteComponent from "./AutoComplete.component.vue";
 
 export default {
@@ -106,6 +113,7 @@ export default {
         NumberComponent,
         UrlComponent,
         SelectUrlComponent,
+        SelectObjectComponent,
         SelectComponent,
         AutocompleteComponent,
     },
@@ -135,9 +143,10 @@ export default {
                 "Float",
                 "Integer",
                 "URL",
-                "SelectURL",
                 "Value",
                 "Select",
+                "SelectURL",
+                "SelectObject",
             ],
             addType: undefined,
         };
@@ -156,6 +165,15 @@ export default {
         },
         createProperty(data) {
             this.$emit("create:property", data);
+            this.close();
+        },
+        createObject(data) {
+            this.$emit("create:entity", {
+                eid: data["@id"],
+                etype: data["@type"],
+                entityName: data.name,
+                property: this.property,
+            });
             this.close();
         },
         createEntity({ name }) {
