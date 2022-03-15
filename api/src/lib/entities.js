@@ -18,13 +18,23 @@ export async function insertEntity({ entity, collectionId, profile }) {
     } catch (error) {
         hierarchy = [entity["@type"] ? entity["@type"] : entity.etype, "Thing"];
     }
-    entity = await models.entity.create({
-        eid: entity["@id"] ? entity["@id"] : entity.eid,
-        etype: entity["@type"] ? entity["@type"] : entity.etype,
-        hierarchy: hierarchy.join(", "),
-        name: entity["name"],
-        collectionId,
+    entity = await models.entity.findOrCreate({
+        where: {
+            eid: entity["@id"] ? entity["@id"] : entity.eid,
+            etype: entity["@type"] ? entity["@type"] : entity.etype,
+            hierarchy: hierarchy.join(", "),
+            name: entity["name"],
+            collectionId,
+        },
+        defaults: {
+            eid: entity["@id"] ? entity["@id"] : entity.eid,
+            etype: entity["@type"] ? entity["@type"] : entity.etype,
+            hierarchy: hierarchy.join(", "),
+            name: entity["name"],
+            collectionId,
+        },
     });
+    entity = entity[0];
     if (!entity.eid) {
         entity = await entity.update({
             eid: entity.id,
