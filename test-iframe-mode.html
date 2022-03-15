@@ -4,7 +4,8 @@
     <body>
         <script>
             async function main() {
-                let response = await fetch("http://localhost:9000/api/session/application", {
+                const host = "http://localhost:9000";
+                let response = await fetch(`${host}/api/session/application`, {
                     method: "POST",
                     headers: {
                         Authorization: "Bearer xxx",
@@ -15,7 +16,7 @@
                 let { sessionId } = await response.json();
                 let div = document.getElementById("frame-div");
                 let frame = document.createElement("iframe");
-                frame.src = `http://localhost:9000/application?sid=${sessionId}`;
+                frame.src = `${host}/application?sid=${sessionId}`;
                 frame.width = `${window.innerWidth - 20}px`;
                 frame.height = `${window.innerHeight - 50}px`;
                 frame.style = "border:0; margin: auto auto;";
