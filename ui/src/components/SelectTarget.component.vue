@@ -1,21 +1,5 @@
 <template>
     <div class="flex flex-col bg-white p-4" v-if="!embeddedSession">
-        <div class="flex flex-row space-x-1">
-            <div v-if="target.resource && !revaDeployment">
-                <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
-                    Use another service
-                </el-button>
-            </div>
-            <div class="flex flex-row space-x-2 text-sm" v-if="target.resource && target.folder">
-                <div>
-                    <el-button type="danger" @click="selectNewTargetFolder" size="mini">
-                        <i class="fas fa-trash"></i>
-                    </el-button>
-                </div>
-                <div class="pt-1">Resource:</div>
-                <div class="pt-1">{{ target.resource }}:{{ target.folder.path }}</div>
-            </div>
-        </div>
         <div v-if="!target.resource && !target.folder" class="flex flex-col">
             <div>
                 Select a resource to work with
@@ -85,6 +69,8 @@ export default {
     },
     methods: {
         async setup() {
+            this.$store.commit("reset");
+            this.selectedFolder = undefined;
             const session = this.$store.state.session;
             if (session.embedded) {
                 this.embeddedSession = true;
@@ -104,19 +90,7 @@ export default {
                 resource: this.target.resource,
                 folder,
             });
-        },
-        selectNewTargetFolder() {
-            this.selectedFolder = undefined;
-            const targetResource = this.target.resource;
-            this.$store.commit("reset");
-            this.$store.commit("setTargetResource", {
-                resource: targetResource,
-                folder: undefined,
-            });
-        },
-        selectNewResourceAndTarget() {
-            this.selectedFolder = undefined;
-            this.$store.commit("reset");
+            this.$router.push({ path: "/collection/build", query: { eid: "RootDataset" } });
         },
         async setLocalTarget() {
             await this.$http.post({ route: "/session/configuration/local", body: {} });

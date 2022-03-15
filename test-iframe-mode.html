@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script>
+            async function main() {
+                let response = await fetch("http://localhost:9000/api/session/application", {
+                    method: "POST",
+                    headers: {
+                        Authorization: "Bearer xxx",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email: "john@email.com", name: "John Citizen" }),
+                });
+                let { sessionId } = await response.json();
+                let div = document.getElementById("frame-div");
+                let frame = document.createElement("iframe");
+                frame.src = `http://localhost:9000/application?sid=${sessionId}`;
+                frame.width = `${window.innerWidth - 20}px`;
+                frame.height = `${window.innerHeight - 50}px`;
+                frame.style = "border:0; margin: auto auto;";
+                frame.frameborder = 0;
+                div.appendChild(frame);
+            }
+            main();
+        </script>
+
+        <div id="frame-div"></div>
+    </body>
+</html>

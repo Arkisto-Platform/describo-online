@@ -2,6 +2,7 @@ import { cloneDeep } from "lodash";
 import Vue from "vue";
 import Vuex from "vuex";
 Vue.use(Vuex);
+import router from "@/routes";
 
 const mutations = {
     reset: (state) => {
@@ -22,6 +23,7 @@ const mutations = {
     },
     setSelectedEntity(state, payload) {
         state.selectedEntity = { ...payload };
+        router.push({ query: { eid: state.selectedEntity.id } }).catch(() => {});
     },
     setSessionInformation(state, payload) {
         state.session = { ...state.session, ...payload };

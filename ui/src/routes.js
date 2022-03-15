@@ -1,6 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import ShellComponent from "@/components/Shell.component.vue";
+import ManageCollectionShellComponent from "@/components/ManageCollectionShell.component.vue";
+import SelectTargetComponent from "@/components/SelectTarget.component.vue";
 import LogoutComponent from "@/components/Logout.component.vue";
 import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
@@ -17,6 +19,32 @@ const routes = [
         meta: {
             requiresAuth: true,
         },
+        children: [
+            {
+                name: "select-target",
+                path: "select-target",
+                component: SelectTargetComponent,
+            },
+            {
+                name: "collection",
+                path: "collection",
+                component: ManageCollectionShellComponent,
+                children: [
+                    { name: "build", path: "build", component: ManageCollectionShellComponent },
+                    { name: "files", path: "files", component: ManageCollectionShellComponent },
+                    {
+                        name: "entities",
+                        path: "entities",
+                        component: ManageCollectionShellComponent,
+                    },
+                    {
+                        name: "templates",
+                        path: "templates",
+                        component: ManageCollectionShellComponent,
+                    },
+                ],
+            },
+        ],
     },
     {
         name: "login",
