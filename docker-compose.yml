@@ -25,29 +25,29 @@ services:
         # ports:
         #     - 5432:5432
 
-    minio:
-        image: minio/minio:latest
-        restart: always
-        ports:
-            - 10000:9000
-            - 10001:10001
-        environment:
-            MINIO_ROOT_USER: minio
-            MINIO_ROOT_PASSWORD: minio_pass
-        entrypoint: bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data --console-address ":10001"'
-        volumes:
-            - MINIO_VOLUME:/data
-        healthcheck:
-            test:
-                [
-                    "CMD",
-                    "curl",
-                    "-f",
-                    "http://localhost:10001/minio/health/live"
-                ]
-            interval: 30s
-            timeout: 20s
-            retries: 3
+        # minio:
+        #     image: minio/minio:latest
+        #     restart: always
+        #     ports:
+        #         - 10000:9000
+        #         - 10001:10001
+        #     environment:
+        #         MINIO_ROOT_USER: minio
+        #         MINIO_ROOT_PASSWORD: minio_pass
+        #     entrypoint: bash -c 'mkdir -p /data/uploads && /opt/bin/minio server /data --console-address ":10001"'
+        #     volumes:
+        #         - MINIO_VOLUME:/data
+        #     healthcheck:
+        #         test:
+        #             [
+        #                 "CMD",
+        #                 "curl",
+        #                 "-f",
+        #                 "http://localhost:10001/minio/health/live"
+        #             ]
+        #         interval: 30s
+        #         timeout: 20s
+        #         retries: 3
 
     api:
         image: node:14-buster
