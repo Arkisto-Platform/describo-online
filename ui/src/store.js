@@ -15,7 +15,6 @@ const mutations = {
         state.configuration = { ...payload.configuration };
     },
     setTargetResource: (state, payload) => {
-        state.session = { create: new Date() };
         state.target = { ...payload };
     },
     setActiveCollection(state, payload) {
@@ -26,7 +25,7 @@ const mutations = {
         router.push({ query: { eid: state.selectedEntity.id } }).catch(() => {});
     },
     setSessionInformation(state, payload) {
-        state.session = { ...state.session, ...payload };
+        state.session = { ...payload, created: new Date() };
     },
     setProfile(state, payload) {
         state.profile = { ...payload };
@@ -46,7 +45,6 @@ const actions = {
 export const store = new Vuex.Store({
     state: {
         ...resetState(),
-        configuration: undefined,
     },
     mutations,
     actions,
@@ -55,9 +53,7 @@ export const store = new Vuex.Store({
 
 function resetState() {
     return cloneDeep({
-        session: {
-            create: new Date(),
-        },
+        session: {},
         target: {
             resource: undefined,
             folder: undefined,
@@ -68,6 +64,7 @@ function resetState() {
             description: undefined,
             file: undefined,
         },
+        configuration: undefined,
         collection: {},
         selectedEntity: { id: "RootDataset" },
     });

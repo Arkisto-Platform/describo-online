@@ -18,7 +18,8 @@ export default {
         async logout() {
             removeSessionSID();
             removeToken();
-            this.$store.commit("reset");
+            this.$store.commit("setTargetResource", { resource: undefined, folder: undefined });
+            this.$store.commit("setProfile", {});
             this.$router.push("/login");
         },
     },

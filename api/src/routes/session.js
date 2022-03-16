@@ -14,7 +14,7 @@ import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken } from "../lib/backend-owncloud";
 import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api";
-import crypto from "crypto";
+import { loadInstalledProfiles } from "../lib/profile";
 
 const log = getLogger();
 
@@ -136,17 +136,29 @@ export async function createApplicationSession(req, res, next) {
     }
 
     try {
+        let data = {};
         let service = {};
         if (req.body.session?.owncloud) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         } else if (req.body.session?.s3) {
             service.s3 = assembleS3Configuration({ params: req.body.session.s3 });
         }
+        data.service = service;
+
+        let profiles = await loadInstalledProfiles({});
+        let profile;
+        if (req.body?.profile?.file) {
+            profile = profiles.filter((p) => p.file === req.body.profile.file);
+            if (profile.length) {
+                data.profile = profile[0];
+            }
+        }
+
         let sessionId = await postSession({
             authorization,
             email,
             name,
-            data: { service },
+            data,
         });
         res.send({ sessionId });
         next();
@@ -297,7 +309,7 @@ export function assembleOwncloudConfiguration({ params }) {
 
 export function assembleS3Configuration({ params }) {
     const requiredParams = ["provider", "awsAccessKeyId", "awsSecretAccessKey"];
-    const optionalParams = ["region", "folder"];
+    const optionalParams = ["region", "folder", "url"];
     if (!params.region) params.region = "us-east-1";
 
     if (!params.provider) {

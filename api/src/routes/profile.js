@@ -33,7 +33,6 @@ export async function lookupProfileRouteHandler(req, res, next) {
         let { query } = req.query;
         // let matches = await lookupProfile({ collectionId, query });
         let profile = await loadProfile({ file: req.session.data.profile.file });
-        console.log(profile);
         res.send({ matches });
         return next(0);
     } catch (error) {

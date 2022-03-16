@@ -36,7 +36,6 @@ export default {
     },
     mounted() {
         this.$store.dispatch("loadConfiguration");
-        if (this.$route.path === "/") this.$router.replace({ path: "/select-target" });
     },
     methods: {
         async restoreSession() {
@@ -44,7 +43,16 @@ export default {
             if (response.status !== 200) {
             }
             let { session, embeddedSession } = await response.json();
-            this.$store.commit("setSessionInformation", { ...session, embedded: embeddedSession });
+            if (session?.profile) {
+                let profile = { ...session.profile };
+                this.$store.commit("setProfile", { ...profile });
+                delete session.profile;
+            }
+            if (session) {
+                session = { ...session, embedded: embeddedSession };
+                this.$store.commit("setSessionInformation", { ...session });
+            }
+            if (this.$route.path === "/") this.$router.replace({ path: "/select-target" });
             this.ready = true;
         },
     },

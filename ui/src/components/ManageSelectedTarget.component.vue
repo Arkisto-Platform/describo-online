@@ -1,17 +1,17 @@
 <template>
     <div class="flex flex-row space-x-1 bg-white p-4">
-        <div v-if="target.resource && !revaDeployment">
+        <div v-if="target.resource && !revaDeployment && !session.embedded">
             <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
                 Use another service
             </el-button>
         </div>
-        <div class="flex flex-row space-x-2 text-sm" v-if="target.resource && target.folder">
-            <div>
+        <div class="flex flex-row text-sm" v-if="target.resource && target.folder">
+            <div v-if="!session.embedded" class="mr-2">
                 <el-button type="danger" @click="selectNewTargetFolder" size="mini">
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
-            <div class="pt-1">Resource:</div>
+            <div class="pt-1">Resource:&nbsp;</div>
             <div class="pt-1">{{ target.resource }}:{{ target.folder.path }}</div>
         </div>
     </div>
@@ -22,6 +22,7 @@ export default {
     data() {
         return {
             revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
+            session: this.$store.state.session,
         };
     },
     computed: {
@@ -32,7 +33,6 @@ export default {
     methods: {
         selectNewTargetFolder() {
             const targetResource = this.target.resource;
-            this.$store.commit("reset");
             this.$store.commit("setTargetResource", {
                 resource: targetResource,
                 folder: undefined,
@@ -40,7 +40,10 @@ export default {
             this.$router.push({ path: "/select-target" });
         },
         selectNewResourceAndTarget() {
-            this.$store.commit("reset");
+            this.$store.commit("setTargetResource", {
+                resource: undefined,
+                folder: undefined,
+            });
             this.$router.push({ path: "/select-target" });
         },
     },

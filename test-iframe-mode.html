@@ -11,7 +11,23 @@
                         Authorization: "Bearer xxx",
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ email: "john@email.com", name: "John Citizen" }),
+                    body: JSON.stringify({
+                        email: "john@email.com",
+                        name: "John Citizen",
+                        // session: {
+                        //     s3: {
+                        //         provider: "Minio",
+                        //         url: "https://{your s3 endpoint}",
+                        //         folder: "development",
+                        //         awsAccessKeyId: "set key here",
+                        //         awsSecretAccessKey: "set secret here",
+                        //         region: "us-east-1",
+                        //     },
+                        // },
+                        // profile: {
+                        //     file: "nyingarn-profile.json",
+                        // }    ,
+                    }),
                 });
                 let { sessionId } = await response.json();
                 let div = document.getElementById("frame-div");

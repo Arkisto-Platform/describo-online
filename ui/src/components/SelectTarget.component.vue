@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col bg-white p-4" v-if="!embeddedSession">
+    <div class="flex flex-col bg-white p-4">
         <div v-if="!target.resource && !target.folder" class="flex flex-col">
             <div>
                 Select a resource to work with
@@ -37,8 +37,8 @@ export default {
     data() {
         return {
             configuration: {},
+            session: { ...this.$store.state.session },
             selectedFolder: undefined,
-            embeddedSession: false,
             revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
         };
     },
@@ -69,18 +69,15 @@ export default {
     },
     methods: {
         async setup() {
-            this.$store.commit("reset");
             this.selectedFolder = undefined;
-            const session = this.$store.state.session;
-            if (session.embedded) {
-                this.embeddedSession = true;
-                let resource = Object.keys(session.service).pop();
-                let folder = { path: session.service[resource].folder };
+
+            if (this.session.embedded) {
+                let resource = Object.keys(this.session.service).pop();
+                let folder = { path: this.session.service?.[resource]?.folder };
                 if (resource && folder.path) {
                     this.selectedFolder = folder;
                     this.$store.commit("setTargetResource", { resource, folder });
-                } else {
-                    this.embeddedSession = false;
+                    this.$router.push({ path: "/collection/build", query: { eid: "RootDataset" } });
                 }
             }
         },
