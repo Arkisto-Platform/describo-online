@@ -161,11 +161,13 @@ export default {
 
             let props = Object.keys(data).filter((k) => !["@id", "@type", "name"].includes(k));
             for (let prop of props) {
-                await this.dataService.createProperty({
-                    srcEntityId: entity.id,
-                    property: prop,
-                    value: data[prop],
-                });
+                if (isString(data[prop])) {
+                    await this.dataService.createProperty({
+                        srcEntityId: entity.id,
+                        property: prop,
+                        value: data[prop],
+                    });
+                }
             }
             this.$emit("refresh");
         },
