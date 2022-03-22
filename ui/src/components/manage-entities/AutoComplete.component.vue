@@ -3,11 +3,12 @@
         class="w-full"
         v-model="selection"
         placeholder=""
-        :filterable="true"
-        :clearable="true"
-        :automatic-dropdown="true"
-        :allow-create="true"
-        :remote="true"
+        filterable
+        clearable
+        default-first-option
+        automatic-dropdown
+        allow-create
+        remote
         :remote-method="querySearch"
         @change="handleSelect"
     >
@@ -77,6 +78,10 @@ export default {
             entities = entities.map((e) => ({ ...e, type: "internal" }));
             templates = templates.map((e) => ({ ...e, type: "template" }));
             let options = [
+                {
+                    label: "Create new entity",
+                    options: [],
+                },
                 {
                     label: "Entities in this crate",
                     options: entities,
