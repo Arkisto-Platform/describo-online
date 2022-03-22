@@ -5,6 +5,7 @@
             size="mini"
             v-model="internalValue"
             placeholder="Select"
+            filterable
             @change="save"
         >
             <el-option

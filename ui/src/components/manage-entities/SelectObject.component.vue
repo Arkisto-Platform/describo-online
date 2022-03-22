@@ -5,10 +5,13 @@
             size="mini"
             v-model="internalValue"
             placeholder="Select"
+            filterable
+            :filter-method="filter"
             @change="save"
+            @blur="reset"
         >
             <el-option
-                v-for="(item, idx) in definition.values"
+                v-for="(item, idx) in data"
                 :key="idx"
                 :value="item"
                 :value-key="item['@id']"
@@ -20,6 +23,7 @@
 </template>
 
 <script>
+import { values } from "lodash";
 export default {
     props: {
         property: {
@@ -36,6 +40,7 @@ export default {
     },
     data() {
         return {
+            data: [...this.definition.values],
             internalValue: this.value,
         };
     },
@@ -45,6 +50,19 @@ export default {
                 property: this.property,
                 ...this.internalValue,
             });
+        },
+        filter(d) {
+            this.data = this.definition.values.filter((v) => {
+                let match = false;
+                values(v).forEach((v) => {
+                    const re = new RegExp(d);
+                    if (v.toLowerCase().match(re)) match = true;
+                });
+                if (match) return v;
+            });
+        },
+        reset() {
+            this.data = [...this.definition.values];
         },
     },
 };
