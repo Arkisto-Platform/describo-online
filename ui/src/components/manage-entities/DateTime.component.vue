@@ -1,13 +1,16 @@
 <template>
-    <div class="flex flex-row">
+    <div class="flex flex-col">
         <el-date-picker
             v-model="internalValue"
             type="datetime"
             placeholder="Pick a date and time"
             @change="save"
-            :clearable="false"
+            :clearable="true"
         >
         </el-date-picker>
+        <div class="text-xs text-gray-700" v-if="!value">
+            Date format is: yyyy-mm-dd hh:mm:ss. e.g. 2021-03-22 03:23:00
+        </div>
     </div>
 </template>
 
