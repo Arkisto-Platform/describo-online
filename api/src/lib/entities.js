@@ -182,7 +182,7 @@ export async function findEntity({
     const orClause = [];
     if (hierarchy) {
         let clause = {
-            hierarchy: fuzzy ? { [Op.iLike]: `%${hierarchy}%` } : { [Op.eq]: etype },
+            etype: fuzzy ? { [Op.iLike]: `%${hierarchy}%` } : { [Op.eq]: etype },
         };
         andClause.push(clause);
     }
