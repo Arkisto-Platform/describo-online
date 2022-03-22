@@ -13,7 +13,8 @@ import {
     merge,
 } from "lodash";
 import path from "path";
-// import Ajv2019 from "ajv/dist/2019";
+import { getLogger } from "../common/logger";
+const log = getLogger();
 import Ajv from "ajv";
 const typeDefinitions = "/srv/type-definitions.json";
 const typeDefinitionsLookup = "/srv/type-definitions-lookup.json";
@@ -41,8 +42,13 @@ export async function loadInstalledProfiles({ profilePath }) {
     let profileMetadata = [];
     for (let profile of profiles) {
         let file = path.join(profilesFolder, profile);
-        let metadata = (await readJSON(file)).metadata;
-        profileMetadata.push({ ...metadata, file: profile });
+        let metadata;
+        try {
+            metadata = (await readJSON(file)).metadata;
+            profileMetadata.push({ ...metadata, file: profile });
+        } catch (error) {
+            log.error(`Failed loading profile: ${file}`);
+        }
     }
     return [
         {
