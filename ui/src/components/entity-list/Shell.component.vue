@@ -113,6 +113,9 @@ export default {
             this.$emit("manage-data");
         },
         async deleteEntity(id) {
+            if (this.$store.state.selectedEntity.id === id) {
+                this.$store.commit("setSelectedEntity", { id: "RootDataset" });
+            }
             await this.dataService.deleteEntity({ id });
             this.getEntities();
         },
