@@ -55,13 +55,13 @@
                     v-if="addType === 'URL'"
                     :property="property"
                     :definition="definition"
-                    @save:property="createProperty"
+                    @create:object="createObject"
                 />
                 <select-url-component
                     v-if="addType === 'SelectURL'"
                     :property="property"
                     :definition="definition"
-                    @save:property="createProperty"
+                    @create:object="createObject"
                 />
                 <select-object-component
                     v-if="addType === 'SelectObject'"

@@ -39,9 +39,10 @@ export default {
     },
     methods: {
         save() {
-            this.$emit("save:property", {
+            this.$emit("create:object", {
                 property: this.property,
-                value: { "@id": this.internalValue },
+                "@id": this.internalValue,
+                "@type": "URL",
             });
         },
         filter(d) {
