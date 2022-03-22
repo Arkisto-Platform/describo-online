@@ -18,21 +18,18 @@ export async function insertEntity({ entity, collectionId, profile }) {
     } catch (error) {
         hierarchy = [entity["@type"] ? entity["@type"] : entity.etype, "Thing"];
     }
+    let where = {
+        collectionId,
+    };
+    if (entity["@id"]) where.eid = entity["@id"];
+    if (entity.eid) where.eid = entity.eid;
+    if (entity["@type"]) where.etype = entity["@type"];
+    if (entity.etype) where.etype = entity.etype;
+    if (entity.name) where.name = entity.name;
+
     entity = await models.entity.findOrCreate({
-        where: {
-            eid: entity["@id"] ? entity["@id"] : entity.eid,
-            etype: entity["@type"] ? entity["@type"] : entity.etype,
-            hierarchy: hierarchy.join(", "),
-            name: entity["name"],
-            collectionId,
-        },
-        defaults: {
-            eid: entity["@id"] ? entity["@id"] : entity.eid,
-            etype: entity["@type"] ? entity["@type"] : entity.etype,
-            hierarchy: hierarchy.join(", "),
-            name: entity["name"],
-            collectionId,
-        },
+        where,
+        defaults: where,
     });
     entity = entity[0];
     if (!entity.eid) {

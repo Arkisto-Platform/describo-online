@@ -135,11 +135,12 @@ export default {
             this.$emit("refresh");
         },
         async createEntity({ property, entityName, etype, eid }) {
-            let { entity } = await this.dataService.createEntity({
+            let entity = {
                 eid,
                 etype,
                 name: entityName,
-            });
+            };
+            ({ entity } = await this.dataService.createEntity(entity));
             await this.dataService.associate({
                 srcEntityId: this.entity.id,
                 property,
