@@ -1,13 +1,18 @@
 <template>
-    <el-date-picker
-        v-model="internalValue"
-        type="date"
-        placeholder="Pick a date"
-        format="MMMM d, yyyy"
-        @change="save"
-        :clearable="false"
-    >
-    </el-date-picker>
+    <div class="flex flex-col">
+        <el-date-picker
+            v-model="internalValue"
+            type="date"
+            placeholder="Pick a date"
+            format="yyyy-MM-dd"
+            @change="save"
+            :clearable="true"
+        >
+        </el-date-picker>
+        <div class="text-xs text-gray-700" v-if="!value">
+            Date format is: yyyy-mm-dd. e.g. 2021-03-22
+        </div>
+    </div>
 </template>
 
 <script>
