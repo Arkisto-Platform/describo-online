@@ -1,14 +1,8 @@
-const models = require("../models");
-const { Op } = require("sequelize");
+import models from "../models";
+import { Op } from "sequelize";
 const sequelize = models.sequelize;
 
-module.exports = {
-    findCollection,
-    insertCollection,
-    removeCollection,
-};
-
-async function insertCollection({ name, description, metadata }) {
+export async function insertCollection({ name, description, metadata }) {
     if (!name) {
         throw new Error("You must provide a collection name");
     }
@@ -21,7 +15,7 @@ async function insertCollection({ name, description, metadata }) {
     ).get();
 }
 
-async function removeCollection({ id }) {
+export async function removeCollection({ id }) {
     await sequelize.transaction(async (t) => {
         await models.entity.destroy({
             where: { collectionId: id },
@@ -37,7 +31,7 @@ async function removeCollection({ id }) {
     });
 }
 
-async function findCollection({ id, name }) {
+export async function findCollection({ id, name }) {
     let where = {};
     if (id) where.id = id;
     if (name)
@@ -49,4 +43,14 @@ async function findCollection({ id, name }) {
         return collections.map((c) => c.get());
     }
     return [];
+}
+
+export async function getCollections({ page = 0, limit = 10 }) {
+    let where = {
+        where: {},
+        offset: page,
+        limit,
+        order: [["updatedAt", "DESC"]],
+    };
+    return await models.collection.findAndCountAll(where);
 }

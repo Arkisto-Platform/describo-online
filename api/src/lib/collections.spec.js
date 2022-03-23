@@ -1,5 +1,5 @@
 import "regenerator-runtime";
-import { findCollection, insertCollection, removeCollection } from "./collections";
+import { findCollection, insertCollection, removeCollection, getCollections } from "./collections";
 import { insertEntity, attachProperty } from "./entities";
 import models from "../models";
 const chance = require("chance").Chance();
@@ -160,5 +160,22 @@ describe("Test collection management operations", () => {
             });
             expect(entity.collectionId).toEqual(collection2.id);
         }
+    });
+    test("it should be able to find collections", async () => {
+        for (let i in [0, 1, 2]) {
+            await insertCollection({
+                name: chance.sentence(),
+                description: chance.sentence(),
+            });
+        }
+        
+        let c = await getCollections({});
+        expect(c.rows.length).toEqual(3);
+
+        let r1 = await getCollections({ page: 0, limit: 1 });
+        expect(r1.rows.length).toEqual(1);
+        let r2 = await getCollections({ page: 1, limit: 1 });
+        expect(r2.rows.length).toEqual(1);
+        expect(r1.rows[0].id).not.toEqual(r2.rows[0].id)
     });
 });
