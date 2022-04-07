@@ -4,9 +4,11 @@ import { removeCollection, insertCollection } from "../lib/collections";
 import { Crate } from "../lib/crate";
 import { createSessionForTest } from "../common";
 import { updateUserSession } from "../lib/user";
+import { ensureDir, remove, readJSON, readdir } from "fs-extra";
 import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
+import path from "path";
 
 const profile = {
     name: "schema.org",
@@ -21,7 +23,7 @@ describe("Test entity and property route operations", () => {
         ({ user, sessionId } = await createSessionForTest());
     });
     afterAll(async () => {
-        await models.sequelize.close();
+        // await models.sequelize.close();
     });
     test("it should get the root dataset and all of its properties", async () => {
         let collection = await loadData({ name: chance.sentence() });
@@ -464,6 +466,321 @@ describe("Test entity and property route operations", () => {
     });
 });
 
+describe("Test adding entities to the graph from external service", () => {
+    let sessionId, user;
+    let testFolder = "/tmp/test-crate";
+    beforeAll(async () => {
+        await ensureDir(testFolder);
+    });
+    beforeEach(async () => {
+        ({ user, sessionId } = await createSessionForTest());
+    });
+    afterEach(async () => {
+        await models.session.destroy({ where: { id: sessionId } });
+    });
+    afterAll(async () => {
+        await models.sequelize.close();
+        await remove(testFolder);
+    });
+    test("it should fail to add entities - no valid session found", async () => {
+        await models.session.destroy({ where: { id: sessionId } });
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(),
+        });
+        expect(response.status).toEqual(401);
+    });
+    test("it should fail to add entities - no collection loaded", async () => {
+        let session = await models.session.findOne({ where: { id: sessionId } });
+        session = await session.update({
+            data: {
+                service: {
+                    local: { provider: "local", folder: testFolder },
+                },
+            },
+        });
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(),
+        });
+        expect(response.status).toEqual(400);
+        let { message } = await response.json();
+        expect(message).toEqual("No current collection loaded for calling session");
+    });
+    test("it should fail to add entities - no profile loaded", async () => {
+        let session = await models.session.findOne({ where: { id: sessionId } });
+        session = await session.update({
+            data: {
+                service: {
+                    local: { provider: "local", folder: testFolder },
+                },
+            },
+        });
+        // load the crate - which happens to be empty
+        let response = await fetch(`${api}/load`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ resource: "local", folder: testFolder }),
+        });
+        expect(response.status).toEqual(200);
+        let { collection } = await response.json();
+
+        response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(),
+        });
+        expect(response.status).toEqual(400);
+        let { message } = await response.json();
+        expect(message).toEqual("No profile defined for calling session");
+
+        await models.collection.destroy({ where: { id: collection.id } });
+    });
+    test("it should be able to load a collection for use in this session", async () => {
+        let { collection } = await setupCollectionForTestingExternalUpdates({
+            sessionId,
+            testFolder,
+        });
+
+        // submit data to the graph
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Person",
+                    name: "a person",
+                },
+            ]),
+        });
+        expect(response.status).toEqual(200);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        let crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        let entity = crateFile["@graph"].filter((e) => e["@id"] === "http://schema.org/Person");
+        expect(entity.length).toEqual(1);
+
+        await models.collection.destroy({ where: { id: collection.id } });
+    });
+    test("update collection - test 1", async () => {
+        let { collection } = await setupCollectionForTestingExternalUpdates({
+            sessionId,
+            testFolder,
+        });
+
+        // submit data to the graph
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Person",
+                    name: "a person",
+                },
+            ]),
+        });
+        expect(response.status).toEqual(200);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        let crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        // console.log(crateFile);
+        let entity = crateFile["@graph"].filter((e) => e["@id"] === "http://schema.org/Person");
+        expect(entity.length).toEqual(1);
+
+        // attach person to root dataset as author
+        //  and to 'something' in addition to a text value
+        response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    author: { "@id": "http://schema.org/Person" },
+                    something: ["now", { "@id": "http://schema.org/Person" }],
+                },
+            ]),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        // console.log(JSON.stringify(crateFile, null, 2));
+        entity = crateFile["@graph"].filter((e) => e["@id"] === "./");
+        expect(entity.length).toEqual(1);
+        expect(entity[0].author.length).toEqual(1);
+        expect(entity[0].something.length).toEqual(2);
+
+        await models.collection.destroy({ where: { id: collection.id } });
+    });
+    test("update collection - test 2", async () => {
+        let { collection } = await setupCollectionForTestingExternalUpdates({
+            sessionId,
+            testFolder,
+        });
+
+        // submit data to the graph
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Person",
+                    name: "a person",
+                },
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Url",
+                    name: "a person",
+                },
+            ]),
+        });
+        expect(response.status).toEqual(200);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        let { insertions } = await response.json();
+        expect(insertions.good.length).toEqual(1);
+        expect(insertions.bad.length).toEqual(1);
+
+        let crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        // console.log(crateFile);
+        let entity = crateFile["@graph"].filter((e) => e["@id"] === "http://schema.org/Person");
+        expect(entity.length).toEqual(1);
+
+        await models.collection.destroy({ where: { id: collection.id } });
+    });
+    test("update collection - test 3", async () => {
+        let { collection } = await setupCollectionForTestingExternalUpdates({
+            sessionId,
+            testFolder,
+        });
+
+        // submit data to the graph
+        let response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Person",
+                    name: "a person",
+                },
+            ]),
+        });
+        expect(response.status).toEqual(200);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        let crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        // console.log(crateFile);
+        let entity = crateFile["@graph"].filter((e) => e["@id"] === "http://schema.org/Person");
+        expect(entity.length).toEqual(1);
+
+        // attach person to root dataset as author
+        //  and to 'something' in addition to a text value
+        response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    author: { "@id": "http://schema.org/Person" },
+                    something: ["now", { "@id": "http://schema.org/Person" }],
+                },
+            ]),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // attach an org to the person and dataset entities
+        response = await fetch(`${api}/session/entities`, {
+            method: "POST",
+            headers: {
+                Authorization: `sid ${sessionId}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+                {
+                    "@id": "http://organization.com",
+                    "@type": "Organization",
+                    name: "an organization",
+                },
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    participant: { "@id": "http://organization.com" },
+                },
+                {
+                    "@id": "http://schema.org/Person",
+                    "@type": "Person",
+                    organization: { "@id": "http://organization.com" },
+                },
+            ]),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        crateFile = await readJSON(path.join(testFolder, "ro-crate-metadata.json"));
+        // console.log(JSON.stringify(crateFile, null, 2));
+
+        entity = crateFile["@graph"].filter((e) => e["@id"] === "./");
+        expect(entity.length).toEqual(1);
+        expect(entity[0].participant).toEqual([{ "@id": "http://organization.com" }]);
+
+        entity = crateFile["@graph"].filter((e) => e["@id"] === "http://schema.org/Person");
+        expect(entity.length).toEqual(1);
+        expect(entity[0].organization).toEqual([{ "@id": "http://organization.com" }]);
+
+        entity = crateFile["@graph"].filter((e) => e["@id"] === "http://organization.com");
+        expect(entity.length).toEqual(1);
+        expect(entity[0]["@reverse"]).toEqual({
+            participant: [
+                {
+                    "@id": "./",
+                },
+            ],
+            organization: [
+                {
+                    "@id": "http://schema.org/Person",
+                },
+            ],
+        });
+
+        await models.collection.destroy({ where: { id: collection.id } });
+    });
+});
+
 async function loadData({ name }) {
     const crate = {
         "@context": ["https://w3id.org/ro/crate/1.1/context"],
@@ -500,10 +817,41 @@ async function loadData({ name }) {
     });
     return collection;
 }
-
 async function removeUser({ email }) {
     await models.user.destroy({ where: { email } });
 }
 async function removeProperty({ id }) {
     await models.property.destroy({ where: { id } });
+}
+async function setupCollectionForTestingExternalUpdates({ sessionId, testFolder }) {
+    let session = await models.session.findOne({ where: { id: sessionId } });
+
+    // set up a local session for testing
+    session = await session.update({
+        data: {
+            service: {
+                local: { provider: "local", folder: testFolder },
+            },
+            profile: {
+                file: "schema.org",
+            },
+        },
+    });
+
+    // load the crate - which happens to be empty
+    let response = await fetch(`${api}/load`, {
+        method: "POST",
+        headers: {
+            Authorization: `sid ${sessionId}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ resource: "local", folder: testFolder }),
+    });
+    expect(response.status).toEqual(200);
+    let { collection } = await response.json();
+
+    // pause
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return { collection };
 }

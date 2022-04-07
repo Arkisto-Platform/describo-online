@@ -15,7 +15,9 @@ import {
     associate,
     insertFilesAndFolders,
 } from "../lib/entities";
+import { loadClassDefinition } from "../lib/profile";
 import { saveCrate, getLogger, getS3Handle } from "../common";
+import { isArray, isPlainObject, isString, flattenDeep } from "lodash";
 const log = getLogger();
 
 export async function setupRoutes({ server }) {
@@ -33,6 +35,7 @@ export async function setupRoutes({ server }) {
     server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
     server.post("/files", route(postFilesRouteHandler));
     server.post("/s3/presigned-url", route(getPresignedUrlRouteHandler));
+    server.post("/session/entities", route(putEntitiesHandler));
 }
 
 export async function getEntityRouteHandler(req, res, next) {
@@ -444,4 +447,98 @@ export async function getPresignedUrlRouteHandler(req, res, next) {
     let url = await handle.bucket.getPresignedUrl({ target });
     res.send({ url });
     return next();
+}
+
+export async function putEntitiesHandler(req, res, next) {
+    if (!req.session.data?.current?.collectionId) {
+        log.error(`No current collection loaded for calling session`);
+        return next(new BadRequestError(`No current collection loaded for calling session`));
+    }
+    if (!req.session.data.profile) {
+        log.error(`No profile defined for calling session`);
+        return next(new BadRequestError(`No profile defined for calling session`));
+    }
+    const collectionId = req.session.data.current.collectionId;
+    const profile = req.session.data.profile;
+
+    let entities;
+    if (isArray(req.body)) {
+        entities = [...req.body];
+    } else if (isPlainObject(req.body)) {
+        entities = [req.body];
+    }
+
+    // add all of the new entities if we can
+    let actions = [];
+    let insertions = {
+        good: [],
+        bad: [],
+    };
+    for (let entity of entities) {
+        try {
+            let e = await insertEntity({
+                entity,
+                collectionId,
+                profile: req.session.data.profile,
+            });
+            entity = { ...entity, id: e.id };
+            actions.push({ name: "insert", entity });
+            insertions.good.push(entity);
+        } catch (error) {
+            log.error(`Failed to insert or locate ${JSON.stringify(entity)}`);
+            insertions.bad.push(entity);
+        }
+    }
+
+    // for all of the inserted entries, add their properties
+    for (let entity of insertions.good) {
+        let properties = Object.keys(entity).filter(
+            (p) => !["id", "@id", "@type", "name"].includes(p)
+        );
+        const typeDefinition = await loadClassDefinition({
+            classNames: [entity["@type"]],
+            profile,
+        });
+        for (let property of properties) {
+            let propertyDefinition;
+            try {
+                propertyDefinition = typeDefinition.inputs.filter((i) => i.name === property);
+                propertyDefinition = propertyDefinition.length ? propertyDefinition[0] : {};
+            } catch (error) {
+                propertyDefinition = {};
+            }
+            let data = flattenDeep([entity[property]]);
+            for (let instance of data) {
+                if (isString(instance)) {
+                    await attachProperty({
+                        typeDefinition: propertyDefinition,
+                        collectionId,
+                        entityId: entity.id,
+                        property,
+                        value: instance,
+                    });
+                } else if (isPlainObject(instance) && "@id" in instance) {
+                    let tgtEntity = await findEntity({ eid: instance["@id"], collectionId });
+                    if (tgtEntity.length === 1) tgtEntity = tgtEntity.pop();
+                    await associate({
+                        typeDefinition: propertyDefinition,
+                        collectionId,
+                        entityId: entity.id,
+                        property,
+                        tgtEntityId: tgtEntity.id,
+                    });
+                }
+            }
+        }
+        actions.push({ name: "update", entity });
+    }
+    await saveCrate({
+        session: req.session,
+        user: req.user,
+        collectionId,
+        actions,
+    });
+
+    res.send({ insertions });
+    next();
 }
