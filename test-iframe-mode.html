@@ -3,8 +3,9 @@
     <head></head>
     <body>
         <script>
+            let sessionId;
+            const host = "http://localhost:9000";
             async function main() {
-                const host = "http://localhost:9000";
                 let response = await fetch(`${host}/api/session/application`, {
                     method: "POST",
                     headers: {
@@ -15,21 +16,24 @@
                         email: "john@email.com",
                         name: "John Citizen",
                         // session: {
-                        //     s3: {
-                        //         provider: "Minio",
-                        //         url: "https://{your s3 endpoint}",
-                        //         folder: "development",
-                        //         awsAccessKeyId: "set key here",
-                        //         awsSecretAccessKey: "set secret here",
-                        //         region: "us-east-1",
-                        //     },
+                        // s3: {
+                        //     provider: "Minio",
+                        //     url: "https://{your s3 endpoint}",
+                        //     folder: "development",
+                        //     awsAccessKeyId: "set key here",
+                        //     awsSecretAccessKey: "set secret here",
+                        //     region: "us-east-1",
+                        // },
+                        // local: {
+                        //     folder: "{path to a folder in the container}",
+                        // },
                         // },
                         // profile: {
-                        //     file: "nyingarn-profile.json",
-                        // }    ,
+                        //     file: "schema.org",
+                        // },
                     }),
                 });
-                let { sessionId } = await response.json();
+                ({ sessionId } = await response.json());
                 let div = document.getElementById("frame-div");
                 let frame = document.createElement("iframe");
                 frame.src = `${host}/application?sid=${sessionId}`;
@@ -39,9 +43,39 @@
                 frame.frameborder = 0;
                 div.appendChild(frame);
             }
+
+            // Example method showing how an external service
+            //   can post data back to describo for inclusion into the graph.
+            //
+            //  Also look at the tests in "Test adding entities to the graph from external service"
+            //   in the file routes/entity.spec.js for more examples showing how to set up
+            //   a session programatically (the following example assumes the user has selected
+            //   a collection and profile already).
+            async function postToDescribo() {
+                let response = await fetch(`${host}/api/session/entities`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `sid ${sessionId}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify([
+                        {
+                            "@id": "./",
+                            "@type": ["Dataset"],
+                            annotator: { "@id": "http://schema.org/Person" },
+                        },
+                        {
+                            "@id": "http://schema.org/Person",
+                            "@type": "Person",
+                            name: "a person",
+                        },
+                    ]),
+                });
+            }
             main();
         </script>
 
+        <!-- <button onclick="postToDescribo()">post</button> -->
         <div id="frame-div"></div>
     </body>
 </html>
