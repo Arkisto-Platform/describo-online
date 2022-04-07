@@ -142,7 +142,10 @@ export async function createApplicationSession(req, res, next) {
             service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
         } else if (req.body.session?.s3) {
             service.s3 = assembleS3Configuration({ params: req.body.session.s3 });
+        } else if (req.body.session?.local) {
+            service.local = { provider: "local", folder: req.body.session.local.folder };
         }
+
         data.service = service;
 
         let profiles = await loadInstalledProfiles({});
