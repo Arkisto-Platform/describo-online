@@ -168,7 +168,7 @@ describe("Test collection management operations", () => {
                 description: chance.sentence(),
             });
         }
-        
+
         let c = await getCollections({});
         expect(c.rows.length).toEqual(3);
 
@@ -176,6 +176,6 @@ describe("Test collection management operations", () => {
         expect(r1.rows.length).toEqual(1);
         let r2 = await getCollections({ page: 1, limit: 1 });
         expect(r2.rows.length).toEqual(1);
-        expect(r1.rows[0].id).not.toEqual(r2.rows[0].id)
+        expect(r1.rows[0].id).not.toEqual(r2.rows[0].id);
     });
 });
