@@ -10,7 +10,7 @@ import { Crate } from "../lib/crate";
 import { updateUserSession } from "../lib/user";
 import path from "path";
 import { writeJSON, ensureDir } from "fs-extra";
-import { getLogger } from "../common/logger";
+import { Message, getLogger } from "../common";
 const log = getLogger();
 
 const defaultCrateFileName = "ro-crate-metadata.json";
@@ -34,7 +34,8 @@ const crateMetadata = {
 };
 
 export async function loadRouteHandler(req, res, next) {
-    req.io.emit("loadRouteHandler", {
+    const message = new Message({ io: req.io, path: "loadRouteHandler" });
+    message.emit({
         msg: "loading crate",
         stage: 1,
         total: 7,
@@ -45,7 +46,7 @@ export async function loadRouteHandler(req, res, next) {
     }
     let crate, collection, content, localFile;
     try {
-        req.io.emit("loadRouteHandler", {
+        message.emit({
             msg: "looking for ro crate file in target",
             stage: 2,
             total: 7,
@@ -61,7 +62,7 @@ export async function loadRouteHandler(req, res, next) {
         const crateManager = new Crate({ profile: req.session.data.profile });
         if (crateFile.length === 0) {
             // stamp a new crate file and load it back to the resource
-            req.io.emit("loadRouteHandler", {
+            message.emit({
                 msg: "no crate file found - stamping a new one",
                 stage: 3,
                 total: 7,
@@ -73,7 +74,6 @@ export async function loadRouteHandler(req, res, next) {
                 resource,
             });
             localFile = path.join(workingDirectory, "current", defaultCrateFileName);
-            console.log("localFile", localFile);
             await ensureDir(path.join(workingDirectory, "current"));
             await writeJSON(localFile, crateMetadata);
 
@@ -91,7 +91,7 @@ export async function loadRouteHandler(req, res, next) {
         } else {
             crateFile = crateFile.pop();
 
-            req.io.emit("loadRouteHandler", {
+            message.emit({
                 msg: "copying crate file from remote",
                 stage: 3,
                 total: 7,
@@ -106,7 +106,7 @@ export async function loadRouteHandler(req, res, next) {
             });
         }
 
-        req.io.emit("loadRouteHandler", {
+        message.emit({
             msg: "loading the crate file",
             stage: 4,
             total: 7,
@@ -117,7 +117,7 @@ export async function loadRouteHandler(req, res, next) {
 
         // stamp the current collection id into the session
         log.debug("Setting the collection id in the user session");
-        req.io.emit("loadRouteHandler", {
+        message.emit({
             msg: "setting up the user session",
             stage: 5,
             total: 7,
@@ -146,7 +146,7 @@ export async function loadRouteHandler(req, res, next) {
         });
 
         // sync the local file back to the remote
-        req.io.emit("loadRouteHandler", {
+        message.emit({
             msg: "sync'ing the crate file back to the remote",
             stage: 6,
             total: 7,
@@ -161,7 +161,7 @@ export async function loadRouteHandler(req, res, next) {
 
         //  load the crate into the database
         log.debug("Loading the crate data into the database");
-        req.io.emit("loadRouteHandler", {
+        message.emit({
             msg: "loading the crate data into the database",
             stage: 7,
             total: 7,
@@ -171,9 +171,8 @@ export async function loadRouteHandler(req, res, next) {
         await crateManager.importCrateIntoDatabase({ collection, crate, sync, io: req.io });
     } catch (error) {
         if (error.message === "That collection is already loaded.") {
-            req.io.emit("loadRouteHandler", { msg: `Loaded collection: ${collection.name}` });
+            message.emit({ msg: `Loaded collection: ${collection.name}` });
         } else {
-            console.log(error);
             log.error(`loadRouteHandler: ${error.message}`);
             return next(error);
         }
