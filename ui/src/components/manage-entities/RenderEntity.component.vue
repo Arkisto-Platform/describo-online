@@ -137,6 +137,9 @@ export default {
         },
     },
     mounted() {
+        this.$socket.on("ENTITY_UPDATED_HANDLER", (response) => {
+            this.getEntity();
+        });
         this.dataService = new DataService({
             $http: this.$http,
             $log: this.$log,
