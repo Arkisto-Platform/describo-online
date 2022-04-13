@@ -21,7 +21,7 @@
             <el-table-column prop="actions" label="Actions" width="300">
                 <template slot-scope="scope">
                     <el-popconfirm
-                        title="Are you sure you want to delete this collection?"
+                        title="Are you sure you want to remove this collection from Describo (the data on the storage is not touched)?"
                         @confirm="deleteCollection(scope.row.id)"
                     >
                         <template #reference>

@@ -16,7 +16,7 @@ import {
     insertFilesAndFolders,
 } from "../lib/entities";
 import { loadClassDefinition } from "../lib/profile";
-import { saveCrate, getLogger, getS3Handle } from "../common";
+import { saveCrate, getLogger, getS3Handle, Message } from "../common";
 import { isArray, isPlainObject, isString, flattenDeep } from "lodash";
 const log = getLogger();
 
@@ -458,6 +458,7 @@ export async function putEntitiesHandler(req, res, next) {
         log.error(`No profile defined for calling session`);
         return next(new BadRequestError(`No profile defined for calling session`));
     }
+    const message = new Message({ io: req.io, path: "entityUpdatedHandler" });
     const collectionId = req.session.data.current.collectionId;
     const profile = req.session.data.profile;
 
@@ -538,6 +539,8 @@ export async function putEntitiesHandler(req, res, next) {
         collectionId,
         actions,
     });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    message.emit();
 
     res.send({ insertions });
     next();

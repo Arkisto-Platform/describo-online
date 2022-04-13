@@ -7,8 +7,6 @@
 </template>
 
 <script>
-import { round } from "lodash";
-
 export default {
     data() {
         return {
@@ -22,7 +20,7 @@ export default {
         },
     },
     mounted() {
-        this.$socket.on("loadRouteHandler", (response) => {
+        this.$socket.on("LOAD_ROUTE_HANDLER", (response) => {
             this.msg = `${response.msg}`;
         });
         if (!this.$store.state.collection.id) {

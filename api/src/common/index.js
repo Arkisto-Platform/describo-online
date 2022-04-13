@@ -4,6 +4,7 @@ export { getLogger } from "./logger";
 export { getS3Handle } from "./getS3Handle";
 export { saveCrate } from "./save-crate";
 export { generateToken, verifyToken } from "./jwt";
+export { Message } from "./message";
 
 import fetch from "node-fetch";
 import { writeJSON } from "fs-extra";
