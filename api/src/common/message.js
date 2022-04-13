@@ -9,7 +9,6 @@ export class Message {
     }
 
     emit(msg) {
-        console.log("emit message");
         this.io.emit(this.path, msg);
     }
 }
