@@ -12,7 +12,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "[contenthash].js",
-        publicPath: "http://localhost:9000/",
+        publicPath: "/",
     },
     plugins: [
         new CleanWebpackPlugin(),
