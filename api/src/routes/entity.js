@@ -540,7 +540,6 @@ export async function putEntitiesHandler(req, res, next) {
         actions,
     });
     await new Promise((resolve) => setTimeout(resolve, 500));
-    message.emit();
 
     res.send({ insertions });
     next();
