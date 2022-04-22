@@ -1,5 +1,5 @@
 import models from "../models";
-import { cloneDeep, omit, difference } from "lodash";
+import { cloneDeep, omit, difference, merge } from "lodash";
 import {
     route,
     demandValidApplication,
@@ -27,11 +27,24 @@ export async function setupRoutes({ server }) {
         demandValidApplication,
         updateApplicationSession,
     ]);
-    server.get("/session/configuration/:serviceName", route(getServiceConfiguration));
-    server.post("/session/configuration/:serviceName", route(saveServiceConfiguration));
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
     server.post("/authenticate/reva", authenticateToRevaHandler);
     server.post("/authenticate/local", authenticateLocalUser);
+
+    // get :service configuration
+    server.get("/session/configuration/:service", route(getServiceConfigurationHandler));
+
+    // create :service configuration
+    server.post("/session/configuration/:service", route(saveServiceConfigurationHandler));
+
+    // delete :service configuration
+    server.del("/session/configuration/:service", route(deleteServiceConfigurationHandler));
+
+    // update :service folder configuration
+    server.put(
+        "/session/configuration/:service/update-folder",
+        route(updateServiceConfigurationFolderHandler)
+    );
 }
 
 export async function getSession(req, res, next) {
@@ -197,25 +210,55 @@ export async function updateApplicationSession(req, res, next) {
     }
 }
 
-export async function saveServiceConfiguration(req, res, next) {
+export async function getServiceConfigurationHandler(req, res, next) {
+    // const privateConfiguration = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
+    let configuration = await loadConfiguration();
+    // configuration = configuration.api.services[req.params.serviceName].map((service) => {
+    //     return omit(service, privateConfiguration);
+    // });
+    configuration = filterPrivateInformation({ configuration });
+    configuration = configuration.api.services[req.params.service];
+
+    res.send({ configuration });
+    next();
+}
+
+export async function saveServiceConfigurationHandler(req, res, next) {
     await saveServiceConfigurationToSession({
         sessionId: req.session.id,
         config: req.body,
-        serviceName: req.params.serviceName,
+        serviceName: req.params.service,
     });
     res.send({});
     next();
 }
 
-export async function getServiceConfiguration(req, res, next) {
-    const privateConfiguration = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
-    let configuration = await loadConfiguration();
-    configuration = configuration.api.services[req.params.serviceName].map((service) => {
-        return omit(service, privateConfiguration);
-    });
-
-    res.send({ configuration });
+export async function deleteServiceConfigurationHandler(req, res, next) {
+    let session = await models.session.findOne({ where: { id: req.session.id } });
+    delete session.data.service[req.params.service];
+    delete session.data.current;
+    session.changed("data", true);
+    await session.save();
+    res.send({});
     next();
+}
+
+export async function updateServiceConfigurationFolderHandler(req, res, next) {
+    let session = await models.session.findOne({ where: { id: req.session.id } });
+    let service = session.data.service[req.params.service];
+    if (req.body.folder) {
+        service.folder = req.body.folder;
+    } else {
+        delete service.folder;
+    }
+
+    let patch = merge(session.data, { service: { [req.params.service]: service } });
+    session.data = patch;
+    session.changed("data", true);
+    await session.save();
+
+    res.send({});
+    return next();
 }
 
 export async function getOauthToken(req, res, next) {
@@ -283,7 +326,7 @@ async function saveServiceConfigurationToSession({ sessionId, config, serviceNam
     // console.log(JSON.stringify(data, null, 2));
 
     // save the session
-    await session.update({ data });
+    session = await session.update({ data });
 }
 
 export function assembleOwncloudConfiguration({ params }) {

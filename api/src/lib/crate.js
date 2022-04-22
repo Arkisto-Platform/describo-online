@@ -63,7 +63,6 @@ export class Crate {
                     collection = await models.collection.create({
                         id: identifier,
                         name: rootDataset.name,
-                        // description: rootDataset.description,
                     });
                 }
             } else {
@@ -72,7 +71,6 @@ export class Crate {
                 log.debug("Minting a new collection for this crate");
                 collection = await insertCollection({
                     name: rootDataset.name,
-                    // description: rootDataset.description.join,
                 });
                 rootDescriptor.identifier = flattenDeep([rootDescriptor.identifier]);
                 log.debug("Adding collection identifier to crate");
@@ -87,7 +85,6 @@ export class Crate {
             log.debug("Minting a new collection for this crate");
             collection = await insertCollection({
                 name: rootDataset.name,
-                // description: rootDataset.description,
             });
 
             // stamp the collection id into the root descriptor

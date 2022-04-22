@@ -5,7 +5,7 @@ import {
     deleteFolderRouteHandler,
 } from "./file-browser";
 
-import { loadRouteHandler } from "./load";
+import { setupRoutes as setupLoadRoutes } from "./load";
 import { setupRoutes as setupAdminRoutes } from "./admin";
 import { setupRoutes as setupSessionRoutes } from "./session";
 import { setupRoutes as setupProfileRoutes } from "./profile";
@@ -21,12 +21,12 @@ export function setupRoutes({ server }) {
     setupProfileRoutes({ server });
     setupEntityRoutes({ server });
     setupTemplateRoutes({ server });
+    setupLoadRoutes({ server });
     server.get("/configuration", getConfiguration);
     server.get("/authenticated", route(isAuthenticated));
     server.post("/folder/create", route(createFolderRouteHandler));
     server.post("/folder/read", route(readFolderRouteHandler));
     server.post("/folder/delete", route(deleteFolderRouteHandler));
-    server.post("/load", route(loadRouteHandler));
 
     if (process.env.NODE_ENV === "development") {
         // this is only for development of the capability to post back on save

@@ -36,12 +36,13 @@
 
 <script>
 import ManageSelectedTargetComponent from "./ManageSelectedTarget.component.vue";
-import SelectProfileComponent from "@/components/select-profile/Shell.component.vue";
+import SelectProfileComponent from "@/components/SelectProfile.component.vue";
 import ManageCrateFilesComponent from "@/components/manage-crate-files/Shell.component.vue";
 import LoadCollectionComponent from "@/components/LoadCollection.component.vue";
 import RenderEntityComponent from "@/components/manage-entities/RenderEntity.component.vue";
 import EntityListManagerComponent from "@/components/entity-list/Shell.component.vue";
 import TemplateListComponent from "@/components/template-list/TemplateList.component.vue";
+import { restoreSessionTarget } from "./session-handlers";
 
 export default {
     components: {
@@ -86,11 +87,17 @@ export default {
         },
     },
     mounted() {
-        if (!this.target?.resource || !this.target?.folder?.path) {
-            this.$router.replace({ path: "/select-target" });
-        }
+        this.init();
     },
     methods: {
+        async init() {
+            await restoreSessionTarget();
+            this.$nextTick(() => {
+                if (!this.target?.resource || !this.target?.folder) {
+                    this.$router.push({ path: "/select-target" }).catch(() => {});
+                }
+            });
+        },
         updateRoute(tab) {
             let query = {};
             if (tab.name === "build") {

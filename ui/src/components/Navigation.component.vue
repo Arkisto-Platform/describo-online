@@ -2,7 +2,7 @@
     <div>
         <div
             class="flex flex-row space-x-4 bg-indigo-100 p-4 text-xl text-gray-800"
-            v-if="!embeddedSession"
+            v-if="!session.embedded"
         >
             <div>{{ siteName }}</div>
             <div class="flex flex-grow"></div>
@@ -23,24 +23,17 @@ export default {
         return {
             login: this.$store.state.configuration.login,
             siteName: this.$store.state.configuration.siteName,
-            embeddedSession: false,
         };
     },
     computed: {
         currentRoute: function() {
             return this.$route.name;
         },
-    },
-    mounted() {
-        this.setup();
+        session: function() {
+            return this.$store.state.session;
+        },
     },
     methods: {
-        setup() {
-            const session = this.$store.state.session;
-            if (session.embedded) {
-                this.embeddedSession = true;
-            }
-        },
         navTo(path) {
             this.$router.push(path).catch((err) => {});
         },

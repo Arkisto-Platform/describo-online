@@ -16,9 +16,15 @@
             </div>
         </div>
 
+        <div v-if="target.resource && !target.folder && !session.embedded">
+            <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
+                Use another service
+            </el-button>
+        </div>
+
         <file-browser-component
             class="p-2 my-1 border border-solid"
-            v-if="target.resource && !selectedFolder"
+            v-if="target.resource && !target.folder"
             :resource="target.resource"
             mode="openDirectory"
             :enable-file-selector="true"
@@ -29,6 +35,12 @@
 
 <script>
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
+import {
+    restoreSessionTarget,
+    setFolderAndSaveToSession,
+    setLocalTarget,
+    selectNewTarget,
+} from "./session-handlers";
 
 export default {
     components: {
@@ -36,66 +48,47 @@ export default {
     },
     data() {
         return {
-            configuration: {},
-            session: { ...this.$store.state.session },
-            selectedFolder: undefined,
-            revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
+            configuration: this.$store.state.configuration,
         };
     },
     computed: {
+        session: function() {
+            return this.$store.state.session;
+        },
         target: function() {
-            if (this.$store.state.target.folder)
-                this.selectedFolder = this.$store.state.target.folder;
             return this.$store.state.target;
         },
         owncloudEnabled: function() {
-            return this.$store.state.configuration.services?.owncloud ? true : false;
+            return this.configuration.services?.owncloud ? true : false;
         },
         onedriveEnabled: function() {
-            return this.$store.state.configuration.services?.onedrive ? true : false;
+            return this.configuration.services?.onedrive ? true : false;
         },
         s3Enabled: function() {
-            return this.$store.state.configuration.services?.s3 ? true : false;
+            return this.configuration.services?.s3 ? true : false;
         },
         revaEnabled: function() {
-            return this.$store.state.configuration.services?.reva ? true : false;
+            return this.configuration.services?.reva ? true : false;
         },
         localEnabled: function() {
-            return this.$store.state.configuration.services?.localhost ? true : false;
+            return this.configuration.services?.localhost ? true : false;
         },
     },
     mounted() {
-        this.setup();
+        this.init();
     },
     methods: {
-        async setup() {
-            this.selectedFolder = undefined;
-
-            if (this.session.embedded) {
-                let resource = Object.keys(this.session.service).pop();
-                let folder = { path: this.session.service?.[resource]?.folder };
-                if (resource && folder.path) {
-                    this.selectedFolder = folder;
-                    this.$store.commit("setTargetResource", { resource, folder });
-                    this.$router.push({ path: "/collection/build", query: { eid: "RootDataset" } });
-                }
-            }
+        async init() {
+            await restoreSessionTarget();
         },
-        setSelectedFolder(folder) {
-            this.selectedFolder = folder;
-            this.$store.commit("setTargetResource", {
-                resource: this.target.resource,
-                folder,
-            });
-            this.$router.push({ path: "/collection/build", query: { eid: "RootDataset" } });
+        async selectNewResourceAndTarget() {
+            await selectNewTarget();
+        },
+        async setSelectedFolder(folder) {
+            await setFolderAndSaveToSession({ folder: folder.path });
         },
         async setLocalTarget() {
-            await this.$http.post({ route: "/session/configuration/local", body: {} });
-
-            this.$store.commit("setTargetResource", {
-                resource: "local",
-                folder: undefined,
-            });
+            await setLocalTarget();
         },
     },
 };

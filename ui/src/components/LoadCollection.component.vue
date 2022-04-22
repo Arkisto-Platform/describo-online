@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { loadCollection } from "./session-handlers";
 export default {
     data() {
         return {
@@ -30,25 +31,7 @@ export default {
     methods: {
         async loadFolder() {
             this.loading = true;
-            let response = await this.$http.post({
-                route: "/load",
-                body: {
-                    resource: this.target.resource,
-                    folder: this.target.folder.path,
-                    id: this.target.folder.id,
-                },
-            });
-            if (response.status !== 200) {
-                this.$store.commit("setTargetResource", {
-                    resource: undefined,
-                    folder: undefined,
-                });
-                this.$store.commit("setActiveCollection", {});
-                this.$store.commit("setSelectedEntity", { id: "RootDataset" });
-                return;
-            }
-            let { collection } = await response.json();
-            this.$store.commit("setActiveCollection", collection);
+            await loadCollection();
             this.loading = false;
             await new Promise((resolve) => setTimeout(resolve, 1000));
             this.msg = undefined;

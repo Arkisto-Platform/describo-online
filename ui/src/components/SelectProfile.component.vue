@@ -45,8 +45,8 @@
     </div>
 </template>
 
-//
 <script>
+import { restoreSessionProfile, getProfiles, setProfile } from "./session-handlers";
 export default {
     data() {
         return {
@@ -65,26 +65,15 @@ export default {
     },
     methods: {
         async init() {
-            let response = await this.$http.get({ route: "/profile" });
-            if (response.status !== 200) {
-                // set selected profile to schema.org
-                return;
-            }
-            this.profiles = (await response.json()).profiles;
+            await restoreSessionProfile();
+            this.profiles = await getProfiles();
         },
         async useProfile() {
             const profile = this.profiles.filter((p) => p.file === this.pendingProfile)[0];
-
-            this.$store.commit("setProfile", profile);
-            await this.$http.post({ route: "/profile", body: { profile } });
+            await setProfile({ profile });
         },
-        selectNewProfile() {
-            this.$store.commit("setProfile", {
-                name: undefined,
-                description: undefined,
-                file: undefined,
-                version: undefined,
-            });
+        async selectNewProfile() {
+            await setProfile({ profile: {} });
         },
     },
 };

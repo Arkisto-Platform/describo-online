@@ -51,7 +51,7 @@ export async function loadInstalledProfilesRouteHandler(req, res, next) {
 
 export async function saveProfileRouteHandler(req, res, next) {
     let session = await models.session.findOne({ where: { id: req.session.id } });
-    await session.update({ data: { ...req.session.data, profile: req.body.profile } });
+    await session.update({ data: { ...session.data, profile: req.body.profile } });
     res.send({});
     return next();
 }

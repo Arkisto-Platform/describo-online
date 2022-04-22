@@ -6,45 +6,39 @@
             </el-button>
         </div>
         <div class="flex flex-row text-sm" v-if="target.resource && target.folder">
-            <div v-if="!session.embedded" class="mr-2">
+            <div class="mr-2">
                 <el-button type="danger" @click="selectNewTargetFolder" size="mini">
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
             <div class="pt-1">Resource:&nbsp;</div>
-            <div class="pt-1">{{ target.resource }}:{{ target.folder.path }}</div>
+            <div class="pt-1">{{ target.resource }}:{{ target.folder }}</div>
         </div>
     </div>
 </template>
 
 <script>
+import { selectNewTarget, setFolderAndSaveToSession } from "./session-handlers";
 export default {
     data() {
         return {
             revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
-            session: this.$store.state.session,
         };
     },
     computed: {
+        session: function() {
+            return this.$store.state.session;
+        },
         target: function() {
             return this.$store.state.target;
         },
     },
     methods: {
-        selectNewTargetFolder() {
-            const targetResource = this.target.resource;
-            this.$store.commit("setTargetResource", {
-                resource: targetResource,
-                folder: undefined,
-            });
-            this.$router.push({ path: "/select-target" });
+        async selectNewTargetFolder() {
+            await setFolderAndSaveToSession({ folder: undefined });
         },
-        selectNewResourceAndTarget() {
-            this.$store.commit("setTargetResource", {
-                resource: undefined,
-                folder: undefined,
-            });
-            this.$router.push({ path: "/select-target" });
+        async selectNewResourceAndTarget() {
+            await selectNewTarget();
         },
     },
 };

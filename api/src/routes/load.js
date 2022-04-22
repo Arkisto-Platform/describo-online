@@ -10,7 +10,7 @@ import { Crate } from "../lib/crate";
 import { updateUserSession } from "../lib/user";
 import path from "path";
 import { writeJSON, ensureDir } from "fs-extra";
-import { Message, getLogger } from "../common";
+import { Message, getLogger, route } from "../common";
 const log = getLogger();
 
 const defaultCrateFileName = "ro-crate-metadata.json";
@@ -33,6 +33,10 @@ const crateMetadata = {
     ],
 };
 
+export async function setupRoutes({ server }) {
+    server.get("/load/:service", route(loadRouteHandler));
+}
+
 export async function loadRouteHandler(req, res, next) {
     const message = new Message({ io: req.io, path: "loadRouteHandler" });
     message.emit({
@@ -40,9 +44,11 @@ export async function loadRouteHandler(req, res, next) {
         stage: 1,
         total: 7,
     });
-    const { resource, folder, id } = req.body;
-    if (!resource | !(folder || id)) {
-        return next(new BadRequestError(`Must specify 'resource' and 'folder' || 'id'`));
+
+    const resource = req.params.service;
+    const folder = req.session.data.service[resource].folder;
+    if (!resource || !folder) {
+        return next(new BadRequestError(`Must specify 'resource' and 'folder'`));
     }
     let crate, collection, content, localFile;
     try {
@@ -111,6 +117,7 @@ export async function loadRouteHandler(req, res, next) {
             stage: 4,
             total: 7,
         });
+
         ({ crate, collection } = await crateManager.loadCrateFromFile({
             file: localFile,
         }));
