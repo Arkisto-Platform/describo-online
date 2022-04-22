@@ -7,6 +7,8 @@ import LogoutComponent from "@/components/Logout.component.vue";
 import LoginComponent from "@/components/Login.component.vue";
 import ApplicationLoginComponent from "@/components/ApplicationLogin.component.vue";
 import AdminComponent from "@/components/admin/Shell.component.vue";
+import AdminLoginComponent from "@/components/admin/Login.component.vue";
+import AdminManagementShellComponent from "@/components/admin/ManagementShell.component.vue";
 import { isAuthenticated } from "./components/http.service";
 
 Vue.use(VueRouter);
@@ -63,6 +65,11 @@ const routes = [
     {
         path: "/admin",
         component: AdminComponent,
+        children: [
+            { path: "/admin/login", component: AdminLoginComponent },
+            { path: "/admin/collections", component: AdminManagementShellComponent },
+            { path: "/admin/profiles", component: AdminManagementShellComponent },
+        ],
     },
 ];
 

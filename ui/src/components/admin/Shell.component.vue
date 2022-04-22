@@ -1,33 +1,29 @@
 <template>
-    <div class="flex flex-col p-4">
-        <login-component v-if="!loggedIn" @loggedin="setupUserSession" />
-
-        <el-tabs type="border-card" v-if="loggedIn">
-            <el-tab-pane label="Collections"><collection-manager-component /></el-tab-pane>
-            <el-tab-pane label="Profiles"><admin-profile-component /></el-tab-pane>
-        </el-tabs>
+    <div class="flex flex-col p-4 bg-gray-100 w-screen h-screen">
+        <router-view />
     </div>
 </template>
 
 <script>
 import LoginComponent from "./Login.component.vue";
-import AdminProfileComponent from "./AdminProfile.component.vue";
-import CollectionManagerComponent from "./CollectionManager.component.vue";
+
 export default {
     components: {
         LoginComponent,
-        AdminProfileComponent,
-        CollectionManagerComponent,
     },
     data() {
-        return {
-            loggedIn: false,
-        };
+        return {};
     },
-    methods: {
-        setupUserSession() {
-            this.loggedIn = true;
+    computed: {
+        route: function() {
+            return this.$route.path;
         },
     },
+    mounted() {
+        if (!this.loggedIn) {
+            this.$router.push("/admin/login").catch(() => {});
+        }
+    },
+    methods: {},
 };
 </script>

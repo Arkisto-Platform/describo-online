@@ -10,7 +10,6 @@
             @current-change="init"
         >
         </el-pagination>
-        <el-button @click="init"> init</el-button>
         <el-table :data="collections" class="w-full">
             <el-table-column prop="name" label="Name"> </el-table-column>
             <el-table-column prop="updatedAt" label="Updated At" width="300">
