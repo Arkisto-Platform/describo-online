@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { flattenDeep, uniq, cloneDeep, startsWith, compact, debounce } from "lodash";
+import { cloneDeep, startsWith, debounce } from "lodash";
 import InformationComponent from "../Information.component.vue";
 
 export default {
@@ -140,24 +140,13 @@ export default {
                 resolve(content);
             } else if (response.status === 401) {
                 // need to reauthenticate
-                this.$log.error("need to authenticate");
-                this.$notify({
-                    title: "Error",
-                    type: "error",
-                    message: "Please log into onedrive",
-                    showClose: false,
-                    position: "top-left",
-                });
+                this.$message.error(
+                    `You seem to be unauthorised - do you need to log in to the service again?`
+                );
                 resolve([]);
             } else {
                 // something else went wrong
-                this.$notify({
-                    title: "Error",
-                    type: "error",
-                    message: "There is an issue at this time.",
-                    showClose: false,
-                    position: "top-left",
-                });
+                this.$message.error(`There is an issue at this time`);
                 resolve([]);
             }
         },

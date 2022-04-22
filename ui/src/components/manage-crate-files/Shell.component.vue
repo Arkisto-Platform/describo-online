@@ -28,7 +28,7 @@ export default {
     data() {
         return {
             resource: this.$store.state.target.resource,
-            folder: this.$store.state.target.folder.path,
+            folder: this.$store.state.target.folder,
         };
     },
     methods: {
