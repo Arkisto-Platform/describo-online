@@ -130,10 +130,7 @@ export default {
         },
     },
     mounted() {
-        this.dataService = new DataService({
-            $http: this.$http,
-            $log: this.$log,
-        });
+        this.dataService = new DataService();
     },
     methods: {
         loadRootDataset() {

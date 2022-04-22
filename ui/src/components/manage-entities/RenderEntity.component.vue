@@ -140,10 +140,7 @@ export default {
         this.$socket.on("ENTITY_UPDATED_HANDLER", (response) => {
             this.getEntity();
         });
-        this.dataService = new DataService({
-            $http: this.$http,
-            $log: this.$log,
-        });
+        this.dataService = new DataService();
         this.getEntity();
     },
     methods: {

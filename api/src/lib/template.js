@@ -25,8 +25,13 @@ export async function insertTemplate({ userId, entityId, collectionId, name, pro
         let template = await models.template.findOne({
             where: { userId, eid: entity.eid, etype: entity.etype, name: entity.name },
         });
-        if (!template) return await models.template.create({ userId, ...entity, src: entity });
-        return template;
+        if (template) {
+            template.src = entity;
+            template.changed("src", true);
+            await template.save();
+        } else {
+            return await models.template.create({ userId, ...entity, src: entity });
+        }
     } else {
         // find the collection, freeze it and store it as a template
         let crate = new Crate({ profile });

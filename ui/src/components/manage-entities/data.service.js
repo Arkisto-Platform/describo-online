@@ -1,9 +1,11 @@
 import { groupBy } from "lodash";
+import Vue from "vue";
 
 export default class DataService {
-    constructor({ $http, $log }) {
-        this.$http = $http;
-        this.$log = $log;
+    constructor() {
+        this.$http = Vue.prototype.$http;
+        this.$log = Vue.prototype.$log;
+        this.$message = Vue.prototype.$message;
     }
     async getEntity({ id }) {
         let response = await this.$http.get({
@@ -211,6 +213,7 @@ export default class DataService {
         if (response.status !== 200) {
             return this.handleError({ response });
         } else {
+            this.$message.success(`Entity template saved`);
             return await response.json();
         }
     }
@@ -224,6 +227,7 @@ export default class DataService {
         if (response.status !== 200) {
             return this.handleError({ response });
         } else {
+            this.$message.success(`Crate template saved`);
             return await response.json();
         }
     }
@@ -286,6 +290,7 @@ export default class DataService {
     async handleError({ response }) {
         let error = await response.json();
         // this.$log.error(response.status, error.message);
+        this.$message.error(error.message);
         throw new Error(error.message);
     }
 
