@@ -7,17 +7,17 @@ export async function getSession() {
     let response = await $http.get({ route: "/session" });
     if (response.status === 200) {
         let { session, embeddedSession } = await response.json();
-        session.embedded = embeddedSession;
-        return { session };
+        return { session, embeddedSession };
     }
     return {};
 }
 
 export async function restoreSessionTarget() {
     const currentEntity = router.currentRoute.query.eid;
-    const { session } = await getSession();
+    const { session, embeddedSession: embedded } = await getSession();
 
     if (session) {
+        session.embedded = embedded;
         store.commit("setSessionInformation", session);
         let resource = Object.keys(session?.service).pop();
         if (resource) {

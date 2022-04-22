@@ -47,11 +47,11 @@ export default {
         },
         goToDescribo() {
             removeToken();
-            this.$router.push("/");
+            this.$router.push("/").catch(() => {});
         },
         logout() {
             removeToken();
-            this.$router.push("/admin/login");
+            this.$router.push("/admin/login").catch(() => {});
         },
     },
 };
