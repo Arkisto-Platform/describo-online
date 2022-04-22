@@ -103,7 +103,7 @@ export default {
             if (tab.name === "build") {
                 query = { eid: this.selectedEntityId };
             }
-            this.$router.push({ path: `/collection/${tab.name}`, query });
+            this.$router.push({ path: `/collection/${tab.name}`, query }).catch(() => {});
         },
     },
 };
