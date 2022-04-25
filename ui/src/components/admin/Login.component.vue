@@ -4,20 +4,26 @@
             class="w-full md:w-3/5 lg:w-1/3 p-10 flex flex-col space-y-4 bg-indigo-200 rounded text-gray-700"
         >
             <div class="text-lg text-center">Administrator Login</div>
-            <el-form ref="form" :model="form" label-width="80px" @submit.prevent.native="login">
-                <el-form-item label="Password">
-                    <div class="flex flex-row">
+            <el-form
+                ref="form"
+                :model="form"
+                label-width="80px"
+                @submit.prevent.native="login"
+                class="flex-grow"
+            >
+                <div class="flex flex-row">
+                    <el-form-item label="Password" class="flex-grow">
                         <el-input :type="passwordFieldType" v-model="password"></el-input>
-                        <el-button @click="passwordFieldType = 'text'">
-                            <div v-show="passwordFieldType === 'password'">
-                                <i class="fa-solid fa-eye-slash"></i>
-                            </div>
-                            <div v-show="passwordFieldType === 'text'">
-                                <i class="fa-solid fa-eye"></i>
-                            </div>
-                        </el-button>
-                    </div>
-                </el-form-item>
+                    </el-form-item>
+                    <el-button @click="passwordFieldType = 'text'">
+                        <div v-show="passwordFieldType === 'password'">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </div>
+                        <div v-show="passwordFieldType === 'text'">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                    </el-button>
+                </div>
                 <el-button @click.prevent="login" :disabled="!password">
                     login
                 </el-button>
