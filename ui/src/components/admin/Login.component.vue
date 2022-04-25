@@ -29,9 +29,9 @@
                 </el-button>
             </el-form>
 
-            <router-link to="/" class="text-blue-600"
-                ><i class="fas fa-home"></i> Describo</router-link
-            >
+            <router-link to="/login" class="text-blue-600">
+                <i class="fas fa-home"></i> Describo
+            </router-link>
         </div>
     </div>
 </template>
