@@ -21,6 +21,7 @@
                 </div>
             </div>
             <el-table :data="data.templates" highlight-current-row v-loading="loading">
+                <template #empty>You don't have any saved templates </template>
                 <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
                 <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
                 <el-table-column prop="name" label="Name"> </el-table-column>
