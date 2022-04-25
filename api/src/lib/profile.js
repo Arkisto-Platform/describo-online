@@ -30,6 +30,7 @@ const SimpleDataTypes = [
     "Integer",
     "Boolean",
     "Select",
+    "SelectObject",
     "URL",
     "SelectURL",
     "Value",

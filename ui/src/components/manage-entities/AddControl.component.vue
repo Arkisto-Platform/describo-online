@@ -5,7 +5,7 @@
                 <el-button
                     @click="add(type)"
                     type="primary"
-                    size="mini"
+                    size="small"
                     class="focus:outline-none focus:border-2 focus:border-green-600"
                 >
                     <i class="fas fa-plus"></i>&nbsp;{{ type }}
@@ -31,7 +31,7 @@
             </el-select>
         </div>
         <div class="my-1">
-            <el-button @click="close" size="mini" v-if="this.selectedType">
+            <el-button @click="close" size="small" v-if="this.selectedType">
                 <i class="fas fa-times fa-fw"></i>
             </el-button>
         </div>
@@ -43,7 +43,7 @@ import { isArray, isString } from "lodash";
 export default {
     props: {
         types: {
-            type: String | Array,
+            type: [String, Array],
             required: true,
         },
     },
@@ -55,7 +55,7 @@ export default {
         };
     },
     watch: {
-        types: function() {
+        types: function () {
             this.init();
         },
     },

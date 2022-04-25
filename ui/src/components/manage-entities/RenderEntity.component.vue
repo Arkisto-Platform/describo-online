@@ -155,28 +155,28 @@ export default {
                 let { entity } = await this.dataService.getEntity({
                     id: this.id,
                 });
-                this.entity = { ...entity };
+                entity = { ...entity };
 
                 this.definition = await this.addStaticValues({ id: this.id, type: entity.etype });
 
                 let { properties } = await this.dataService.getEntityProperties({ id: entity.id });
-                this.entity = {
-                    ...this.entity,
+                entity = {
+                    ...entity,
                     ...properties,
                 };
 
                 if (this.definition?.classDefinitionType === "override") {
                     this.definition.inputs.forEach((input) => {
                         if (input.name === "name") return;
-                        if (this.entity.forwardProperties[input.name]) {
-                            this.entity.forwardProperties[
-                                input.name
-                            ] = this.entity.forwardProperties[input.name];
+                        if (entity.forwardProperties[input.name]) {
+                            entity.forwardProperties[input.name] =
+                                entity.forwardProperties[input.name];
                         } else {
-                            this.entity.forwardProperties[input.name] = [];
+                            entity.forwardProperties[input.name] = [];
                         }
                     });
                 }
+                this.entity = { ...entity };
             } catch (error) {
                 this.error = error.message;
             }

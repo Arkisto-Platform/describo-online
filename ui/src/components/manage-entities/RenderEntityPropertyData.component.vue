@@ -13,8 +13,9 @@
             <div class="text-gray-500 text-xs pr-1">{{ help }}</div>
             <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
         </div>
-        <div class="w-2/3 xl:w-4/5 flex flex-col flex-grow">
+        <div class="w-2/3 xl:w-4/5 flex flex-col flex-grow px-2">
             <add-component
+                class="mx-1"
                 :property="name"
                 :definition="definition"
                 :embedded="false"
@@ -25,13 +26,12 @@
                 @add:template="addTemplate"
                 v-if="
                     (definition && definition.multiple) ||
-                        (definition && !definition.multiple && !values.length)
+                    (definition && !definition.multiple && !values.length)
                 "
             />
-            <div class="flex flex-col">
-                <div v-for="instance of values" :key="instance.id" class="flex flex-row my-1">
+            <div class="flex flex-row flex-wrap">
+                <div v-for="instance of values" :key="instance.id" class="flex flex-row m-1">
                     <render-entity-property-instance-component
-                        class="flex-grow"
                         :property="instance"
                         :definition="definition"
                         @save:property="saveProperty"
@@ -39,7 +39,7 @@
                         @refresh="$emit('refresh')"
                     />
                     <delete-property-component
-                        class="pl-2"
+                        class="pt-1 pl-2"
                         type="delete"
                         :property="instance"
                         @delete:property="deleteProperty"

@@ -7,17 +7,7 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import NavigationComponent from "@/components/Navigation.component.vue";
 import TemplateListComponent from "./TemplateList.component.vue";
-
-export default {
-    components: {
-        NavigationComponent,
-        TemplateListComponent,
-    },
-    data() {
-        return {};
-    },
-};
 </script>

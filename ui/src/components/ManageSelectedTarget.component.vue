@@ -1,19 +1,17 @@
 <template>
-    <div class="flex flex-row space-x-1 bg-white p-4">
-        <div v-if="target.resource && !revaDeployment && !session.embedded">
-            <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
+    <div class="flex flex-row space-x-1 bg-white p-4 text-sm">
+        <div v-if="target.resource && !revaDeployment && !session.embedded" class="">
+            <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
                 Use another service
             </el-button>
         </div>
-        <div class="flex flex-row text-sm" v-if="target.resource && target.folder">
-            <div class="mr-2">
-                <el-button type="danger" @click="selectNewTargetFolder" size="mini">
-                    <i class="fas fa-trash"></i>
-                </el-button>
-            </div>
-            <div class="pt-1">Resource:&nbsp;</div>
-            <div class="pt-1">{{ target.resource }}:{{ target.folder }}</div>
+        <div class="mr-2">
+            <el-button type="danger" size="small" @click="selectNewTargetFolder">
+                <i class="fas fa-trash"></i>
+            </el-button>
         </div>
+        <div class="pt-1">Resource:&nbsp;</div>
+        <div class="pt-1">{{ target.resource }}:{{ target.folder }}</div>
     </div>
 </template>
 

@@ -1,5 +1,3 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
 import ShellComponent from "@/components/Shell.component.vue";
 import ManageCollectionShellComponent from "@/components/ManageCollectionShell.component.vue";
 import SelectTargetComponent from "@/components/SelectTarget.component.vue";
@@ -10,8 +8,7 @@ import AdminComponent from "@/components/admin/Shell.component.vue";
 import AdminLoginComponent from "@/components/admin/Login.component.vue";
 import AdminManagementShellComponent from "@/components/admin/ManagementShell.component.vue";
 import { isAuthenticated } from "./components/http.service";
-
-Vue.use(VueRouter);
+import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
     {
@@ -73,9 +70,8 @@ const routes = [
     },
 ];
 
-const router = new VueRouter({
-    mode: "history",
-    base: "/",
+const router = createRouter({
+    history: createWebHistory("/"),
     routes,
 });
 router.beforeEach(onAuthRequired);

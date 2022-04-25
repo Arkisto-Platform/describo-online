@@ -5,15 +5,18 @@
             <div>
                 <el-button
                     @click="loadRootDataset"
-                    size="mini"
+                    size="small"
                     :disabled="entity && entity.eid === './'"
                 >
                     Load Root Dataset
                 </el-button>
             </div>
             <div v-if="definition.classDefinitionType !== 'override'">
-                <el-button @click="toggleAddPropertyDialog" size="mini">
-                    <i class="fas fa-code"></i> Add Property
+                <el-button @click="toggleAddPropertyDialog" size="small">
+                    <div class="mr-1">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    Add Property
                 </el-button>
             </div>
             <div class="flex flex-grow"></div>
@@ -22,7 +25,7 @@
                     <el-button
                         @click="toggleSaveCrateDialog"
                         type="primary"
-                        size="mini"
+                        size="small"
                         v-if="isRootDataset"
                     >
                         <div class="inline-block">
@@ -40,7 +43,7 @@
                     <el-button
                         @click="saveEntityAsTemplate"
                         type="primary"
-                        size="mini"
+                        size="small"
                         v-if="!isRootDataset"
                     >
                         <div class="inline-block">
@@ -58,7 +61,7 @@
                     <el-button
                         @click="deleteEntity"
                         type="danger"
-                        size="mini"
+                        size="small"
                         v-if="!isRootDataset"
                     >
                         <div class="inline-block">
@@ -111,7 +114,7 @@ export default {
             required: true,
         },
         definition: {
-            type: Object | undefined,
+            type: Object,
             required: true,
         },
     },

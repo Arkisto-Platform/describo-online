@@ -1,11 +1,11 @@
 import { groupBy } from "lodash";
-import Vue from "vue";
+import { app } from "@/main";
+import { ElMessage } from "element-plus";
 
 export default class DataService {
     constructor() {
-        this.$http = Vue.prototype.$http;
-        this.$log = Vue.prototype.$log;
-        this.$message = Vue.prototype.$message;
+        this.$http = app.config.globalProperties.$http;
+        this.$log = app.config.globalProperties.$log;
     }
     async getEntity({ id }) {
         let response = await this.$http.get({
@@ -213,7 +213,7 @@ export default class DataService {
         if (response.status !== 200) {
             return this.handleError({ response });
         } else {
-            this.$message.success(`Entity template saved`);
+            ElMessage.success(`Entity template saved`);
             return await response.json();
         }
     }
@@ -227,7 +227,7 @@ export default class DataService {
         if (response.status !== 200) {
             return this.handleError({ response });
         } else {
-            this.$message.success(`Crate template saved`);
+            ElMessage.success(`Crate template saved`);
             return await response.json();
         }
     }
@@ -270,6 +270,7 @@ export default class DataService {
         if (response.status !== 200) {
             return this.handleError({ response });
         } else {
+            ElMessage.success(`Crate template has been applied`);
             return await response.json();
         }
     }
@@ -290,7 +291,7 @@ export default class DataService {
     async handleError({ response }) {
         let error = await response.json();
         // this.$log.error(response.status, error.message);
-        this.$message.error(error.message);
+        ElMessage.error(error.message);
         throw new Error(error.message);
     }
 

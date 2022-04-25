@@ -1,17 +1,15 @@
 <template>
-    <div class="flex flex-row flex-grow space-x-2">
-        <div class="flex-grow">
-            <el-input
-                class="w-full"
-                :type="type"
-                @input="debouncedSave"
-                v-model="internalValue"
-                resize="vertical"
-                :rows="5"
-            ></el-input>
-        </div>
+    <div class="flex flex-row space-x-2">
+        <el-input
+            class="w-full"
+            :type="type"
+            @input="debouncedSave"
+            v-model="internalValue"
+            resize="vertical"
+            :rows="5"
+        ></el-input>
         <div v-if="!autoSave">
-            <el-button @click="save" type="success" size="mini">
+            <el-button @click="save" type="success" size="small">
                 <i class="fas fa-check fa-fw"></i>
             </el-button>
         </div>
@@ -49,7 +47,7 @@ export default {
         };
     },
     watch: {
-        value: function() {
+        value: function () {
             this.internalValue = this.value;
         },
     },

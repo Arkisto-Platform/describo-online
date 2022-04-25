@@ -1,13 +1,11 @@
 <template>
     <div class="bg-white p-4 text-sm">
         <div v-if="!profile.file" class="flex flex-row my-2">
-            <div class="flex flex-row space-x-2">
-                Select a profile to apply
-            </div>
+            <div class="flex flex-row space-x-2">Select a profile to apply</div>
             <div class="flex-grow mx-2">
                 <el-select
                     class="w-full"
-                    size="mini"
+                    size="small"
                     v-model="pendingProfile"
                     placeholder="Select a profile to use with this crate"
                 >
@@ -26,7 +24,7 @@
             <div>
                 <el-button
                     type="primary"
-                    size="mini"
+                    size="small"
                     @click="useProfile"
                     :disabled="!pendingProfile"
                 >
@@ -34,9 +32,9 @@
                 </el-button>
             </div>
         </div>
-        <div class="flex flex-row  space-x-2 text-sm" v-show="profile.name">
+        <div class="flex flex-row space-x-2 text-sm" v-show="profile.name">
             <div>
-                <el-button type="danger" @click="selectNewProfile" size="mini">
+                <el-button type="danger" @click="selectNewProfile" size="small">
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
@@ -56,7 +54,7 @@ export default {
         };
     },
     computed: {
-        profile: function() {
+        profile: function () {
             return this.$store.state.profile;
         },
     },

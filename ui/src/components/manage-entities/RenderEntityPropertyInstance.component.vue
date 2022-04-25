@@ -1,6 +1,6 @@
 <template>
     <div :class="{ 'bg-green-200 p-1 rounded': property.value }">
-        <div v-if="property.value" class="flex flex-row">
+        <div v-if="property.value" class="w-full">
             <date-component
                 :property="property.name"
                 :value.sync="property.value"
@@ -27,6 +27,7 @@
             />
             <text-component
                 v-if="isText(property.value) && !isValue() && !isSelect()"
+                :style="inputElementWidth"
                 :type="definition.type[0].toLowerCase()"
                 :property="property.name"
                 :value.sync="property.value"
@@ -35,16 +36,15 @@
             />
             <value-component :definition="definition" v-if="isValue()" />
             <select-component
-                class="w-full"
                 v-if="isSelect()"
+                :style="inputElementWidth"
                 :property="property.name"
                 :value.sync="property.value"
                 :definition="definition"
                 @save:property="savePropertyValue"
             />
         </div>
-        <div v-else class="flex flex-row">
-            <div v-loading="loading" class="py-2" v-if="loading"></div>
+        <div v-else>
             <render-linked-item-component :entity="property" @delete:property="deleteProperty" />
         </div>
     </div>
@@ -81,9 +81,9 @@ export default {
             required: true,
         },
         definition: {
-            type: Object | undefined,
+            type: Object,
             default: () => ({
-                type: " Text",
+                type: "Text",
             }),
         },
     },
@@ -92,7 +92,15 @@ export default {
             loading: false,
         };
     },
-
+    computed: {
+        inputElementWidth() {
+            if (window.innerWidth > 768 && window.innerWidth < 1024) {
+                return `width: 400px;`;
+            } else {
+                return `width: 600px;`;
+            }
+        },
+    },
     methods: {
         async savePropertyValue(data) {
             this.$emit("save:property", {

@@ -1,6 +1,6 @@
 <template>
     <div class="">
-        <el-button @click="deleteProperty" type="danger" size="mini">
+        <el-button @click="deleteProperty" type="danger" size="small">
             <div v-show="type === 'unlink'" class="inline-block">
                 <i class="fas fa-unlink"></i>
             </div>

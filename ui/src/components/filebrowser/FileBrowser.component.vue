@@ -1,18 +1,21 @@
 <template>
     <div class="flex flex-row">
         <div class="flex flex-col w-full">
-            <div class=" flex flex-col space-y-4 pb-2 border-b-2" v-if="enableFileSelector">
-                <information-component type="warning" v-if="mode === 'openFile'">
+            <div class=" flex flex-col space-y-4 pb-2 border-b-2" v-if="props.enableFileSelector">
+                <information-component type="warning" v-if="props.mode === 'openFile'">
                     You must expand each subfolder to load the child nodes. If you don't you'll only
                     get the folders.
                 </information-component>
-                <information-component type="info" v-if="mode === 'openDirectory'">
+                <information-component type="info" v-if="props.mode === 'openDirectory'">
                     Select a folder to work with.
                 </information-component>
-                <information-component type="success" v-if="mode === 'openFile' && partsAdded">
+                <information-component
+                    type="success"
+                    v-if="props.mode === 'openFile' && partsAdded"
+                >
                     The crate parts list has been updated.
                 </information-component>
-                <div v-if="mode === 'openFile'">
+                <div v-if="props.mode === 'openFile'">
                     <el-checkbox v-model="selectAllChildren">
                         Select all children
                     </el-checkbox>
@@ -22,7 +25,7 @@
                 <el-tree
                     v-loading="loading"
                     ref="tree"
-                    :props="props"
+                    :props="leafNodeProps"
                     node-key="path"
                     :load="loadNode"
                     :lazy="true"
@@ -37,151 +40,145 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { cloneDeep, startsWith, debounce } from "lodash";
 import InformationComponent from "../Information.component.vue";
+import { ElMessage } from "element-plus";
+import { ref, reactive, inject, onMounted } from "vue";
+const $http = inject("$http");
 
-export default {
-    components: {
-        InformationComponent,
-    },
-    props: {
-        resource: {
-            type: String,
-            required: true,
-        },
-        root: {
-            type: String,
-        },
-        filterPaths: {
-            type: Array,
-            default: () => {
-                return [];
-            },
-        },
-        mode: {
-            type: String,
-            validator: (v) => ["openFile", "openDirectory"].includes(v),
-            default: "openFile",
-        },
-        enableFileSelector: {
-            type: Boolean,
-            default: true,
-        },
-        checkedNodes: {
-            type: Array,
-        },
-    },
-    data() {
-        return {
-            filterFilePaths: [
-                "ro-crate-metadata.json",
-                "ro-crate-metadata.jsonld",
-                "ro-crate-preview.html",
-                ".DS_Store",
-                ...this.filterPaths,
-            ],
-            debouncedAddParts: debounce(this.addParts, 1000),
-            loading: false,
-            partsAdded: false,
-            selectAllChildren: false,
-            data: [],
-            httpService: undefined,
-            props: {
-                label: "name",
-                children: "children",
-                isLeaf: "isLeaf",
-            },
-            defaultExpandedKeys: [],
-            selectedFolder: undefined,
-        };
-    },
-    methods: {
-        async loadNode(node, resolve) {
-            this.loading = true;
-            let content;
-            if (node.level === 0) {
-                await this.load({ resolve });
-            } else if (node.level !== 0) {
-                if (node.isLeaf) resolve();
+const emit = defineEmits(["select-folder", "select-nodes"]);
 
-                const path = node.data.parent
-                    ? `${node.data.parent}/${node.data.path}`
-                    : node.data.path;
-                await this.load({ resolve, path });
-            }
-            this.loading = false;
-        },
-        async load({ resolve, path }) {
-            let body = {
-                resource: this.resource,
-            };
-            if (this.root && path) {
-                body.path = path;
-            } else if (this.root) {
-                body.path = this.root;
-            } else {
-                body.path = path;
-            }
-
-            let response = await this.$http.post({
-                route: "/folder/read",
-                body,
-            });
-            if (response.status === 200) {
-                let content = (await response.json()).content;
-                content = content.map((e) => {
-                    e.disabled = this.mode === "openDirectory" && e.isLeaf === true ? true : false;
-                    return e;
-                });
-                content = content.filter((e) => {
-                    return !this.filterFilePaths.includes(e.name);
-                });
-                resolve(content);
-            } else if (response.status === 401) {
-                // need to reauthenticate
-                this.$message.error(
-                    `You seem to be unauthorised - do you need to log in to the service again?`
-                );
-                resolve([]);
-            } else {
-                // something else went wrong
-                this.$message.error(`There is an issue at this time`);
-                resolve([]);
-            }
-        },
-        async handleNodeSelection() {
-            if (this.mode === "openDirectory") {
-                this.loading = true;
-                let node = this.$refs.tree.getCheckedNodes()[0];
-                const path = node.parent ? `${node.parent}/${node.path}` : node.path;
-                const id = node.id;
-                if (startsWith(path, "/")) {
-                    this.$emit("selected-folder", { path: `${path}`, id });
-                } else {
-                    this.$emit("selected-folder", { path: `/${path}`, id });
-                }
-            } else {
-                await this.debouncedAddParts();
-            }
-        },
-        async addParts() {
-            this.loading = true;
-            this.partsAdded = false;
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            let nodes = cloneDeep(this.$refs.tree.getCheckedNodes());
-            nodes = nodes.map((n) => {
-                n.parent = n.parent.replace(this.root, "");
-                return n;
-            });
-            this.$emit("selected-nodes", nodes);
-            this.loading = false;
-            this.partsAdded = true;
-            await new Promise((resolve) => setTimeout(resolve, 4000));
-            this.partsAdded = false;
+const props = defineProps({
+    resource: {
+        type: String,
+        required: true,
+    },
+    root: {
+        type: String,
+    },
+    filterPaths: {
+        type: Array,
+        default: () => {
+            return [];
         },
     },
+    mode: {
+        type: String,
+        validator: (v) => ["openFile", "openDirectory"].includes(v),
+        default: "openFile",
+    },
+    enableFileSelector: {
+        type: Boolean,
+        default: true,
+    },
+    checkedNodes: {
+        type: Array,
+    },
+});
+
+const filterFilePaths = [
+    "ro-crate-metadata.json",
+    "ro-crate-metadata.jsonld",
+    "ro-crate-preview.html",
+    ".DS_Store",
+    ...props.filterPaths,
+];
+const debouncedAddParts = debounce(addParts, 1000);
+let loading = ref(false);
+let partsAdded = ref(false);
+let selectAllChildren = ref(false);
+const data = reactive([]);
+const leafNodeProps = {
+    label: "name",
+    children: "children",
+    isLeaf: "isLeaf",
 };
+const defaultExpandedKeys = [];
+const selectedFolder = undefined;
+const tree = ref(null);
+
+async function loadNode(node, resolve) {
+    loading = true;
+    let content;
+    if (node.level === 0) {
+        await load({ resolve });
+    } else if (node.level !== 0) {
+        if (node.isLeaf) resolve();
+
+        const path = node.data.parent ? `${node.data.parent}/${node.data.path}` : node.data.path;
+        await load({ resolve, path });
+    }
+    loading = false;
+}
+async function load({ resolve, path }) {
+    let body = {
+        resource: props.resource,
+    };
+    if (props.root && path) {
+        body.path = path;
+    } else if (props.root) {
+        body.path = props.root;
+    } else {
+        body.path = path;
+    }
+
+    let response = await $http.post({
+        route: "/folder/read",
+        body,
+    });
+    if (response.status === 200) {
+        let content = (await response.json()).content;
+        content = content.map((e) => {
+            e.disabled = props.mode.value === "openDirectory" && e.isLeaf === true ? true : false;
+            return e;
+        });
+        content = content.filter((e) => {
+            return !filterFilePaths.includes(e.name);
+        });
+        resolve(content);
+    } else if (response.status === 401) {
+        // need to reauthenticate
+        ELMessage.error(
+            `You seem to be unauthorised - do you need to log in to the service again?`
+        );
+        resolve([]);
+    } else {
+        // something else went wrong
+        ELMessage.error(`There is an issue at this time`);
+        resolve([]);
+    }
+}
+async function handleNodeSelection() {
+    if (props.mode === "openDirectory") {
+        loading = true;
+        let node = tree.value.getCheckedNodes()[0];
+        const path = node.parent ? `${node.parent}/${node.path}` : node.path;
+        const id = node.id;
+        if (startsWith(path, "/")) {
+            emit("selected-folder", { path: `${path}`, id });
+        } else {
+            emit("selected-folder", { path: `/${path}`, id });
+        }
+    } else {
+        await debouncedAddParts();
+    }
+}
+async function addParts() {
+    loading = true;
+    partsAdded = false;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    let nodes = cloneDeep(tree.value.getCheckedNodes());
+    nodes = nodes.map((n) => {
+        n.parent = n.parent.replace(props.root, "");
+        return n;
+    });
+    emit("selected-nodes", nodes);
+    loading = false;
+    partsAdded = true;
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    partsAdded = false;
+}
 </script>
 
 <style>

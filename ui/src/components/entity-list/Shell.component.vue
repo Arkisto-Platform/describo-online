@@ -1,8 +1,5 @@
 <template>
     <div class="flex flex-col">
-        <!-- <div>
-            <el-button @click="getEntities">update</el-button>
-        </div> -->
         <div class="flex flex-col space-y-2">
             <add-entity-component @add-entity="addNewEntity" />
 
@@ -17,18 +14,18 @@
                 <el-pagination
                     class="ml-2"
                     layout="total, prev, pager, next"
-                    :total="total"
+                    :total="data.total"
                     @current-change="nextPage"
                 >
                 </el-pagination>
             </div>
         </div>
-        <el-table :data="entities" highlight-current-row>
+        <el-table :data="data.entities" highlight-current-row>
             <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
             <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
             <el-table-column prop="name" label="Name"> </el-table-column>
             <el-table-column prop="isConnected" label="Connected" width="100">
-                <template slot-scope="scope">
+                <template #default="scope">
                     <div class="flex flex-row justify-center">
                         <div v-show="scope.row.isConnected" class="text-green-600">
                             <i class="fas fa-check"></i>
@@ -40,7 +37,7 @@
                 </template>
             </el-table-column>
             <el-table-column label="Actions" width="150">
-                <template slot-scope="scope">
+                <template #default="scope">
                     <div class="flex flex-row space-x-2">
                         <div>
                             <el-button @click="editEntity(scope.row.id)" size="small">
@@ -64,68 +61,63 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import AddEntityComponent from "@/components/manage-entities/AddEntity.component.vue";
 import DataService from "@/components/manage-entities/data.service.js";
 import { debounce } from "lodash";
+import { onMounted, ref, reactive } from "vue";
+import { useStore } from "vuex";
 
-export default {
-    components: {
-        AddEntityComponent,
-    },
-    data() {
-        return {
-            debouncedGetEntities: debounce(this.getEntities, 1000),
-            total: undefined,
-            entities: [],
-            filter: "",
-            page: 0,
-            pageSize: 10,
-            orderBy: ["etype", "name"],
-            orderDirection: ["asc"],
-        };
-    },
-    mounted() {
-        this.dataService = new DataService({
-            $http: this.$http,
-            $log: this.$log,
-        });
-        this.getEntities();
-    },
-    methods: {
-        async getEntities() {
-            let { total, entities } = await this.dataService.getEntities({
-                filter: this.filter,
-                page: this.page * this.pageSize,
-                limit: this.pageSize,
-                orderBy: this.orderBy,
-                orderDirection: this.orderDirection,
-            });
-            this.entities = [...entities];
-            this.total = total;
-        },
-        nextPage(page) {
-            this.page = page - 1;
-            this.getEntities();
-        },
-        editEntity(id) {
-            this.$store.commit("setSelectedEntity", { id });
-            this.$emit("manage-data");
-        },
-        async deleteEntity(id) {
-            if (this.$store.state.selectedEntity.id === id) {
-                this.$store.commit("setSelectedEntity", { id: "RootDataset" });
-            }
-            await this.dataService.deleteEntity({ id });
-            this.getEntities();
-        },
-        async addNewEntity({ type }) {
-            let { entity } = await this.dataService.createEntity({
-                name: "new entity",
-                etype: type,
-            });
-            this.editEntity(entity.id);
-        },
-    },
-};
+const store = useStore();
+const emit = defineEmits(["manage-data"]);
+const dataService = new DataService();
+const debouncedGetEntities = debounce(getEntities, 1000);
+
+let data = reactive({
+    total: 0,
+    entities: [],
+});
+const filter = ref("");
+const page = 0;
+const pageSize = 10;
+const orderBy = ["etype", "name"];
+const orderDirection = ["asc"];
+
+onMounted(async () => {
+    await getEntities();
+});
+
+async function getEntities() {
+    let response = await dataService.getEntities({
+        filter: filter.value,
+        page: page * pageSize,
+        limit: pageSize,
+        orderBy: orderBy,
+        orderDirection: orderDirection,
+    });
+    data.entities = [...response.entities];
+    data.total = response.total;
+}
+function nextPage(page) {
+    page = page - 1;
+    getEntities();
+}
+function editEntity(id) {
+    store.commit("setSelectedEntity", { id });
+    emit("manage-data");
+}
+async function deleteEntity(id) {
+    if (store.state.selectedEntity.id === id) {
+        store.commit("setSelectedEntity", { id: "RootDataset" });
+    }
+    await dataService.deleteEntity({ id });
+    getEntities();
+}
+async function addNewEntity({ type }) {
+    let { entity } = await dataService.createEntity({
+        name: "new entity",
+        etype: type,
+    });
+    editEntity(entity.id);
+}
 </script>

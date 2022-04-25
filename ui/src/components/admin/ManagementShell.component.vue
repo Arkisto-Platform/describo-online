@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="flex flex-row mb-2" v-if="route !== '/admin/login'">
+        <div class="flex flex-row mb-2" v-if="routePath !== '/admin/login'">
             <div>
                 <el-button @click="goToDescribo"><i class="fas fa-home"></i> </el-button>
             </div>
@@ -21,38 +21,27 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import AdminProfileComponent from "./AdminProfile.component.vue";
 import CollectionManagerComponent from "./CollectionManager.component.vue";
 import { removeToken } from "@/components/http.service";
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+const route = useRoute();
+const router = useRouter();
 
-export default {
-    components: {
-        AdminProfileComponent,
-        CollectionManagerComponent,
-    },
-    data() {
-        return {
-            activeTab: "collections",
-        };
-    },
-    computed: {
-        route: function() {
-            return this.$route.path;
-        },
-    },
-    methods: {
-        updateRoute(tab) {
-            this.$router.push({ path: `/admin/${tab.name}` }).catch(() => {});
-        },
-        goToDescribo() {
-            removeToken();
-            this.$router.push("/").catch(() => {});
-        },
-        logout() {
-            removeToken();
-            this.$router.push("/admin/login").catch(() => {});
-        },
-    },
-};
+const activeTab = ref("collections");
+let routePath = computed(() => route.path);
+
+function updateRoute(tab) {
+    router.push({ path: `/admin/${tab.paneName}` }).catch(() => {});
+}
+function goToDescribo() {
+    removeToken();
+    router.push("/login").catch(() => {});
+}
+function logout() {
+    removeToken();
+    router.push("/admin/login").catch(() => {});
+}
 </script>

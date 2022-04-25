@@ -6,14 +6,16 @@
                 <el-input
                     class="w-full"
                     v-model="crateName"
-                    size="mini"
+                    size="small"
                     placeholder="provide a name for the crate template"
                 />
             </div>
             <div>
-                <el-button @click="save" size="mini" :disabled="!crateName">
-                    <i class="fas fa-save"></i>
-                    Save Crate as Template
+                <el-button @click="save" size="small" :disabled="!crateName">
+                    <div class="mr-1">
+                        <i class="fas fa-save"></i>
+                    </div>
+                    Save
                 </el-button>
             </div>
         </div>

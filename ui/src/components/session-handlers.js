@@ -1,9 +1,8 @@
-import Vue from "vue";
-import { store } from "@/store";
 import router from "@/routes";
+import store from "@/store";
+import { $http } from "@/main";
 
 export async function getSession() {
-    const $http = Vue.prototype.$http;
     let response = await $http.get({ route: "/session" });
     if (response.status === 200) {
         let { session, embeddedSession } = await response.json();
@@ -13,7 +12,7 @@ export async function getSession() {
 }
 
 export async function restoreSessionTarget() {
-    const currentEntity = router.currentRoute.query.eid;
+    const currentEntity = router.currentRoute?.query?.eid;
     const { session, embeddedSession: embedded } = await getSession();
 
     if (session) {
@@ -30,7 +29,7 @@ export async function restoreSessionTarget() {
                 });
 
                 store.commit("setSelectedEntity", {
-                    eid: currentEntity ? currentEntity : "RootDataset",
+                    id: currentEntity ? currentEntity : "RootDataset",
                 });
                 router
                     .push({
@@ -54,7 +53,6 @@ export async function restoreSessionProfile() {
 }
 
 export async function setFolderAndSaveToSession({ folder }) {
-    const $http = Vue.prototype.$http;
     const resource = store.state.target.resource;
 
     store.commit("setTargetResource", {
@@ -73,7 +71,6 @@ export async function setFolderAndSaveToSession({ folder }) {
 }
 
 export async function selectNewTarget() {
-    const $http = Vue.prototype.$http;
     const resource = store.state.target.resource;
 
     await $http.delete({ route: `/session/configuration/${resource}` });
@@ -83,7 +80,6 @@ export async function selectNewTarget() {
 }
 
 export async function setLocalTarget() {
-    const $http = Vue.prototype.$http;
     await $http.post({ route: "/session/configuration/local", body: {} });
 
     store.commit("setTargetResource", {
@@ -93,7 +89,6 @@ export async function setLocalTarget() {
 }
 
 export async function loadCollection() {
-    const $http = Vue.prototype.$http;
     const resource = store.state.target.resource;
 
     let response = await $http.get({
@@ -119,7 +114,6 @@ function resetInternalState() {
 }
 
 export async function getProfiles() {
-    const $http = Vue.prototype.$http;
     let response = await $http.get({ route: "/profile" });
     if (response.status !== 200) {
         // set selected profile to schema.org
@@ -129,7 +123,6 @@ export async function getProfiles() {
 }
 
 export async function setProfile({ profile }) {
-    const $http = Vue.prototype.$http;
     store.commit("setProfile", profile);
     await $http.post({ route: "/profile", body: { profile } });
 }

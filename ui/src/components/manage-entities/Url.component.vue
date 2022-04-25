@@ -9,7 +9,7 @@
                 :rows="5"
             ></el-input>
         </div>
-        <el-button @click="save" type="success" size="mini">
+        <el-button @click="save" type="success" size="small">
             <i class="fas fa-check fa-fw"></i>
         </el-button>
     </div>
@@ -35,7 +35,7 @@ export default {
         };
     },
     watch: {
-        value: function() {
+        value: function () {
             this.internalValue = this.value;
         },
     },

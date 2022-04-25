@@ -1,16 +1,15 @@
 import "regenerator-runtime";
 import "@/assets/tailwind.css";
-import "element-ui/lib/theme-chalk/index.css";
+import "element-plus/dist/index.css";
 import "@fortawesome/fontawesome-free/js/all";
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoReplaceSvg = "nest";
 
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./routes";
-import { store } from "./store";
-import ElementUI from "element-ui";
-import locale from "element-ui/lib/locale/lang/en";
+import store from "./store";
+import ElementPlus from "element-plus";
 
 import OktaPlugin from "./plugins/okta";
 import OneDrivePlugin from "./plugins/onedrive";
@@ -28,40 +27,48 @@ prefixer.reg(log);
 prefixer.apply(log);
 import { io } from "socket.io-client";
 import { HTTPService } from "./components/http.service";
+export const $http = new HTTPService({
+    router,
+    loginPath: "/login",
+});
+
+export const app = createApp(App);
 
 (async () => {
     let response = await fetch("/api/configuration");
     if (response.status === 200) {
         let { configuration } = await response.json();
 
-        Vue.prototype.$http = new HTTPService({ router, loginPath: "/login" });
-        Vue.prototype.$log = log;
-        Vue.prototype.$socket = io();
+        app.config.globalProperties.$http = $http;
+        app.provide("$http", app.config.globalProperties.$http);
 
-        Vue.use(ElementUI, { locale });
+        app.config.globalProperties.$log = log;
+        app.provide("$log", app.config.globalProperties.$log);
+
+        app.config.globalProperties.$socket = io();
+        app.provide("$socket", app.config.globalProperties.$socket);
+
+        app.use(store);
+        app.use(router);
+        app.use(ElementPlus);
 
         // enable defined components
-        Vue.use(ViewerPlugin);
-        enableOkta({ Vue, log, router, configuration });
-        enableOnedrive({ Vue, log, configuration });
-        enableOwncloud({ Vue, log, router, configuration });
-        enableS3({ Vue, log, configuration });
-        enableReva({ Vue, log, configuration });
+        app.use(ViewerPlugin);
+        enableOkta({ app, log, router, configuration });
+        enableOnedrive({ app, log, configuration });
+        enableOwncloud({ app, log, router, configuration });
+        enableS3({ app, log, configuration });
+        enableReva({ app, log, configuration });
 
         store.commit("saveConfiguration", { configuration });
-        Vue.config.productionTip = false;
-
-        new Vue({
-            router,
-            store,
-            render: (h) => h(App),
-        }).$mount("#app");
+        app.config.productionTip = false;
+        app.mount("#app");
     }
 })();
 
-function enableOkta({ Vue, log, router, configuration }) {
+function enableOkta({ app, log, router, configuration }) {
     if (configuration.services.okta) {
-        Vue.use(OktaPlugin, {
+        app.use(OktaPlugin, {
             ...configuration.services.okta,
             log,
             router,
@@ -69,44 +76,44 @@ function enableOkta({ Vue, log, router, configuration }) {
     }
 }
 
-function enableOnedrive({ Vue, log, configuration }) {
+function enableOnedrive({ app, log, configuration }) {
     if (configuration.services.onedrive) {
-        Vue.use(OneDrivePlugin, {
+        app.use(OneDrivePlugin, {
             ...configuration.services.onedrive,
             log,
-            $http: Vue.prototype.$http,
+            $http: app.config.globalProperties.$http,
             configuration: "/session/configuration/onedrive",
         });
     }
 }
 
-function enableOwncloud({ Vue, log, router, configuration }) {
+function enableOwncloud({ app, log, router, configuration }) {
     if (configuration.services.owncloud) {
-        Vue.use(OwncloudPlugin, {
+        app.use(OwncloudPlugin, {
             router,
             log,
-            $http: Vue.prototype.$http,
+            $http: app.config.globalProperties.$http,
             configuration: "/session/configuration/owncloud",
             oauthToken: "/session/get-oauth-token/owncloud",
         });
     }
 }
 
-function enableS3({ Vue, log, configuration }) {
+function enableS3({ app, log, configuration }) {
     if (configuration.services.s3) {
-        Vue.use(S3Plugin, {
+        app.use(S3Plugin, {
             log,
-            $http: Vue.prototype.$http,
+            $http: app.config.globalProperties.$http,
             configuration: "/session/configuration/s3",
         });
     }
 }
 
-function enableReva({ Vue, log, configuration }) {
+function enableReva({ app, log, configuration }) {
     if (configuration.services.reva) {
-        Vue.use(RevaPlugin, {
+        app.use(RevaPlugin, {
             log,
-            $http: Vue.prototype.$http,
+            $http: app.config.globalProperties.$http,
             configuration: configuration.services.reva,
             configurationRoute: "/session/configuration/reva",
             authenticationRoute: "/authenticate/reva",

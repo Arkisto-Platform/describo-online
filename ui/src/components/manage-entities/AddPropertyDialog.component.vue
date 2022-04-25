@@ -4,7 +4,7 @@
             <div>
                 <el-input
                     v-model="filter"
-                    size="mini"
+                    size="small"
                     placeholder="filter the attribute set"
                     clearable
                 ></el-input>
@@ -38,7 +38,7 @@
         <div class="flex flex-row">
             <div class="flex-grow"></div>
             <div>
-                <el-button @click="close" size="mini"><i class="fas fa-times"></i></el-button>
+                <el-button @click="close" size="small"><i class="fas fa-times"></i></el-button>
             </div>
         </div>
         <div v-if="selectedProperty" class="flex flex-col">
@@ -84,7 +84,7 @@ export default {
         };
     },
     computed: {
-        properties: function() {
+        properties: function () {
             if (!this.filter) return this.inputs;
             return this.inputs.filter((i) => {
                 let re = new RegExp(this.filter, "i");

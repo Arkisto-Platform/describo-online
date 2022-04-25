@@ -1,7 +1,5 @@
 import { cloneDeep } from "lodash";
-import Vue from "vue";
-import Vuex from "vuex";
-Vue.use(Vuex);
+import { createStore } from "vuex";
 import router from "@/routes";
 
 const mutations = {
@@ -42,13 +40,12 @@ const actions = {
     },
 };
 
-export const store = new Vuex.Store({
-    state: {
-        ...resetState(),
-    },
+const store = new createStore({
+    state: resetState(),
     mutations,
     actions,
     modules: {},
+    // plugins: [vuexLocal.plugin],
 });
 
 function resetState() {
@@ -69,3 +66,5 @@ function resetState() {
         selectedEntity: { id: "RootDataset" },
     });
 }
+
+export default store;

@@ -1,26 +1,24 @@
 <template>
     <div class="flex flex-col">
         <el-pagination
-            v-model:currentPage="currentPage"
-            v-model:page-size="pageSize"
             :page-sizes="[10, 20, 30, 40]"
             layout="total, sizes, prev, pager, next"
-            :total="total"
+            :total="data.total"
             @size-change="pageSizeChange"
             @current-change="init"
         >
         </el-pagination>
-        <el-table :data="collections" class="w-full">
+        <el-table :data="data.collections" class="w-full">
             <el-table-column prop="name" label="Name"> </el-table-column>
             <el-table-column prop="updatedAt" label="Updated At" width="300">
-                <template slot-scope="scope">
+                <template #default="scope">
                     {{ formatDate(scope.row.updatedAt) }}
                 </template>
             </el-table-column>
-            <el-table-column prop="actions" label="Actions" width="300">
-                <template slot-scope="scope">
+            <el-table-column prop="actions" label="Actions" width="100">
+                <template #default="scope">
                     <el-popconfirm
-                        title="Are you sure you want to remove this collection from Describo (the data on the storage is not touched)?"
+                        title="Are you sure you want to remove this collection from Describo (the data on the storage is not deleted)?"
                         @confirm="deleteCollection(scope.row.id)"
                     >
                         <template #reference>
@@ -35,50 +33,48 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { parseISO, format } from "date-fns";
-export default {
-    data() {
-        return {
-            collections: [],
-            currentPage: 1,
-            pageSize: 10,
-            total: 0,
-        };
-    },
-    mounted() {
-        this.init();
-    },
-    methods: {
-        async init() {
-            let limit = this.pageSize;
-            let offset = (this.currentPage - 1) * this.pageSize;
+import { reactive, onMounted, inject } from "vue";
+const $http = inject("$http");
 
-            let response = await this.$http.post({
-                route: "/admin/collections",
-                params: { offset, limit },
-            });
-            if (response.status === 200) {
-                let { collections, total } = await response.json();
-                this.total = total;
-                this.collections = [...collections];
-            }
-        },
-        pageSizeChange() {
-            this.currentPage = 1;
-            this.init();
-        },
-        formatDate(date) {
-            return format(parseISO(date), "PPpp");
-        },
-        async deleteCollection(collectionId) {
-            let response = await this.$http.delete({
-                route: `/admin/collections/${collectionId}`,
-            });
-            if (response.status === 200) {
-                this.init();
-            }
-        },
-    },
-};
+const data = reactive({
+    collections: [],
+    total: 0,
+});
+const currentPage = 1;
+const pageSize = 10;
+
+onMounted(() => {
+    init();
+});
+async function init() {
+    let limit = pageSize;
+    let offset = (currentPage - 1) * pageSize;
+
+    let response = await $http.post({
+        route: "/admin/collections",
+        params: { offset, limit },
+    });
+    if (response.status === 200) {
+        let { collections, total } = await response.json();
+        data.total = total;
+        data.collections = [...collections];
+    }
+}
+function pageSizeChange() {
+    currentPage = 1;
+    init();
+}
+function formatDate(date) {
+    return format(parseISO(date), "PPpp");
+}
+async function deleteCollection(collectionId) {
+    let response = await $http.delete({
+        route: `/admin/collections/${collectionId}`,
+    });
+    if (response.status === 200) {
+        init();
+    }
+}
 </script>

@@ -4,26 +4,11 @@
     </div>
 </template>
 
-<script>
-import LoginComponent from "./Login.component.vue";
-
-export default {
-    components: {
-        LoginComponent,
-    },
-    data() {
-        return {};
-    },
-    computed: {
-        route: function() {
-            return this.$route.path;
-        },
-    },
-    mounted() {
-        if (!this.loggedIn) {
-            this.$router.push("/admin/login").catch(() => {});
-        }
-    },
-    methods: {},
-};
+<script setup>
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+onMounted(() => {
+    router.push("/admin/login").catch(() => {});
+});
 </script>

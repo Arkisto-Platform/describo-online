@@ -100,10 +100,10 @@ export default {
         },
         updateRoute(tab) {
             let query = {};
-            if (tab.name === "build") {
+            if (tab.paneName === "build") {
                 query = { eid: this.selectedEntityId };
             }
-            this.$router.push({ path: `/collection/${tab.name}`, query }).catch(() => {});
+            this.$router.push({ path: `/collection/${tab.paneName}`, query }).catch(() => {});
         },
     },
 };

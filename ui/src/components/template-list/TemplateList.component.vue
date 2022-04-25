@@ -14,23 +14,23 @@
                     <el-pagination
                         class="ml-2"
                         layout="total, prev, pager, next"
-                        :total="total"
+                        :total="data.total"
                         @current-change="nextPage"
                     >
                     </el-pagination>
                 </div>
             </div>
-            <el-table :data="templates" highlight-current-row v-loading="loading">
+            <el-table :data="data.templates" highlight-current-row v-loading="loading">
                 <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
                 <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
                 <el-table-column prop="name" label="Name"> </el-table-column>
-                <el-table-column prop="src" label="Entity Data" type="expand" width="100">
-                    <template slot-scope="scope">
+                <el-table-column prop="src" label="Entity Data" type="expand" width="120">
+                    <template #default="scope">
                         <pre>{{ JSON.stringify(scope.row.src, null, 2) }}</pre>
                     </template>
                 </el-table-column>
-                <el-table-column label="Actions" width="150">
-                    <template slot-scope="scope">
+                <el-table-column label="Actions" width="100" align="center">
+                    <template #default="scope">
                         <div class="flex flex-row space-x-2">
                             <div v-if="!scope.row.etype && !scope.row.eid">
                                 <el-button
@@ -59,62 +59,54 @@
     </el-card>
 </template>
 
-<script>
+<script setup>
 import AddEntityComponent from "@/components/manage-entities/AddEntity.component.vue";
 import DataService from "@/components/manage-entities/data.service.js";
 import { debounce } from "lodash";
+import { useStore } from "vuex";
+import { onMounted, ref, reactive } from "vue";
+const dataService = new DataService();
+const store = useStore();
 
-export default {
-    components: {
-        AddEntityComponent,
-    },
-    data() {
-        return {
-            loading: false,
-            debouncedGetTemplates: debounce(this.getTemplates, 1000),
-            total: undefined,
-            templates: [],
-            filter: "",
-            page: 0,
-            pageSize: 10,
-            orderBy: ["etype", "name"],
-            orderDirection: ["asc"],
-        };
-    },
-    mounted() {
-        this.dataService = new DataService({
-            $http: this.$http,
-            $log: this.$log,
-        });
-        this.getTemplates();
-    },
-    methods: {
-        async getTemplates() {
-            let { templates, total } = await this.dataService.getTemplates({
-                filter: this.filter,
-                page: this.page * this.pageSize,
-                limit: this.pageSize,
-                orderBy: this.orderBy,
-                orderDirection: this.orderDirection,
-            });
-            this.templates = [...templates];
-            this.total = total;
-        },
-        nextPage(page) {
-            this.page = page - 1;
-            this.getTemplates();
-        },
-        async deleteTemplate(id) {
-            await this.dataService.deleteTemplate({ id });
-            this.getTemplates();
-        },
-        async applyCrateTemplate(templateId) {
-            this.loading = true;
-            await this.dataService.replaceCrateWithTemplate({ templateId });
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            this.$store.commit("setSelectedEntity", { id: "RootDataset" });
-            this.loading = false;
-        },
-    },
-};
+let loading = ref(false);
+const debouncedGetTemplates = debounce(getTemplates, 1000);
+const data = reactive({
+    total: 0,
+    templates: [],
+});
+const filter = ref("");
+const page = 0;
+const pageSize = 10;
+const orderBy = ["etype", "name"];
+const orderDirection = ["asc"];
+
+onMounted(() => {
+    getTemplates();
+});
+
+async function getTemplates() {
+    let { templates, total } = await dataService.getTemplates({
+        filter: filter.value,
+        page: page * pageSize,
+        limit: pageSize,
+        orderBy: orderBy,
+        orderDirection: orderDirection,
+    });
+    data.templates = [...templates];
+    data.total = total;
+}
+function nextPage(page) {
+    page = page - 1;
+    getTemplates();
+}
+async function deleteTemplate(id) {
+    await dataService.deleteTemplate({ id });
+    getTemplates();
+}
+async function applyCrateTemplate(templateId) {
+    loading = true;
+    await dataService.replaceCrateWithTemplate({ templateId });
+    store.commit("setSelectedEntity", { id: "RootDataset" });
+    loading = false;
+}
 </script>

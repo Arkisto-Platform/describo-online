@@ -17,7 +17,7 @@
         </div>
 
         <div v-if="target.resource && !target.folder && !session.embedded">
-            <el-button type="warning" size="mini" @click="selectNewResourceAndTarget">
+            <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
                 Use another service
             </el-button>
         </div>

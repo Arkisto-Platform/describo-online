@@ -71,7 +71,7 @@
                 />
             </div>
             <div v-else class="w-full">
-                <div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600 ">
+                <div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600">
                     <div class="w-full">
                         <div class="text-xs">
                             Associate a {{ addType }} (lookup by identifier or name) or create a new
@@ -123,7 +123,7 @@ export default {
             required: true,
         },
         definition: {
-            type: Object | undefined,
+            type: Object,
             required: true,
         },
         embedded: {

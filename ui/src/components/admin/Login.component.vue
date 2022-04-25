@@ -7,25 +7,18 @@
             <el-form ref="form" :model="form" label-width="80px" @submit.prevent.native="login">
                 <el-form-item label="Password">
                     <div class="flex flex-row">
-                        <el-input
-                            placeholder="Password"
-                            :type="passwordFieldType"
-                            v-model="password"
-                            size="small"
-                        ></el-input>
-                        <div>
-                            <el-button @click="passwordFieldType = 'text'" size="small">
-                                <div v-show="passwordFieldType === 'password'">
-                                    <i class="fas fa-eye-slash"></i>
-                                </div>
-                                <div v-show="passwordFieldType === 'text'">
-                                    <i class="fas fa-eye"></i>
-                                </div>
-                            </el-button>
-                        </div>
+                        <el-input :type="passwordFieldType" v-model="password"></el-input>
+                        <el-button @click="passwordFieldType = 'text'">
+                            <div v-show="passwordFieldType === 'password'">
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </div>
+                            <div v-show="passwordFieldType === 'text'">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+                        </el-button>
                     </div>
                 </el-form-item>
-                <el-button @click.prevent="login" size="small" :disabled="!password">
+                <el-button @click.prevent="login" :disabled="!password">
                     login
                 </el-button>
             </el-form>
@@ -37,29 +30,27 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { setToken } from "@/components/http.service";
+import { ref, reactive, inject } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+const store = useStore();
+const router = useRouter();
+const $http = inject("$http");
 
-export default {
-    data() {
-        return {
-            siteName: this.$store.state.configuration.siteName,
-            password: undefined,
-            passwordFieldType: "password",
-            form: {},
-        };
-    },
-    methods: {
-        async login() {
-            let response = await this.$http.post({
-                route: "/admin/login",
-                body: { password: this.password },
-            });
-            if (response.status === 200) {
-                setToken({ token: this.password });
-                this.$router.push("/admin/collections");
-            }
-        },
-    },
-};
+let password = ref("");
+const passwordFieldType = ref("password");
+const form = reactive({});
+
+async function login() {
+    let response = await $http.post({
+        route: "/admin/login",
+        body: { password: password.value },
+    });
+    if (response.status === 200) {
+        setToken({ token: password.value });
+        router.push("/admin/collections");
+    }
+}
 </script>
