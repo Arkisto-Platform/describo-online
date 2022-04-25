@@ -25,6 +25,7 @@
                 <el-tree
                     v-loading="loading"
                     ref="tree"
+                    empty-text="There are no files in this folder"
                     :props="leafNodeProps"
                     node-key="path"
                     :load="loadNode"
