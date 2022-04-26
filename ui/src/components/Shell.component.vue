@@ -5,33 +5,17 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import NavigationComponent from "@/components/Navigation.component.vue";
+import { onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
 
-export default {
-    components: {
-        NavigationComponent,
-    },
-    data() {
-        return {};
-    },
-    computed: {
-        collectionId() {
-            return this.$store.state.collection?.id;
-        },
-        target() {
-            return this.$store.state.target;
-        },
-        profile: function() {
-            return this.$store.state.profile.file ? true : false;
-        },
-        selectedEntityId() {
-            return this.$store.state.selectedEntity.id;
-        },
-    },
-    mounted() {
-        if (this.$route.path === "/") this.$router.replace({ path: "/select-target" });
-        this.$store.dispatch("loadConfiguration");
-    },
-};
+onMounted(() => {
+    if (route.path === "/") router.replace({ path: "/select-target" });
+    store.dispatch("loadConfiguration");
+});
 </script>

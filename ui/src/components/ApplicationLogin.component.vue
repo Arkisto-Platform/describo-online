@@ -2,18 +2,15 @@
     <div></div>
 </template>
 
-<script>
+<script setup>
 import { setSessionSID } from "./http.service";
+import { onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+const router = useRouter();
+const route = useRoute();
 
-export default {
-    data() {
-        return {
-            widget: undefined,
-        };
-    },
-    async mounted() {
-        setSessionSID({ sid: this.$route.query.sid });
-        this.$router.replace({ path: "/" });
-    },
-};
+onMounted(async () => {
+    setSessionSID({ sid: route.query.sid });
+    router.replace({ path: "/login" });
+});
 </script>

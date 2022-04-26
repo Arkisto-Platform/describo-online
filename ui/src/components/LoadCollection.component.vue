@@ -1,41 +1,37 @@
 <template>
-    <el-card class="box-card" v-if="msg">
+    <el-card class="box-card" v-if="state.msg">
         <div class="flex flex-row">
-            <div class="ml-2 pt-2">{{ msg }}</div>
+            <div class="ml-2 pt-2">{{ state.msg }}</div>
         </div>
     </el-card>
 </template>
 
-<script>
+<script setup>
 import { loadCollection } from "./session-handlers";
-export default {
-    data() {
-        return {
-            loading: false,
-            msg: undefined,
-        };
-    },
-    computed: {
-        target() {
-            return this.$store.state.target;
-        },
-    },
-    mounted() {
-        this.$socket.on("LOAD_ROUTE_HANDLER", (response) => {
-            this.msg = `${response.msg}`;
-        });
-        if (!this.$store.state.collection.id) {
-            this.loadFolder();
-        }
-    },
-    methods: {
-        async loadFolder() {
-            this.loading = true;
-            await loadCollection();
-            this.loading = false;
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            this.msg = undefined;
-        },
-    },
-};
+import { computed, reactive, inject, onMounted } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+const $socket = inject("$socket");
+
+const state = reactive({
+    loading: false,
+    msg: undefined,
+});
+const target = computed(() => {
+    return store.state.target;
+});
+onMounted(() => {
+    $socket.on("LOAD_ROUTE_HANDLER", (response) => {
+        state.msg = `${response.msg}`;
+    });
+    if (!store.state.collection.id) {
+        loadFolder();
+    }
+});
+async function loadFolder() {
+    state.loading = true;
+    await loadCollection();
+    state.loading = false;
+    state.msg = undefined;
+}
 </script>

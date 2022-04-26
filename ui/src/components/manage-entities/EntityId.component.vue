@@ -10,30 +10,25 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { debounce } from "lodash";
+import { ref } from "vue";
 
-export default {
-    props: {
-        value: {
-            type: String,
-        },
+const emit = defineEmits(["save:property"]);
+const props = defineProps({
+    value: {
+        type: String,
     },
-    data() {
-        return {
-            internalValue: this.value,
-            debouncedSave: debounce(this.save, 1000),
-        };
-    },
-    methods: {
-        save() {
-            this.$emit("save:property", {
-                property: "eid",
-                value: this.internalValue,
-            });
-        },
-    },
-};
+});
+
+const internalValue = ref(props.value);
+const debouncedSave = debounce(save, 1000);
+function save() {
+    emit("save:property", {
+        property: "eid",
+        value: internalValue.value,
+    });
+}
 </script>
 
 <style lang="scss" scoped>

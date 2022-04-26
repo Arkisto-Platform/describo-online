@@ -6,11 +6,11 @@
                 <el-select
                     class="w-full"
                     size="small"
-                    v-model="pendingProfile"
+                    v-model="data.pendingProfile"
                     placeholder="Select a profile to use with this crate"
                 >
                     <el-option
-                        v-for="profile in profiles"
+                        v-for="profile in data.profiles"
                         :key="profile.file"
                         :label="`${profile.name} (${profile.version}): ${profile.description}`"
                         :value="profile.file"
@@ -26,7 +26,7 @@
                     type="primary"
                     size="small"
                     @click="useProfile"
-                    :disabled="!pendingProfile"
+                    :disabled="!data.pendingProfile"
                 >
                     Use profile
                 </el-button>
@@ -43,36 +43,33 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { restoreSessionProfile, getProfiles, setProfile } from "./session-handlers";
-export default {
-    data() {
-        return {
-            profiles: [],
-            pendingProfile: undefined,
-            selectedProfile: undefined,
-        };
-    },
-    computed: {
-        profile: function () {
-            return this.$store.state.profile;
-        },
-    },
-    mounted() {
-        this.init();
-    },
-    methods: {
-        async init() {
-            await restoreSessionProfile();
-            this.profiles = await getProfiles();
-        },
-        async useProfile() {
-            const profile = this.profiles.filter((p) => p.file === this.pendingProfile)[0];
-            await setProfile({ profile });
-        },
-        async selectNewProfile() {
-            await setProfile({ profile: {} });
-        },
-    },
-};
+
+import { onMounted, computed, reactive } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+
+const data = reactive({
+    profiles: [],
+    pendingProfile: undefined,
+    selectedProfile: undefined,
+});
+const profile = computed(() => {
+    return store.state.profile;
+});
+onMounted(() => {
+    init();
+});
+async function init() {
+    await restoreSessionProfile();
+    data.profiles = await getProfiles();
+}
+async function useProfile() {
+    const profile = data.profiles.filter((p) => p.file === data.pendingProfile)[0];
+    await setProfile({ profile });
+}
+async function selectNewProfile() {
+    await setProfile({ profile: {} });
+}
 </script>

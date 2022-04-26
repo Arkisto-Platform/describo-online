@@ -34,7 +34,7 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import ManageSelectedTargetComponent from "./ManageSelectedTarget.component.vue";
 import SelectProfileComponent from "@/components/SelectProfile.component.vue";
 import ManageCrateFilesComponent from "@/components/manage-crate-files/Shell.component.vue";
@@ -43,68 +43,59 @@ import RenderEntityComponent from "@/components/manage-entities/RenderEntity.com
 import EntityListManagerComponent from "@/components/entity-list/Shell.component.vue";
 import TemplateListComponent from "@/components/template-list/TemplateList.component.vue";
 import { restoreSessionTarget } from "./session-handlers";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
-export default {
-    components: {
-        ManageSelectedTargetComponent,
-        SelectProfileComponent,
-        ManageCrateFilesComponent,
-        LoadCollectionComponent,
-        RenderEntityComponent,
-        EntityListManagerComponent,
-        TemplateListComponent,
-    },
-    data() {
-        return {
-            activeTab: "build",
-        };
-    },
-    computed: {
-        collectionId() {
-            return this.$store.state.collection?.id;
-        },
-        target() {
-            return this.$store.state.target;
-        },
-        profile: function() {
-            return this.$store.state.profile.file ? true : false;
-        },
-        selectedEntityId() {
-            let eid = this.$store.state.selectedEntity?.id;
-            return eid;
-        },
-    },
-    watch: {
-        "$route.path": function() {
-            this.activeTab = this.$route.name;
-        },
-        "$route.query": function() {
-            let eid = this.$route.query.eid;
-            if (!eid) eid = "RootDataset";
-            if (this.activeTab === "build") {
-                this.$store.commit("setSelectedEntity", { id: eid });
-            }
-        },
-    },
-    mounted() {
-        this.init();
-    },
-    methods: {
-        async init() {
-            await restoreSessionTarget();
-            this.$nextTick(() => {
-                if (!this.target?.resource || !this.target?.folder) {
-                    this.$router.push({ path: "/select-target" }).catch(() => {});
-                }
-            });
-        },
-        updateRoute(tab) {
-            let query = {};
-            if (tab.paneName === "build") {
-                query = { eid: this.selectedEntityId };
-            }
-            this.$router.push({ path: `/collection/${tab.paneName}`, query }).catch(() => {});
-        },
-    },
-};
+const activeTab = ref("build");
+const collectionId = computed(() => {
+    return store.state.collection?.id;
+});
+const target = computed(() => {
+    return store.state.target;
+});
+const profile = computed(() => {
+    return store.state.profile.file ? true : false;
+});
+const selectedEntityId = computed(() => {
+    return store.state.selectedEntity?.id;
+});
+
+watch(
+    () => route.path,
+    () => {
+        activeTab.value = route.name;
+    }
+);
+watch(
+    () => route.query,
+    () => {
+        let eid = route.query.eid;
+        if (!eid) eid = "RootDataset";
+        if (activeTab.value === "build") {
+            store.commit("setSelectedEntity", { id: eid });
+        }
+    }
+);
+onMounted(() => {
+    init();
+});
+async function init() {
+    await restoreSessionTarget();
+    nextTick(() => {
+        if (!target?.value?.resource || !target?.value?.folder) {
+            router.push({ path: "/select-target" }).catch(() => {});
+        }
+    });
+}
+function updateRoute(tab) {
+    let query = {};
+    if (tab.paneName === "build") {
+        query = { eid: selectedEntityId.value };
+    }
+    router.push({ path: `/collection/${tab.paneName}`, query }).catch(() => {});
+}
 </script>

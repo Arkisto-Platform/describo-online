@@ -94,11 +94,7 @@ export default {
     },
     computed: {
         inputElementWidth() {
-            if (window.innerWidth > 768 && window.innerWidth < 1024) {
-                return `width: 400px;`;
-            } else {
-                return `width: 600px;`;
-            }
+            return `width: 500px;`;
         },
     },
     methods: {

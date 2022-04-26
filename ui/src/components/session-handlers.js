@@ -12,7 +12,7 @@ export async function getSession() {
 }
 
 export async function restoreSessionTarget() {
-    const currentEntity = router.currentRoute?.query?.eid;
+    const currentEntity = router.currentRoute?.value.query?.eid;
     const { session, embeddedSession: embedded } = await getSession();
 
     if (session) {

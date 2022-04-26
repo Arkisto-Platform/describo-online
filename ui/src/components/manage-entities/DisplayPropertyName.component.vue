@@ -2,19 +2,14 @@
     <div>{{ labelDisplay }}</div>
 </template>
 
-<script>
+<script setup>
 import { startCase } from "lodash";
-export default {
-    props: {
-        label: { type: String, required: true },
-    },
-    data() {
-        return {};
-    },
-    computed: {
-        labelDisplay() {
-            return startCase(this.label);
-        },
-    },
-};
+import { computed } from "vue";
+
+const props = defineProps({
+    label: { type: String, required: true },
+});
+const labelDisplay = computed(() => {
+    return startCase(props.label);
+});
 </script>

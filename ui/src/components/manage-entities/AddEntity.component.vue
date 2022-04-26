@@ -12,7 +12,7 @@
             size="small"
             @select="handleSelect"
         >
-            <template slot-scope="{ item }">
+            <template #default="{ item }">
                 <div class="flex flex-col py-2">
                     <div class="text-sm">{{ item.name }}</div>
                     <p class="ml-10 text-sm w-full truncate overflow-ellipsis">
@@ -24,31 +24,22 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import DataService from "./data.service.js";
+const dataService = new DataService();
+import { ref, reactive } from "vue";
 
-export default {
-    props: {},
-    data() {
-        return {
-            selection: undefined,
-            types: [],
-        };
-    },
-    mounted() {
-        this.dataService = new DataService();
-    },
-    methods: {
-        async querySearch(queryString, cb) {
-            this.selection = undefined;
-            let { matches } = await this.dataService.lookupType({
-                query: queryString,
-            });
-            cb(matches);
-        },
-        handleSelect(selection) {
-            this.$emit("add-entity", { type: selection.name });
-        },
-    },
-};
+const emit = defineEmits(["add-entity"]);
+const selection = ref(undefined);
+
+async function querySearch(queryString, cb) {
+    selection.value = undefined;
+    let { matches } = await dataService.lookupType({
+        query: queryString,
+    });
+    cb(matches);
+}
+function handleSelect(selection) {
+    emit("add-entity", { type: selection.name });
+}
 </script>

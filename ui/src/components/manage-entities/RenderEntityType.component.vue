@@ -5,16 +5,11 @@
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        entity: {
-            type: Object,
-            required: true,
-        },
+<script setup>
+const props = defineProps({
+    entity: {
+        type: Object,
+        required: true,
     },
-    data() {
-        return {};
-    },
-};
+});
 </script>

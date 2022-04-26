@@ -15,29 +15,23 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { selectNewTarget, setFolderAndSaveToSession } from "./session-handlers";
-export default {
-    data() {
-        return {
-            revaDeployment: this.$store.state.configuration.login === "reva" ? true : false,
-        };
-    },
-    computed: {
-        session: function() {
-            return this.$store.state.session;
-        },
-        target: function() {
-            return this.$store.state.target;
-        },
-    },
-    methods: {
-        async selectNewTargetFolder() {
-            await setFolderAndSaveToSession({ folder: undefined });
-        },
-        async selectNewResourceAndTarget() {
-            await selectNewTarget();
-        },
-    },
-};
+import { computed } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+
+const revaDeployment = store.state.configuration.login === "reva" ? true : false;
+const session = computed(() => {
+    return store.state.session;
+});
+const target = computed(() => {
+    return store.state.target;
+});
+async function selectNewTargetFolder() {
+    await setFolderAndSaveToSession({ folder: undefined });
+}
+async function selectNewResourceAndTarget() {
+    await selectNewTarget();
+}
 </script>

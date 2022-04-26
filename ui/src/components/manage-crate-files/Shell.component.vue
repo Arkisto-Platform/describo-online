@@ -16,29 +16,22 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
 import InformationComponent from "../Information.component.vue";
+import { useStore } from "vuex";
+const store = useStore();
+import { inject, ref } from "vue";
+const $http = inject("$http");
 
-export default {
-    components: {
-        FileBrowserComponent,
-        InformationComponent,
-    },
-    data() {
-        return {
-            resource: this.$store.state.target.resource,
-            folder: this.$store.state.target.folder,
-        };
-    },
-    methods: {
-        async saveSelectedNodes(nodes) {
-            try {
-                await this.$http.post({ route: "/files", body: { files: nodes } });
-            } catch (error) {
-                console.log(error);
-            }
-        },
-    },
-};
+const resource = ref(store.state.target.resource);
+const folder = ref(store.state.target.folder);
+
+async function saveSelectedNodes(nodes) {
+    try {
+        await $http.post({ route: "/files", body: { files: nodes } });
+    } catch (error) {
+        console.log(error);
+    }
+}
 </script>

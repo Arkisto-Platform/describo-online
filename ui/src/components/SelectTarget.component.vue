@@ -7,7 +7,9 @@
 
             <div class="flex flex-row space-x-1">
                 <div v-if="localEnabled">
-                    <el-button @click="setLocalTarget" type="primary">My Computer</el-button>
+                    <el-button @click="setLocalTargetResource" type="primary"
+                        >My Computer</el-button
+                    >
                 </div>
                 <onedrive-authenticator-component v-if="onedriveEnabled" />
                 <owncloud-authenticator-component v-if="owncloudEnabled" />
@@ -33,7 +35,7 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import FileBrowserComponent from "@/components/filebrowser/FileBrowser.component.vue";
 import {
     restoreSessionTarget,
@@ -42,54 +44,46 @@ import {
     selectNewTarget,
 } from "./session-handlers";
 
-export default {
-    components: {
-        FileBrowserComponent,
-    },
-    data() {
-        return {
-            configuration: this.$store.state.configuration,
-        };
-    },
-    computed: {
-        session: function() {
-            return this.$store.state.session;
-        },
-        target: function() {
-            return this.$store.state.target;
-        },
-        owncloudEnabled: function() {
-            return this.configuration.services?.owncloud ? true : false;
-        },
-        onedriveEnabled: function() {
-            return this.configuration.services?.onedrive ? true : false;
-        },
-        s3Enabled: function() {
-            return this.configuration.services?.s3 ? true : false;
-        },
-        revaEnabled: function() {
-            return this.configuration.services?.reva ? true : false;
-        },
-        localEnabled: function() {
-            return this.configuration.services?.localhost ? true : false;
-        },
-    },
-    mounted() {
-        this.init();
-    },
-    methods: {
-        async init() {
-            await restoreSessionTarget();
-        },
-        async selectNewResourceAndTarget() {
-            await selectNewTarget();
-        },
-        async setSelectedFolder(folder) {
-            await setFolderAndSaveToSession({ folder: folder.path });
-        },
-        async setLocalTarget() {
-            await setLocalTarget();
-        },
-    },
-};
+import { onMounted, computed } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+
+const configuration = store.state.configuration;
+const session = computed(() => {
+    return store.state.session;
+});
+const target = computed(() => {
+    return store.state.target;
+});
+const owncloudEnabled = computed(() => {
+    return configuration.services?.owncloud ? true : false;
+});
+const onedriveEnabled = computed(() => {
+    return configuration.services?.onedrive ? true : false;
+});
+
+const s3Enabled = computed(() => {
+    return configuration.services?.s3 ? true : false;
+});
+const revaEnabled = computed(() => {
+    return configuration.services?.reva ? true : false;
+});
+const localEnabled = computed(() => {
+    return configuration.services?.localhost ? true : false;
+});
+onMounted(() => {
+    init();
+});
+async function init() {
+    await restoreSessionTarget();
+}
+async function selectNewResourceAndTarget() {
+    await selectNewTarget();
+}
+async function setSelectedFolder(folder) {
+    await setFolderAndSaveToSession({ folder: folder.path });
+}
+async function setLocalTargetResource() {
+    await setLocalTarget();
+}
 </script>

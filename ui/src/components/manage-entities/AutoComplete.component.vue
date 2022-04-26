@@ -90,12 +90,12 @@ function handleSelect(value) {
     if (value) {
         const entity = data.entities.filter((e) => e.id === value)[0];
 
-        if (entity.type === "internal") {
+        if (entity?.type === "internal") {
             emit("link:entity", { entity });
-        } else if (entity.type === "template") {
+        } else if (entity?.type === "template") {
             emit("add:template", { entity });
         } else {
-            emit("create:entity", { name: entity });
+            emit("create:entity", { name: value });
         }
     }
 }

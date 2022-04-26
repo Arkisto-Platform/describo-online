@@ -8,16 +8,14 @@
                 'bg-red-200 p-1 rounded': update.error === 'eid',
             }"
         >
-            <div class="w-64 pt-1">
-                Identifier
-            </div>
+            <div class="w-64 pt-1">Identifier</div>
             <entity-id-component
                 class="flex-grow"
                 :value.sync="entity.eid"
                 @save:property="saveEntityProperty"
                 v-if="!['Dataset', 'File'].includes(entity.etype)"
             />
-            <div v-if="['Dataset', 'File'].includes(entity.etype)" class="w-full">
+            <div v-if="['Dataset', 'File'].includes(entity.etype)" class="">
                 {{ entity.eid }}
             </div>
         </div>

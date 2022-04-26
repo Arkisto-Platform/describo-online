@@ -63,6 +63,7 @@
                 />
 
                 <render-entity-controls-component
+                    class="mt-2"
                     :entity="entity"
                     :definition="definition"
                     @refresh="getEntity"

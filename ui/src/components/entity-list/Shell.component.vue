@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col">
         <div class="flex flex-col space-y-2">
-            <add-entity-component @add-entity="addNewEntity" />
+            <!-- <add-entity-component @add-entity="addNewEntity" /> -->
 
             <div class="flex flex-row space-x-2">
                 <el-input
@@ -78,7 +78,7 @@ let data = reactive({
     entities: [],
 });
 const filter = ref("");
-const page = 0;
+let page = 0;
 const pageSize = 10;
 const orderBy = ["etype", "name"];
 const orderDirection = ["asc"];
@@ -98,8 +98,8 @@ async function getEntities() {
     data.entities = [...response.entities];
     data.total = response.total;
 }
-function nextPage(page) {
-    page = page - 1;
+function nextPage(p) {
+    page = p - 1;
     getEntities();
 }
 function editEntity(id) {

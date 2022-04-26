@@ -4,24 +4,22 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { removeSessionSID, removeToken } from "@/components/http.service";
+import { onMounted } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+const store = useStore();
+const router = useRouter();
 
-export default {
-    data() {
-        return {};
-    },
-    mounted() {
-        this.logout();
-    },
-    methods: {
-        async logout() {
-            removeSessionSID();
-            removeToken();
-            this.$store.commit("setTargetResource", { resource: undefined, folder: undefined });
-            this.$store.commit("setProfile", {});
-            this.$router.push("/login");
-        },
-    },
-};
+onMounted(() => {
+    logout();
+});
+async function logout() {
+    removeSessionSID();
+    removeToken();
+    store.commit("setTargetResource", { resource: undefined, folder: undefined });
+    store.commit("setProfile", {});
+    router.push("/login");
+}
 </script>

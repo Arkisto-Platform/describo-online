@@ -17,26 +17,19 @@
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            login: this.$store.state.configuration.login,
-            siteName: this.$store.state.configuration.siteName,
-        };
-    },
-    computed: {
-        currentRoute: function() {
-            return this.$route.name;
-        },
-        session: function() {
-            return this.$store.state.session;
-        },
-    },
-    methods: {
-        navTo(path) {
-            this.$router.push(path).catch((err) => {});
-        },
-    },
-};
+<script setup>
+import { computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
+
+const login = store.state.configuration.login;
+const siteName = store.state.configuration.siteName;
+const currentRoute = computed(() => route.name);
+const session = computed(() => store.state.session);
+function navTo(path) {
+    router.push(path).catch((err) => {});
+}
 </script>
