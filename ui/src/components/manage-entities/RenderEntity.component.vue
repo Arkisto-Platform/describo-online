@@ -20,6 +20,7 @@
                     :definition="definition"
                     @refresh="getEntity"
                 />
+
                 <!-- render entity id -->
                 <render-entity-id-component
                     class="mb-2"
@@ -59,6 +60,12 @@
                     class="mt-2"
                     v-if="entity.reverseProperties"
                     :properties="entity.reverseProperties"
+                />
+
+                <render-entity-controls-component
+                    :entity="entity"
+                    :definition="definition"
+                    @refresh="getEntity"
                 />
             </div>
             <div v-if="error" class="bg-red-200 p-2 text-center rounded">
