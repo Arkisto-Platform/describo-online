@@ -11,13 +11,15 @@
                 </el-badge>
             </div>
             <div class="text-gray-500 text-xs pr-1">{{ help }}</div>
-            <div v-if="!definition" class="text-red-600 text-xs">(not defined in profile)</div>
+            <div v-if="!props.definition" class="text-red-600 text-xs">
+                (not defined in profile)
+            </div>
         </div>
         <div class="w-2/3 xl:w-4/5 flex flex-col flex-grow px-2">
             <add-component
                 class="mx-1"
-                :property="name"
-                :definition="definition"
+                :property="props.name"
+                :definition="props.definition"
                 :embedded="false"
                 @create:property="createProperty"
                 @create:entity="createEntity"
@@ -25,25 +27,25 @@
                 @link:entity="linkEntity"
                 @add:template="addTemplate"
                 v-if="
-                    (definition && definition.multiple) ||
-                    (definition && !definition.multiple && !values.length)
+                    (props.definition && props.definition.multiple) ||
+                    (props.definition && !props.definition.multiple && !props.values.length)
                 "
             />
             <div class="flex flex-row flex-wrap">
-                <div v-for="instance of values" :key="instance.id" class="flex flex-row m-1">
+                <div v-for="instance of props.values" :key="instance.id" class="flex flex-row m-1">
                     <render-entity-property-instance-component
                         :property="instance"
-                        :definition="definition"
+                        :definition="props.definition"
                         @save:property="saveProperty"
                         @delete:property="deleteProperty"
-                        @refresh="$emit('refresh')"
+                        @refresh="refresh"
                     />
                     <delete-property-component
                         class="pt-1 pl-2"
                         type="delete"
                         :property="instance"
                         @delete:property="deleteProperty"
-                        v-if="definition && definition.type !== 'Value' && instance.value"
+                        v-if="isNotValue && instance.value"
                     />
                 </div>
             </div>
@@ -51,70 +53,72 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import RenderEntityPropertyInstanceComponent from "./RenderEntityPropertyInstance.component.vue";
 import DeletePropertyComponent from "./DeleteProperty.component.vue";
 import InformationComponent from "../Information.component.vue";
 import AddComponent from "./Add.component.vue";
 import DisplayPropertyNameComponent from "./DisplayPropertyName.component.vue";
+import { ref, computed } from "vue";
 
-export default {
-    components: {
-        RenderEntityPropertyInstanceComponent,
-        DeletePropertyComponent,
-        InformationComponent,
-        AddComponent,
-        DisplayPropertyNameComponent,
+const props = defineProps({
+    name: {
+        type: String,
+        required: true,
     },
-    props: {
-        name: {
-            type: String,
-            required: true,
-        },
-        values: {
-            type: Array,
-            required: true,
-        },
-        definition: {
-            type: Object,
-        },
+    values: {
+        type: Array,
+        required: true,
     },
-    data() {
-        return {
-            help: this.definition?.help,
-            showHelp: false,
-        };
+    definition: {
+        type: Object,
     },
-    computed: {
-        isValid() {
-            return this.values.length ? true : false;
-        },
-        isRequired() {
-            return this.definition?.required;
-        },
-    },
-    methods: {
-        createProperty(data) {
-            this.$emit("create:property", data);
-        },
-        createEntity(data) {
-            this.$emit("create:entity", data);
-        },
-        createObject(data) {
-            this.$emit("create:object", data);
-        },
-        linkEntity(data) {
-            this.$emit("link:entity", data);
-        },
-        addTemplate(data) {
-            this.$emit("add:template", data);
-        },
-        saveProperty(data) {
-            this.$emit("save:property", data);
-        },
-        deleteProperty(data) {
-            this.$emit("delete:property", data);
-        },
-    },
-};
+});
+const emit = defineEmits([
+    "refresh",
+    "create:property",
+    "create:entity",
+    "create:object",
+    "link:entity",
+    "add:template",
+    "save:property",
+    "delete:property",
+]);
+const help = ref(props.definition?.help);
+const showHelp = ref(false);
+
+const isValid = computed(() => {
+    return props.values.length ? true : false;
+});
+const isRequired = computed(() => {
+    return props.definition?.required;
+});
+const isNotValue = computed(() => {
+    return props.definition?.type !== "Value";
+});
+
+function refresh() {
+    emit("refresh");
+}
+function createProperty(data) {
+    emit("create:property", data);
+}
+function createEntity(data) {
+    emit("create:entity", data);
+}
+function createObject(data) {
+    emit("create:object", data);
+}
+function linkEntity(data) {
+    emit("link:entity", data);
+}
+function addTemplate(data) {
+    emit("add:template", data);
+}
+function saveProperty(data) {
+    emit("save:property", data);
+}
+function deleteProperty(data) {
+    emit("delete:property", data);
+}
 </script>
