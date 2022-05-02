@@ -35,7 +35,7 @@ export async function setupRoutes({ server }) {
     server.put("/entity/:entityId/associate", route(putEntityAssociateRouteHandler));
     server.post("/files", route(postFilesRouteHandler));
     server.post("/s3/presigned-url", route(getPresignedUrlRouteHandler));
-    server.post("/session/entities", route(putEntitiesHandler));
+    server.post("/session/entities", route(postEntitiesHandler));
 }
 
 export async function getEntityRouteHandler(req, res, next) {
@@ -449,7 +449,7 @@ export async function getPresignedUrlRouteHandler(req, res, next) {
     return next();
 }
 
-export async function putEntitiesHandler(req, res, next) {
+export async function postEntitiesHandler(req, res, next) {
     if (!req.session.data?.current?.collectionId) {
         log.error(`No current collection loaded for calling session`);
         return next(new BadRequestError(`No current collection loaded for calling session`));
