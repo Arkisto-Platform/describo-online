@@ -4,13 +4,13 @@
             v-model="internalValue"
             type="date"
             placeholder="Pick a date"
-            format="yyyy-MM-dd"
+            format="YYYY-MM-DD"
             @change="save"
             :clearable="true"
         >
         </el-date-picker>
         <div class="text-xs text-gray-700" v-if="!value">
-            Date format is: yyyy-mm-dd. e.g. 2021-03-22
+            Date format is: YYYY-MM-DD. e.g. 2021-03-22
         </div>
     </div>
 </template>
@@ -34,7 +34,7 @@ export default {
         };
     },
     watch: {
-        value: function() {
+        value: function () {
             this.internalValue = this.value;
         },
     },

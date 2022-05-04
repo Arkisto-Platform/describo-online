@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-row">
+    <div class="flex flex-col">
         <el-time-select
             v-model="internalValue"
             placeholder="Pick a time"
@@ -12,6 +12,9 @@
             }"
         >
         </el-time-select>
+        <div class="text-xs text-gray-700" v-if="!value">
+            Time format is: HH:mm::ss. e.g.09:03:59
+        </div>
     </div>
 </template>
 
@@ -32,7 +35,7 @@ export default {
         };
     },
     watch: {
-        value: function() {
+        value: function () {
             this.internalValue = this.value;
         },
     },
