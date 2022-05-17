@@ -4,7 +4,7 @@
             v-model="internalValue"
             type="date"
             placeholder="Pick a date"
-            format="yyyy-MM-dd"
+            format="YYYY-MM-DD"
             @change="save"
             :clearable="true"
         >
