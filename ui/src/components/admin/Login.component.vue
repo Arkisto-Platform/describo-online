@@ -5,8 +5,7 @@
         >
             <div class="text-lg text-center">Administrator Login</div>
             <el-form
-                ref="form"
-                :model="form"
+                :model="data.form"
                 label-width="80px"
                 @submit.prevent.native="login"
                 class="flex-grow"
@@ -41,8 +40,8 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const $http = inject("$http");
 
-const form = reactive({});
 const data = reactive({
+    form: {},
     password: undefined,
     passwordFieldType: "password",
 });
