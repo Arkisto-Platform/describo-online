@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import { setToken } from "@/components/http.service";
+import { removeToken } from "@/components/http.service";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { onMounted, inject } from "vue";
