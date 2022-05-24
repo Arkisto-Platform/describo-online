@@ -23,6 +23,7 @@ export default {
                 DataDownload: "fa-download",
                 File: "fa-file",
                 GeoCoordinates: "fa-map-marker-alt",
+		GeoShape: "fa-map-marker-alt",
                 IndividualProduct: "fa-barcode",
                 Language: "fa-sign-language",
                 Organization: "fa-university",

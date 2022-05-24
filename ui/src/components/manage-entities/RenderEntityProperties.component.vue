@@ -28,7 +28,7 @@
 <script>
 import RenderEntityPropertyDataComponent from "./RenderEntityPropertyData.component.vue";
 import DataService from "./data.service.js";
-import { isString, isPlainObject } from "lodash";
+import { isString, isNumber, isPlainObject } from "lodash";
 
 export default {
     components: {
@@ -57,7 +57,7 @@ export default {
         };
     },
     watch: {
-        properties: function() {
+	properties: function () {
             this.loadTgtEntityData();
         },
     },
@@ -159,7 +159,7 @@ export default {
 
             let props = Object.keys(data).filter((k) => !["@id", "@type", "name"].includes(k));
             for (let prop of props) {
-                if (isString(data[prop])) {
+		if (isString(data[prop]) || isNumber(data[prop])) {
                     await this.dataService.createProperty({
                         srcEntityId: entity.id,
                         property: prop,

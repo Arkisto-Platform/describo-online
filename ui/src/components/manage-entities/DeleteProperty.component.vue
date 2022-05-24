@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-const emit = defineEmits("delete:property");
+const emit = defineEmits(["delete:property"]);
 const props = defineProps({
     type: {
         type: String,

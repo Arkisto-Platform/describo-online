@@ -63,29 +63,14 @@ module.exports = {
             {
                 test: /\.(svg|png|jp(e*)g|gif|mp4)?$/,
                 type: "asset/resource",
-                // loader: "file-loader",
-                // options: {
-                //     name: "[contenthash].[ext]",
-                //     esModule: false,
-                // },
             },
-            // {
-            //     test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-            //     loader: "url-loader",
-            //     options: { limit: 10000, mimetype: " application/font-woff" },
-            // },
-            // { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" },
             {
                 test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
                 type: "asset/resource",
-                // use: [
-                //     {
-                //         loader: "file-loader",
-                //         options: {
-                //             name: "[name].[ext]",
-                //         },
-                //     },
-                // ],
+	    },
+	    {
+		test: /\.(geo)json$/,
+		loader: "json-loader",
             },
         ],
     },
