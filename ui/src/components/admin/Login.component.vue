@@ -13,18 +13,18 @@
             >
                 <div class="flex flex-row">
                     <el-form-item label="Password" class="flex-grow">
-                        <el-input :type="passwordFieldType" v-model="password"></el-input>
+                        <el-input :type="data.passwordFieldType" v-model="data.password"></el-input>
                     </el-form-item>
-                    <el-button @click="passwordFieldType = 'text'">
-                        <div v-show="passwordFieldType === 'password'">
+                    <el-button @click="data.passwordFieldType = 'text'">
+                        <div v-show="data.passwordFieldType === 'password'">
                             <i class="fa-solid fa-eye-slash"></i>
                         </div>
-                        <div v-show="passwordFieldType === 'text'">
+                        <div v-show="data.passwordFieldType === 'text'">
                             <i class="fa-solid fa-eye"></i>
                         </div>
                     </el-button>
                 </div>
-                <el-button @click.prevent="login" :disabled="!password"> login </el-button>
+                <el-button @click.prevent="login" :disabled="!data.password"> login </el-button>
             </el-form>
 
             <router-link to="/login" class="text-blue-600">
@@ -36,23 +36,25 @@
 
 <script setup>
 import { setToken, removeToken } from "@/components/http.service";
-import { ref, reactive, inject } from "vue";
+import { reactive, inject } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 const $http = inject("$http");
 
-let password = ref("");
-const passwordFieldType = ref("password");
 const form = reactive({});
+const data = reactive({
+    password: undefined,
+    passwordFieldType: "password",
+});
 
 async function login() {
     removeToken();
     let response = await $http.post({
         route: "/admin/login",
-        body: { password: password.value },
+        body: { password: data.password },
     });
     if (response.status === 200) {
-        setToken({ token: password.value });
+        setToken({ token: data.password });
         router.push("/admin/collections");
     }
 }
