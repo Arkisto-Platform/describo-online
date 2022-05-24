@@ -13,7 +13,7 @@ import { postSession, getApplication } from "../lib/session";
 import { createUser, createUserSession } from "../lib/user";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
 import { getOwncloudOauthToken } from "../lib/backend-owncloud";
-import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api";
+import { whoami } from "../lib/file-browser_reva-api";
 import { loadInstalledProfiles } from "../lib/profile";
 
 const log = getLogger();
@@ -28,8 +28,6 @@ export async function setupRoutes({ server }) {
         updateApplicationSession,
     ]);
     server.post("/session/get-oauth-token/:serviceName", route(getOauthToken));
-    server.post("/authenticate/reva", authenticateToRevaHandler);
-    server.post("/authenticate/local", authenticateLocalUser);
 
     // get :service configuration
     server.get("/session/configuration/:service", route(getServiceConfigurationHandler));
@@ -393,26 +391,4 @@ export function assembleS3Configuration({ params }) {
         awsSecretAccessKey: params.awsSecretAccessKey,
         region: params.region,
     };
-}
-
-export async function authenticateToRevaHandler(req, res, next) {
-    const { gateway, username, password, createSession } = req.body;
-    let { token, user } = await authenticateToReva({ gateway, username, password });
-    res.send({ token, user });
-    next();
-}
-
-export async function authenticateLocalUser(req, res, next) {
-    let configuration = await loadConfiguration();
-    const name = "Local User";
-    const email = "email@localhost.com";
-    let user = await createUser({ name, email });
-    let { token, expiry } = await generateToken({ configuration, user });
-    await createUserSession({
-        email,
-        data: {},
-        token,
-        expiry,
-    });
-    res.send({ token });
 }

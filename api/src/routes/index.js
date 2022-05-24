@@ -1,5 +1,6 @@
 import { loadConfiguration, route } from "../common";
 
+import { setupRoutes as setupAuthenticationRoutes } from "./authenticate";
 import { setupRoutes as setupLoadRoutes } from "./load";
 import { setupRoutes as setupFileRoutes } from "./file-browser";
 import { setupRoutes as setupAdminRoutes } from "./admin";
@@ -12,6 +13,7 @@ import { getLogger } from "../common/logger";
 const log = getLogger();
 
 export function setupRoutes({ server }) {
+    setupAuthenticationRoutes({ server });
     setupLoadRoutes({ server });
     setupFileRoutes({ server });
     setupAdminRoutes({ server });
@@ -20,7 +22,6 @@ export function setupRoutes({ server }) {
     setupEntityRoutes({ server });
     setupTemplateRoutes({ server });
     server.get("/configuration", getConfiguration);
-    server.get("/authenticated", route(isAuthenticated));
     if (process.env.NODE_ENV === "development") {
         // this is only for development of the capability to post back on save
         server.post("/save", (req, res, next) => {
@@ -35,9 +36,4 @@ async function getConfiguration(req, res, next) {
     let configuration = await loadConfiguration();
     res.send({ configuration: configuration.ui });
     return next();
-}
-
-async function isAuthenticated(req, res, next) {
-    res.send({});
-    next();
 }
