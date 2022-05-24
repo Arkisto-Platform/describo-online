@@ -7,7 +7,7 @@ import ApplicationLoginComponent from "@/components/ApplicationLogin.component.v
 import AdminComponent from "@/components/admin/Shell.component.vue";
 import AdminLoginComponent from "@/components/admin/Login.component.vue";
 import AdminManagementShellComponent from "@/components/admin/ManagementShell.component.vue";
-import { isAuthenticated } from "./components/http.service";
+import { isAuthenticatedUser, isAuthenticatedAdmin } from "./components/http.service";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
@@ -62,10 +62,23 @@ const routes = [
     {
         path: "/admin",
         component: AdminComponent,
+
         children: [
-            { path: "/admin/login", component: AdminLoginComponent },
-            { path: "/admin/collections", component: AdminManagementShellComponent },
-            { path: "/admin/profiles", component: AdminManagementShellComponent },
+            { name: "adminlogin", path: "/admin/login", component: AdminLoginComponent },
+            {
+                path: "/admin/collections",
+                component: AdminManagementShellComponent,
+                meta: {
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "/admin/profiles",
+                component: AdminManagementShellComponent,
+                meta: {
+                    requiresAuth: true,
+                },
+            },
         ],
     },
 ];
@@ -77,10 +90,20 @@ const router = createRouter({
 router.beforeEach(onAuthRequired);
 
 async function onAuthRequired(to, from, next) {
-    if (to.meta?.requiresAuth) {
-        let isAuthed;
+    let isAuthed;
+    if (to.meta?.requiresAuth && to.path.match("/admin")) {
+        // check authenticated admin
         try {
-            isAuthed = await isAuthenticated({ router });
+            isAuthed = await isAuthenticatedAdmin({ router });
+            if (!isAuthed && from.name !== "adminlogin") return next({ path: "/admin/login" });
+            return next();
+        } catch (error) {
+            if (!isAuthed && from.name !== "adminlogin") return next({ path: "/admin/login" });
+        }
+    } else if (to.meta?.requiresAuth && !to.path.match("/admin")) {
+        // check authenticated user
+        try {
+            isAuthed = await isAuthenticatedUser({ router });
             if (!isAuthed && from.name !== "login") return next({ path: "/login" });
             return next();
         } catch (error) {

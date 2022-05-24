@@ -18,6 +18,13 @@ const $http = inject("$http");
 const login = store.state.configuration.login;
 const siteName = store.state.configuration.siteName;
 
+onMounted(() => {
+    removeToken();
+    if (login === "localhost") {
+        loginLocalUser();
+    }
+});
+
 async function loginLocalUser() {
     let response = await $http.post({ route: "/authenticate/local", body: {} });
     if (response.status === 200) {
@@ -26,8 +33,4 @@ async function loginLocalUser() {
         router.push("/select-target");
     }
 }
-
-onMounted(() => {
-    if (login === "localhost") loginLocalUser();
-});
 </script>

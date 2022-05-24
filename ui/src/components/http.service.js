@@ -1,10 +1,24 @@
 const sidProperty = "describoOnlineSID";
 const tokenProperty = "describoOnlineAuthToken";
 
-export async function isAuthenticated({ router }) {
+export async function isAuthenticatedUser({ router }) {
     try {
         const httpService = new HTTPService({ router });
-        let response = await httpService.get({ route: "/authenticated" });
+        let response = await httpService.get({ route: "/authenticated/user" });
+        if (response.status === 200) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.log("isAuthenticated failure", error);
+        return false;
+    }
+}
+
+export async function isAuthenticatedAdmin({ router }) {
+    try {
+        const httpService = new HTTPService({ router });
+        let response = await httpService.get({ route: "/authenticated/admin" });
         if (response.status === 200) {
             return true;
         }

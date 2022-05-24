@@ -24,9 +24,7 @@
                         </div>
                     </el-button>
                 </div>
-                <el-button @click.prevent="login" :disabled="!password">
-                    login
-                </el-button>
+                <el-button @click.prevent="login" :disabled="!password"> login </el-button>
             </el-form>
 
             <router-link to="/login" class="text-blue-600">
@@ -37,11 +35,9 @@
 </template>
 
 <script setup>
-import { setToken } from "@/components/http.service";
+import { setToken, removeToken } from "@/components/http.service";
 import { ref, reactive, inject } from "vue";
-import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-const store = useStore();
 const router = useRouter();
 const $http = inject("$http");
 
@@ -50,6 +46,7 @@ const passwordFieldType = ref("password");
 const form = reactive({});
 
 async function login() {
+    removeToken();
     let response = await $http.post({
         route: "/admin/login",
         body: { password: password.value },

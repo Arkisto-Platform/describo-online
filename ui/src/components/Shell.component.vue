@@ -16,6 +16,5 @@ const store = useStore();
 
 onMounted(() => {
     if (route.path === "/") router.replace({ path: "/select-target" });
-    store.dispatch("loadConfiguration");
 });
 </script>

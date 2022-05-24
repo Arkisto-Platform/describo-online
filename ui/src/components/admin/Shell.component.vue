@@ -5,10 +5,12 @@
 </template>
 
 <script setup>
+import { removeToken } from "@/components/http.service";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 onMounted(() => {
+    removeToken();
     router.push("/admin/login").catch(() => {});
 });
 </script>
