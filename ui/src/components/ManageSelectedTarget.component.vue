@@ -22,12 +22,10 @@ import { useStore } from "vuex";
 const store = useStore();
 
 const revaDeployment = store.state.configuration.login === "reva" ? true : false;
-const session = computed(() => {
-    return store.state.session;
-});
-const target = computed(() => {
-    return store.state.target;
-});
+const session = computed(() => store.state.session);
+const target = computed(() => store.state.target);
+const profile = computed(() => store.state.profile);
+
 async function selectNewTargetFolder() {
     await setFolderAndSaveToSession({ folder: undefined });
 }
