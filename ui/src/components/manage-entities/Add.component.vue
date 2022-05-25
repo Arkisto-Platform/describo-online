@@ -66,21 +66,21 @@
                 <select-object-component
                     v-if="addType === 'SelectObject'"
                     :property="property"
-		    :definition="definition"
-		    @create:object="createObject"
-		/>
-		<geo-component
-		    v-if="addType === 'Geo'"
-		    @create:object="createObject"
-		    @link:entity="linkEntity"
-		/>
-	    </div>
-	    <div v-else class="w-full">
-		<div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600">
+                    :definition="definition"
+                    @create:object="createObject"
+                />
+                <geo-component
+                    v-if="addType === 'Geo'"
+                    @create:object="createObject"
+                    @link:entity="linkEntity"
+                />
+            </div>
+            <div v-else class="w-full">
+                <div class="flex flex-row space-x-2 divide-y divide-gray-300 text-gray-600">
                     <div class="w-full">
                         <div class="text-xs">
-                            Associate a {{ addType }} (lookup by identifier or name) or create a new
-                            entity
+                            Associate an existing '{{ addType }}' (lookup by identifier or name) or
+                            create a new '{{ addType }}' by typing a name for it.
                         </div>
                         <autocomplete-component
                             :type="addType"
@@ -121,7 +121,7 @@ export default {
         SelectUrlComponent,
         SelectObjectComponent,
         SelectComponent,
-	GeoComponent,
+        GeoComponent,
         AutocompleteComponent,
     },
     props: {
@@ -154,7 +154,7 @@ export default {
                 "Select",
                 "SelectURL",
                 "SelectObject",
-		"Geo",
+                "Geo",
             ],
             addType: undefined,
         };
