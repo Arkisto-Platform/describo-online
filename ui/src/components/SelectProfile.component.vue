@@ -34,12 +34,7 @@
         </div>
         <div class="flex flex-row space-x-2 text-sm" v-show="profile.name">
             <div>
-                <el-button
-                    type="danger"
-                    @click="selectNewProfile"
-                    size="small"
-                    :disabled="!profile.allowProfileChange"
-                >
+                <el-button type="danger" @click="selectNewProfile" size="small">
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
@@ -60,9 +55,8 @@ const data = reactive({
     pendingProfile: undefined,
     selectedProfile: undefined,
 });
-const profile = computed(() => {
-    return store.state.profile;
-});
+const profile = computed(() => store.state.profile);
+
 onMounted(() => {
     init();
 });
