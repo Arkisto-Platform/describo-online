@@ -9,9 +9,10 @@
             "properties": {
                 "name": { "type": "string" },
                 "description": { "type": "string" },
-                "version": { "type": "number" }
+                "version": { "type": "number" },
+                "warnMissingProperty": { "type": "boolean" }
             },
-            "required": ["name", "description", "version"],
+            "required": ["name", "description", "version", "warnMissingProperty"],
             "additionalProperties": false
         },
         "rootDatasets": {
