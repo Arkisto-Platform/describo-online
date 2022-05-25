@@ -10,12 +10,20 @@
                 "name": { "type": "string" },
                 "description": { "type": "string" },
                 "version": { "type": "number" },
-                "showMissingPropertyErrors": { "type": "boolean" },
+                "warnMissingProperty": { "type": "boolean" },
                 "allowProfileChange": { "type": "boolean" },
                 "allowResourceChange": { "type": "boolean" },
                 "allowFolderChange": { "type": "boolean" }
             },
-            "required": ["name", "description", "version"],
+            "required": [
+                "name",
+                "description",
+                "version",
+                "warnMissingProperty",
+                "allowProfileChange",
+                "allowResourceChange",
+                "allowFolderChange"
+            ],
             "additionalProperties": false
         },
         "rootDatasets": {
