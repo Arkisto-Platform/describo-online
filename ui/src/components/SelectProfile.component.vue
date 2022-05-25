@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="flex flex-row space-x-2 text-sm" v-show="profile.name">
-            <div>
+            <div v-if="session.configuration.allowProfileChange">
                 <el-button type="danger" @click="selectNewProfile" size="small">
                     <i class="fas fa-trash"></i>
                 </el-button>
@@ -56,6 +56,7 @@ const data = reactive({
     selectedProfile: undefined,
 });
 const profile = computed(() => store.state.profile);
+const session = computed(() => store.state.session);
 
 onMounted(() => {
     init();

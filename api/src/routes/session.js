@@ -149,16 +149,18 @@ export async function createApplicationSession(req, res, next) {
     try {
         let data = {};
         let service = {};
-        if (req.body.session?.owncloud) {
-            service.owncloud = assembleOwncloudConfiguration({ params: req.body.session.owncloud });
-        } else if (req.body.session?.s3) {
-            service.s3 = assembleS3Configuration({ params: req.body.session.s3 });
-        } else if (req.body.session?.local) {
-            service.local = { provider: "local", folder: req.body.session.local.folder };
-        }
 
+        // set up the service configuration
+        if (req.body.service?.owncloud) {
+            service.owncloud = assembleOwncloudConfiguration({ params: req.body.service.owncloud });
+        } else if (req.body.service?.s3) {
+            service.s3 = assembleS3Configuration({ params: req.body.service.s3 });
+        } else if (req.body.service?.local) {
+            service.local = { provider: "local", folder: req.body.service.local.folder };
+        }
         data.service = service;
 
+        // set up the profile
         let profiles = await loadInstalledProfiles({});
         let profile;
         if (req.body?.profile?.file) {
@@ -167,6 +169,18 @@ export async function createApplicationSession(req, res, next) {
                 data.profile = profile[0];
             }
         }
+
+        // setup up any configuration
+        data.configuration = {
+            allowProfileChange:
+                req.body?.configuration?.allowProfileChange === undefined
+                    ? true
+                    : req.body.configuration.allowProfileChange,
+            allowServiceChange:
+                req.body?.configuration?.allowServiceChange === undefined
+                    ? true
+                    : req.body.configuration.allowServiceChange,
+        };
 
         let sessionId = await postSession({
             authorization,

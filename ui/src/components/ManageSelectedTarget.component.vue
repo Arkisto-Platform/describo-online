@@ -1,11 +1,11 @@
 <template>
     <div class="flex flex-row space-x-1 bg-white p-4 text-sm">
-        <div v-if="target.resource && !revaDeployment && !session.embedded" class="">
+        <div v-if="target.resource && !revaDeployment && session.configuration.allowServiceChange">
             <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
                 Use another service
             </el-button>
         </div>
-        <div class="mr-2">
+        <div class="mr-2" v-if="session.configuration.allowServiceChange">
             <el-button type="danger" size="small" @click="selectNewTargetFolder">
                 <i class="fas fa-trash"></i>
             </el-button>
