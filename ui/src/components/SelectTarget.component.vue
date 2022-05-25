@@ -1,9 +1,7 @@
 <template>
     <div class="flex flex-col bg-white p-4">
         <div v-if="!target.resource && !target.folder" class="flex flex-col">
-            <div>
-                Select a resource to work with
-            </div>
+            <div>Select a resource to work with</div>
 
             <div class="flex flex-row space-x-1">
                 <div v-if="localEnabled">
