@@ -15,22 +15,26 @@
                     body: JSON.stringify({
                         email: "john@email.com",
                         name: "John Citizen",
-                        // session: {
-                        // s3: {
-                        //     provider: "Minio",
-                        //     url: "https://{your s3 endpoint}",
-                        //     folder: "development",
-                        //     awsAccessKeyId: "set key here",
-                        //     awsSecretAccessKey: "set secret here",
-                        //     region: "us-east-1",
-                        // },
-                        // local: {
-                        //     folder: "{path to a folder in the container}",
-                        // },
-                        // },
-                        // profile: {
-                        //     file: "schema.org",
-                        // },
+                        service: {
+                            // s3: {
+                            //     provider: "Minio",
+                            //     url: "https://{your s3 endpoint}",
+                            //     folder: "development",
+                            //     awsAccessKeyId: "set key here",
+                            //     awsSecretAccessKey: "set secret here",
+                            //     region: "us-east-1",
+                            // },
+                            local: {
+                                folder: "{{ /path/to/folder/on/api }}",
+                            },
+                        },
+                        configuration: {
+                            allowProfileChange: false,
+                            allowServiceChange: false,
+                        },
+                        profile: {
+                            file: "schema.org",
+                        },
                     }),
                 });
                 ({ sessionId } = await response.json());
