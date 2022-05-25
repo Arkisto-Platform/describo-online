@@ -34,7 +34,12 @@
         </div>
         <div class="flex flex-row space-x-2 text-sm" v-show="profile.name">
             <div>
-                <el-button type="danger" @click="selectNewProfile" size="small">
+                <el-button
+                    type="danger"
+                    @click="selectNewProfile"
+                    size="small"
+                    :disabled="!profile.allowProfileChange"
+                >
                     <i class="fas fa-trash"></i>
                 </el-button>
             </div>
