@@ -88,7 +88,7 @@ export default {
             if (!this.filter) return this.inputs;
             return this.inputs.filter((i) => {
                 let re = new RegExp(this.filter, "i");
-                return i.name.match(re);
+                return i.name.match(re) || i.help.match(re);
             });
         },
     },
