@@ -11,7 +11,10 @@
                 </el-badge>
             </div>
             <div class="text-gray-500 text-xs pr-1">{{ help }}</div>
-            <div v-if="!props.definition" class="text-red-600 text-xs">
+            <div
+                v-if="!props.definition && profileWarnMissingProperty"
+                class="text-red-600 text-xs"
+            >
                 (not defined in profile)
             </div>
         </div>
@@ -60,6 +63,8 @@ import InformationComponent from "../Information.component.vue";
 import AddComponent from "./Add.component.vue";
 import DisplayPropertyNameComponent from "./DisplayPropertyName.component.vue";
 import { ref, computed } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
 
 const props = defineProps({
     name: {
@@ -95,6 +100,9 @@ const isRequired = computed(() => {
 });
 const isNotValue = computed(() => {
     return props.definition?.type !== "Value";
+});
+const profileWarnMissingProperty = computed(() => {
+    return store.state.profile.warnMissingProperty;
 });
 
 function refresh() {
