@@ -22,7 +22,11 @@ import { useStore } from "vuex";
 const store = useStore();
 
 const revaDeployment = store.state.configuration.login === "reva" ? true : false;
-const allowServiceChange = computed(() => store.state.session?.configuration?.allowServiceChange);
+const allowServiceChange = computed(() => {
+    return store.state.session?.configuration?.allowServiceChange === undefined
+        ? true
+        : store.state.session?.configuration?.allowServiceChange;
+});
 const target = computed(() => store.state.target);
 const profile = computed(() => store.state.profile);
 

@@ -56,7 +56,11 @@ const data = reactive({
     selectedProfile: undefined,
 });
 const profile = computed(() => store.state.profile);
-const allowProfileChange = computed(() => store.state.session?.configuration?.allowProfileChange);
+const allowProfileChange = computed(() => {
+    return store.state.session?.configuration?.allowProfileChange === undefined
+        ? true
+        : store.state.session?.configuration?.allowProfileChange;
+});
 
 onMounted(() => {
     init();
