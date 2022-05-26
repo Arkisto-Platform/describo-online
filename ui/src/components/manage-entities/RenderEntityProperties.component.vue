@@ -57,7 +57,7 @@ export default {
         };
     },
     watch: {
-	properties: function () {
+        properties: function () {
             this.loadTgtEntityData();
         },
     },
@@ -159,7 +159,7 @@ export default {
 
             let props = Object.keys(data).filter((k) => !["@id", "@type", "name"].includes(k));
             for (let prop of props) {
-		if (isString(data[prop]) || isNumber(data[prop])) {
+                if (isString(data[prop]) || isNumber(data[prop])) {
                     await this.dataService.createProperty({
                         srcEntityId: entity.id,
                         property: prop,
