@@ -91,6 +91,14 @@ export async function createUserSession({ email, data, creator = "", token, expi
         include: [{ model: models.session }],
     });
     let session;
+
+    data = {
+        configuration: {
+            allowProfileChange: true,
+            allowServiceChange: true,
+        },
+        ...data,
+    };
     if (user?.session) {
         session = user.session;
         session.update({ data, token, expiry, creator });
