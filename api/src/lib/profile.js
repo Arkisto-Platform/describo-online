@@ -34,6 +34,7 @@ const SimpleDataTypes = [
     "URL",
     "SelectURL",
     "Value",
+    "Geo",
 ];
 
 export async function loadInstalledProfiles({ profilePath }) {
