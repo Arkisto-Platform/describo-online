@@ -12,7 +12,7 @@
         "@fortawesome/fontawesome-svg-core": "^6.1.1",
         "@okta/okta-auth-js": "^6.7.1",
         "@okta/okta-signin-widget": "^6.5.0",
-        "codemirror": "^6.0.1",
+        "codemirror": "^5.65.6",
         "core-js": "^3.23.3",
         "date-fns": "^2.28.0",
         "element-plus": "^2.2.6",
