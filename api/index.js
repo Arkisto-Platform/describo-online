@@ -5,7 +5,6 @@ const models = require("./src/models");
 const { setupRoutes } = require("./src/routes");
 const { loadConfiguration } = require("./src/common");
 const { getLogger } = require("./src/common/logger");
-const corsMiddleware = require("restify-cors-middleware");
 const periodicProcesses = require("./src/periodic-processes");
 const { pathExists, writeJson } = require("fs-extra");
 const log = getLogger();
@@ -29,19 +28,6 @@ global.fetch = require("node-fetch");
     await models.sequelize.sync();
     const io = require("socket.io")(server.server, {});
 
-    const cors = corsMiddleware({
-        preflightMaxAge: 5, //Optional
-        origins: ["*"],
-        allowHeaders: [
-            "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization",
-        ],
-        exposeHeaders: [
-            "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization",
-        ],
-    });
-
-    server.pre(cors.preflight);
-    server.use(cors.actual);
     if (process.env.NODE_ENV === "development") {
         server.use((req, res, next) => {
             log.debug(`${req.route.method}: ${req.route.path}`);
