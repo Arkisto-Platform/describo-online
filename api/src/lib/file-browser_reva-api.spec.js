@@ -11,7 +11,7 @@ import {
 } from "./file-browser_reva-api";
 import { readFile } from "fs-extra";
 
-describe("Test reva file management operations", () => {
+describe.skip("Test reva file management operations", () => {
     const username = "admin";
     const password = "admin";
     const gateway = "reva-gateway:19000";
