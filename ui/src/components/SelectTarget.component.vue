@@ -16,6 +16,8 @@
             </div>
         </div>
 
+        <div id="teleport-target-selection"></div>
+
         <div v-if="target.resource && !target.folder && !session.embedded">
             <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
                 Use another service
