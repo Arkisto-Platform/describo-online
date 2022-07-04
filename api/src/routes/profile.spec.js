@@ -1,7 +1,6 @@
-import "regenerator-runtime";
 import fetch from "node-fetch";
-import models from "../models";
-import { createSessionForTest } from "../common";
+import models from "../models/index.js";
+import { createSessionForTest } from "../common/index.js";
 
 const chance = require("chance").Chance();
 const api = "http://localhost:8080";

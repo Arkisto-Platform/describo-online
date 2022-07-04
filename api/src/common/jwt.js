@@ -1,9 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
-// import { jwtVerify } from "jose/jwt/verify";
 import { createSecretKey } from "crypto";
-import add from "date-fns/add";
-import isAfter from "date-fns/isAfter";
-import parseISO from "date-fns/parseISO";
+import { add, isAfter, parseISO } from "date-fns";
 
 export async function generateToken({ configuration, user }) {
     const key = createSecretKey(Buffer.from(configuration.api.session.secret, "utf-8"));

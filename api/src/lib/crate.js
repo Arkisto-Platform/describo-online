@@ -1,21 +1,22 @@
-import { readJSON, writeJSON } from "fs-extra";
-import { flattenDeep, isPlainObject, groupBy, isString, isArray, compact } from "lodash";
-import { insertCollection, findCollection } from "./collections";
+import fsExtraPkg from "fs-extra";
+const { readJSON, writeJSON } = fsExtraPkg;
+import { flattenDeep, isPlainObject, groupBy, isString, isArray, compact } from "lodash-es";
+import { insertCollection, findCollection } from "./collections.js";
 import {
     insertEntity,
     attachProperty,
     associate,
     getEntity,
     getEntityProperties,
-} from "./entities";
-import { loadClassDefinition, loadProfile } from "./profile";
-import models from "../models";
-import { syncLocalFileToRemote } from "../lib/file-browser";
+} from "./entities.js";
+import { loadClassDefinition, loadProfile } from "./profile.js";
+import models from "../models/index.js";
+import { syncLocalFileToRemote } from "../lib/file-browser.js";
 import fetch from "node-fetch";
-import { isURL } from "validator";
+import validatorPkg from "validator";
+const { isURL } = validatorPkg;
 
-import { loadConfiguration } from "../common";
-import { getLogger } from "../common/logger";
+import { loadConfiguration, getLogger } from "../common/index.js";
 const log = getLogger();
 
 const rootDescriptorIdPrefix = "#:localid:describo:";

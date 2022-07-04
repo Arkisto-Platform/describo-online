@@ -1,5 +1,6 @@
-import { BadRequestError } from "restify-errors";
-import { getLogger } from "../common/logger";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError } = restifyErrorsPkg;
+import { getLogger } from "../common/index.js";
 
 const log = getLogger();
 

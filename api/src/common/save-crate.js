@@ -1,5 +1,5 @@
-import { Crate } from "../lib/crate";
-import { getLogger } from "./logger";
+import { Crate } from "../lib/crate.js";
+import { getLogger } from "./logger.js";
 const log = getLogger();
 
 export async function saveCrate({ session, user, collectionId, actions = [] }) {

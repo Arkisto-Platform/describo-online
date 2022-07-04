@@ -1,7 +1,6 @@
-import models from "../models";
-import { refreshOwncloudOauthToken } from "../lib/backend-owncloud";
-import { loadConfiguration } from "../common";
-import { getLogger } from "../common/logger";
+import models from "../models/index.js";
+import { refreshOwncloudOauthToken } from "../lib/backend-owncloud.js";
+import { loadConfiguration, getLogger } from "../common/index.js";
 const log = getLogger();
 
 // 10 minutes left on token lifetime

@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "A profile showing a single class definition that inherits the schema.org class definition and adds a property to it",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

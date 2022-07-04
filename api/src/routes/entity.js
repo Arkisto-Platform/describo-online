@@ -1,5 +1,6 @@
-import { BadRequestError, NotFoundError, ForbiddenError } from "restify-errors";
-import { route } from "../common";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError, NotFoundError, ForbiddenError } = restifyErrorsPkg;
+import { route, saveCrate, getLogger, getS3Handle, Message } from "../common/index.js";
 import {
     getEntity,
     getEntityCount,
@@ -14,10 +15,9 @@ import {
     removeProperty,
     associate,
     insertFilesAndFolders,
-} from "../lib/entities";
-import { loadClassDefinition } from "../lib/profile";
-import { saveCrate, getLogger, getS3Handle, Message } from "../common";
-import { isArray, isPlainObject, isString, flattenDeep } from "lodash";
+} from "../lib/entities.js";
+import { loadClassDefinition } from "../lib/profile.js";
+import { isArray, isPlainObject, isString, flattenDeep } from "lodash-es";
 const log = getLogger();
 
 export async function setupRoutes({ server }) {

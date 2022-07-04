@@ -1,6 +1,7 @@
-import { loadConfiguration } from "../common";
-import { ForbiddenError } from "restify-errors";
-import { createUser, createUserSession } from "./user";
+import { loadConfiguration } from "../common/index.js";
+import pkg from "restify-errors";
+const { ForbiddenError } = pkg;
+import { createUser, createUserSession } from "./user.js";
 
 export async function postSession({ authorization, email, name, data }) {
     let { application } = await getApplication({ authorization });

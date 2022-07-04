@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "A profile showing a property that defines a set of values to choose from - and allows only one to be selected",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

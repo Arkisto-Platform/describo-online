@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function (sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
     let Session = sequelize.define(
         "session",
         {
@@ -37,4 +37,4 @@ module.exports = function (sequelize, DataTypes) {
     };
 
     return Session;
-};
+}

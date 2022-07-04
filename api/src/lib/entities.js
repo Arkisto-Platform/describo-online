@@ -1,9 +1,9 @@
-const models = require("../models");
-const { Op } = require("sequelize");
+import models from "../models/index.js";
+import { Op } from "sequelize";
 const sequelize = models.sequelize;
 import path from "path";
-import { cloneDeep, orderBy, flattenDeep, uniqBy, isArray } from "lodash";
-import { loadProfile, loadClassDefinition } from "./profile";
+import { cloneDeep, orderBy, flattenDeep, uniqBy, isArray } from "lodash-es";
+import { loadProfile, loadClassDefinition } from "./profile.js";
 
 export async function insertEntity({ entity, collectionId, profile }) {
     verifyEntity({ entity });

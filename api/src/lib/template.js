@@ -1,9 +1,9 @@
-const models = require("../models");
-const { Op } = require("sequelize");
-import { getEntity, getEntityProperties, insertEntity, attachProperty } from "./entities";
-import { loadClassDefinition, loadProfile } from "./profile";
-import { groupBy } from "lodash";
-import { Crate } from "./crate";
+import models from "../models/index.js";
+import { Op } from "sequelize";
+import { getEntity, getEntityProperties, insertEntity, attachProperty } from "./entities.js";
+import { loadClassDefinition, loadProfile } from "./profile.js";
+import { groupBy } from "lodash-es";
+import { Crate } from "./crate.js";
 
 export async function insertTemplate({ userId, entityId, collectionId, name, profile }) {
     if (entityId) {
@@ -28,7 +28,7 @@ export async function insertTemplate({ userId, entityId, collectionId, name, pro
         if (template) {
             template.src = entity;
             template.changed("src", true);
-            await template.save();
+            return await template.save();
         } else {
             return await models.template.create({ userId, ...entity, src: entity });
         }

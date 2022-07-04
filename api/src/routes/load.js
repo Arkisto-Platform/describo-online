@@ -1,16 +1,18 @@
-import { BadRequestError, ConflictError } from "restify-errors";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError, ConflictError } = restifyErrorsPkg;
 import {
     listFolder,
     setup,
     localWorkingDirectory,
     syncRemoteFileToLocal,
     syncLocalFileToRemote,
-} from "../lib/file-browser";
-import { Crate } from "../lib/crate";
-import { updateUserSession } from "../lib/user";
+} from "../lib/file-browser.js";
+import { Crate } from "../lib/crate.js";
+import { updateUserSession } from "../lib/user.js";
 import path from "path";
-import { writeJSON, ensureDir } from "fs-extra";
-import { Message, getLogger, route } from "../common";
+import fsExtraPkg from "fs-extra";
+const { writeJSON, ensureDir } = fsExtraPkg;
+import { Message, getLogger, route } from "../common/index.js";
 const log = getLogger();
 
 const defaultCrateFileName = "ro-crate-metadata.json";

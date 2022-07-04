@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function (sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
     let Collection = sequelize.define("collection", {
         id: {
             primaryKey: true,
@@ -39,4 +39,4 @@ module.exports = function (sequelize, DataTypes) {
         });
     };
     return Collection;
-};
+}

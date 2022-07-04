@@ -47,7 +47,10 @@ describe("Test user management operations", () => {
 
         let user = await createUser({ email, name });
         let s = await createUserSession({ email, data: session });
-        expect(s.data).toEqual(session);
+        expect(s.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });
@@ -61,7 +64,10 @@ describe("Test user management operations", () => {
         expiry = expiry.setSeconds(expiry.getSeconds() + 10);
         let user = await createUser({ email, name });
         let s = await createUserSession({ email, data: session, token, expiry });
-        expect(s.data).toEqual(session);
+        expect(s.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });
@@ -152,7 +158,10 @@ describe("Test user management operations", () => {
         session = { b: "c" };
         s = await createUserSession({ email, data: session });
 
-        expect(s.data).toEqual(session);
+        expect(s.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         await models.user.destroy({ where: { email } });
         await models.session.destroy({ where: { id: s.id } });
@@ -165,7 +174,13 @@ describe("Test user management operations", () => {
         let s = await createUserSession({ email, data: session });
         session = { b: "c" };
         s = await updateUserSession({ sessionId: s.id, email, data: { b: "c" } });
-        expect(s.data).toEqual({ a: "b", b: "c" });
+        expect(s.data).toEqual({
+            a: "b",
+            b: "c",
+            ...{
+                configuration: { allowProfileChange: true, allowServiceChange: true },
+            },
+        });
 
         let date = new Date();
         s = await updateUserSession({ sessionId: s.id, email, token: "a", expiry: date });
@@ -184,7 +199,10 @@ describe("Test user management operations", () => {
 
         let user = await createUser({ email, name });
         let s = await createUserSession({ email, data: session });
-        expect(s.data).toEqual(session);
+        expect(s.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         await destroyUserSession({ email });
 
@@ -199,10 +217,16 @@ describe("Test user management operations", () => {
 
         let user = await createUser({ email, name });
         let s = await createUserSession({ email, data: session });
-        expect(s.data).toEqual(session);
+        expect(s.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         s = await getUserSession({ email });
-        expect(s.session.data).toEqual(session);
+        expect(s.session.data).toEqual({
+            ...session,
+            configuration: { allowProfileChange: true, allowServiceChange: true },
+        });
 
         await models.user.destroy({ where: { email } });
     });

@@ -1,11 +1,13 @@
-import { ensureDir } from "fs-extra";
-const util = require("util");
-import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
+import fsExtraPkg from "fs-extra";
+const { ensureDir } = fsExtraPkg;
+import util from "util";
+import restifyErrorsPkg from "restify-errors";
+const { NotFoundError, InternalServerError, UnauthorizedError } = restifyErrorsPkg;
 import path from "path";
-import { orderBy } from "lodash";
-import { getLogger } from "../common/logger";
-import * as rclone from "./file-browser_rclone";
-import * as revaapi from "./file-browser_reva-api";
+import { orderBy } from "lodash-es";
+import { getLogger } from "../common/index.js";
+import * as rclone from "./file-browser_rclone.js";
+import * as revaapi from "./file-browser_reva-api.js";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 

@@ -1,7 +1,8 @@
-import { UnauthorizedError, InternalServerError } from "restify-errors";
-import { routeAdmin, getLogger } from "../common";
-import { validateProfile } from "../lib/profile";
-import { getCollections, removeCollection } from "../lib/collections";
+import restifyErrorsPkg from "restify-errors";
+const { UnauthorizedError, InternalServerError } = restifyErrorsPkg;
+import { routeAdmin, getLogger } from "../common/index.js";
+import { validateProfile } from "../lib/profile.js";
+import { getCollections, removeCollection } from "../lib/collections.js";
 
 export async function setupRoutes({ server }) {
     server.post("/admin/login", loginRouteHandler);

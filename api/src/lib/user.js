@@ -1,5 +1,5 @@
-const models = require("../models");
-import { defaultSessionLifetime } from "./constants";
+import models from "../models/index.js";
+import { defaultSessionLifetime } from "./constants.js";
 
 export async function getUser({ id, email }) {
     let where = {};

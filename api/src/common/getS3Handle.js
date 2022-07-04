@@ -1,6 +1,5 @@
-import models from "../models";
-import { loadConfiguration } from ".";
-import { S3, Bucket } from "../lib/s3";
+import models from "../models/index.js";
+import { S3, Bucket } from "../lib/s3.js";
 
 export async function getS3Handle({ sessionId, bucket = undefined, publicUrl = false }) {
     let session = await models.session.findOne({

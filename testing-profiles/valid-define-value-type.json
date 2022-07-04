@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "A profile showing a property that has a pre-defined value",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

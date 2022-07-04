@@ -1,15 +1,12 @@
-import { loadConfiguration, route } from "../common";
-
-import { setupRoutes as setupAuthenticationRoutes } from "./authenticate";
-import { setupRoutes as setupLoadRoutes } from "./load";
-import { setupRoutes as setupFileRoutes } from "./file-browser";
-import { setupRoutes as setupAdminRoutes } from "./admin";
-import { setupRoutes as setupSessionRoutes } from "./session";
-import { setupRoutes as setupProfileRoutes } from "./profile";
-import { setupRoutes as setupEntityRoutes } from "./entity";
-import { setupRoutes as setupTemplateRoutes } from "./template";
-
-import { getLogger } from "../common/logger";
+import { loadConfiguration, route, getLogger } from "../common/index.js";
+import { setupRoutes as setupAuthenticationRoutes } from "./authenticate.js";
+import { setupRoutes as setupLoadRoutes } from "./load.js";
+import { setupRoutes as setupFileRoutes } from "./file-browser.js";
+import { setupRoutes as setupAdminRoutes } from "./admin.js";
+import { setupRoutes as setupSessionRoutes } from "./session.js";
+import { setupRoutes as setupProfileRoutes } from "./profile.js";
+import { setupRoutes as setupEntityRoutes } from "./entity.js";
+import { setupRoutes as setupTemplateRoutes } from "./template.js";
 const log = getLogger();
 
 export function setupRoutes({ server }) {

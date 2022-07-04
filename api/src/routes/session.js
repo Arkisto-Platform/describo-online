@@ -1,5 +1,7 @@
-import models from "../models";
-import { cloneDeep, omit, difference, merge } from "lodash";
+import models from "../models/index.js";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError, UnauthorizedError, ForbiddenError } = restifyErrorsPkg;
+import { cloneDeep, omit, difference, merge } from "lodash-es";
 import {
     route,
     demandValidApplication,
@@ -7,14 +9,13 @@ import {
     filterPrivateInformation,
     getLogger,
     generateToken,
-} from "../common";
+} from "../common/index.js";
 import OktaJwtVerifier from "@okta/jwt-verifier";
-import { postSession, getApplication } from "../lib/session";
-import { createUser, createUserSession } from "../lib/user";
-import { BadRequestError, UnauthorizedError, ForbiddenError } from "restify-errors";
-import { getOwncloudOauthToken } from "../lib/backend-owncloud";
-import { whoami } from "../lib/file-browser_reva-api";
-import { loadInstalledProfiles } from "../lib/profile";
+import { postSession, getApplication } from "../lib/session.js";
+import { createUser, createUserSession } from "../lib/user.js";
+import { getOwncloudOauthToken } from "../lib/backend-owncloud.js";
+import { whoami } from "../lib/file-browser_reva-api.js";
+import { loadInstalledProfiles } from "../lib/profile.js";
 
 const log = getLogger();
 

@@ -1,11 +1,14 @@
-import { ensureDir, open, write, close, pathExists, remove } from "fs-extra";
-const util = require("util");
+import fsextraPkg from "fs-extra";
+const { ensureDir, open, write, close, pathExists, remove } = fsextraPkg;
+import util from "util";
 import { spawn } from "child_process";
-const exec = util.promisify(require("child_process").exec);
-import { NotFoundError, InternalServerError, UnauthorizedError } from "restify-errors";
+import childProcess from "child_process";
+const exec = util.promisify(childProcess.exec);
+import pkg from "restify-errors";
+const { NotFoundError, InternalServerError, UnauthorizedError } = pkg;
 import path from "path";
-import { camelCase, uniqBy } from "lodash";
-import { getLogger } from "../common/logger";
+import { camelCase, uniqBy } from "lodash-es";
+import { getLogger } from "../common/index.js";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 

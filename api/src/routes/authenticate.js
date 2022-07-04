@@ -1,6 +1,6 @@
-import { route, routeAdmin, loadConfiguration, generateToken } from "../common";
-import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api";
-import { createUser, createUserSession } from "../lib/user";
+import { route, routeAdmin, loadConfiguration, generateToken } from "../common/index.js";
+import { authenticate as authenticateToReva, whoami } from "../lib/file-browser_reva-api.js";
+import { createUser, createUserSession } from "../lib/user.js";
 
 export async function setupRoutes({ server }) {
     server.get("/authenticated/user", route(isAuthenticated));

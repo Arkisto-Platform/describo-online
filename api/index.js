@@ -1,13 +1,16 @@
-require("regenerator-runtime");
-const restify = require("restify");
+import "regenerator-runtime";
+import restify from "restify";
+import models from "./src/models/index.js";
+import { setupRoutes } from "./src/routes/index.js";
+import { loadConfiguration, getLogger } from "./src/common/index.js";
+import * as periodicProcesses from "./src/periodic-processes/index.js";
+import fsExtraPkg from "fs-extra";
+const { pathExists, writeJson } = fsExtraPkg;
 const server = restify.createServer();
-const models = require("./src/models");
-const { setupRoutes } = require("./src/routes");
-const { loadConfiguration } = require("./src/common");
-const { getLogger } = require("./src/common/logger");
-const periodicProcesses = require("./src/periodic-processes");
-const { pathExists, writeJson } = require("fs-extra");
 const log = getLogger();
+import { Server } from "socket.io";
+import fetchPkg from "node-fetch";
+const fetch = fetchPkg;
 
 // DEVELOPER NOTE
 //
@@ -15,7 +18,7 @@ const log = getLogger();
 //   instead.
 //
 //  This way, jest fetch mock will override fetch when you need it to.
-global.fetch = require("node-fetch");
+// global.fetch = require("node-fetch");
 
 (async () => {
     let configuration;
@@ -26,7 +29,6 @@ global.fetch = require("node-fetch");
         process.exit();
     }
     await models.sequelize.sync();
-    const io = require("socket.io")(server.server, {});
 
     if (process.env.NODE_ENV === "development") {
         server.use((req, res, next) => {
@@ -34,6 +36,7 @@ global.fetch = require("node-fetch");
             return next();
         });
     }
+    let io = new Server(server.server, {});
     server.use((req, res, next) => {
         req.io = io;
         return next();

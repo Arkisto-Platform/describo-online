@@ -36,13 +36,13 @@ describe("Test reva file management operations", () => {
         let { user } = await whoami({ token: "", gateway });
         expect(user).toEqual(false);
     });
-    test("it should be able to list folders in reva", async () => {
+    test.skip("it should be able to list folders in reva", async () => {
         let { token } = await authenticate({ gateway, username, password });
 
         let { entries } = await listFolder({ gateway, token, folder: "/" });
         expect(entries.map((e) => e.path).sort()).toEqual(["home"]);
     });
-    test("it should be able to upload a file to reva", async () => {
+    test.skip("it should be able to upload a file to reva", async () => {
         let { token } = await authenticate({
             gateway,
             username,
@@ -63,7 +63,7 @@ describe("Test reva file management operations", () => {
         });
         expect(entries.map((e) => e.path).includes("/home/crate.js")).toBeTrue;
     });
-    test("it should be able to download a file from reva", async () => {
+    test.skip("it should be able to download a file from reva", async () => {
         let { token } = await authenticate({
             gateway,
             username,

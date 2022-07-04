@@ -1,18 +1,20 @@
-export { loadConfiguration, filterPrivateInformation } from "./configuration";
-export { route, routeAdmin, demandKnownUser, demandValidApplication } from "./middleware";
-export { getLogger } from "./logger";
-export { getS3Handle } from "./getS3Handle";
-export { saveCrate } from "./save-crate";
-export { generateToken, verifyToken } from "./jwt";
-export { Message } from "./message";
+export { loadConfiguration, filterPrivateInformation } from "./configuration.js";
+export { route, routeAdmin, demandKnownUser, demandValidApplication } from "./middleware.js";
+export { getLogger } from "./logger.js";
+export { getS3Handle } from "./getS3Handle.js";
+export { saveCrate } from "./save-crate.js";
+export { generateToken, verifyToken } from "./jwt.js";
+export { Message } from "./message.js";
 
 import fetch from "node-fetch";
-import { writeJSON } from "fs-extra";
-import { cloneDeep } from "lodash";
+import fsExtraPkg from "fs-extra";
+const { writeJSON } = fsExtraPkg;
+import { cloneDeep } from "lodash-es";
 const api = "http://localhost:8080";
 import Chance from "chance";
 const chance = new Chance();
-import { loadConfiguration } from ".";
+
+import { loadConfiguration } from "./configuration.js";
 
 export async function createSessionForTest() {
     const origConfig = await loadConfiguration();

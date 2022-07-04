@@ -1,5 +1,6 @@
-import { readJSON } from "fs-extra";
-import { isEmpty } from "lodash";
+import fsextraPkg from "fs-extra";
+const { readJSON } = fsextraPkg;
+import { isEmpty } from "lodash-es";
 
 export const privateFields = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
 

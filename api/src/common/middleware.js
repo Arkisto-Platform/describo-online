@@ -1,10 +1,12 @@
-import { UnauthorizedError, ForbiddenError } from "restify-errors";
-import { verifyToken, loadConfiguration } from ".";
-import { getUserSession } from "../lib/user";
+import pkg from "restify-errors";
+const { UnauthorizedError, ForbiddenError } = pkg;
+import { loadConfiguration } from "./configuration.js";
+import { verifyToken } from "./jwt.js";
+import { getUserSession } from "../lib/user.js";
 const expectedAuthorizationTypes = ["Bearer", "sid"];
-import { getLogger } from "./logger";
-import { getApplication } from "../lib/session";
-import models from "../models";
+import { getLogger } from "./logger.js";
+import { getApplication } from "../lib/session.js";
+import models from "../models/index.js";
 const log = getLogger();
 
 export async function demandKnownUser(req, res, next) {

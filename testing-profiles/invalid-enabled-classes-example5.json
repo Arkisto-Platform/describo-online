@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "A profile that defines enabled classes and type def's - not allowed",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

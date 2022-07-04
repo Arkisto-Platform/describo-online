@@ -1,10 +1,11 @@
 import "regenerator-runtime";
 import fetch from "node-fetch";
-import { removeCollection, insertCollection } from "../lib/collections";
-import { Crate } from "../lib/crate";
-import { createSessionForTest } from "../common";
-import { updateUserSession } from "../lib/user";
-import { ensureDir, remove, readJSON, readdir } from "fs-extra";
+import { removeCollection, insertCollection } from "../lib/collections.js";
+import { Crate } from "../lib/crate.js";
+import { createSessionForTest } from "../common/index.js";
+import { updateUserSession } from "../lib/user.js";
+import fsExtraPkg from "fs-extra";
+const { ensureDir, remove, readJSON, readdir } = fsExtraPkg;
 import models from "../models";
 import Chance from "chance";
 const chance = new Chance();
@@ -525,13 +526,12 @@ describe("Test adding entities to the graph from external service", () => {
             },
         });
         // load the crate - which happens to be empty
-        let response = await fetch(`${api}/load`, {
-            method: "POST",
+        let response = await fetch(`${api}/load/local`, {
+            method: "GET",
             headers: {
                 Authorization: `sid ${sessionId}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ resource: "local", folder: testFolder }),
         });
         expect(response.status).toEqual(200);
         let { collection } = await response.json();
@@ -778,7 +778,7 @@ describe("Test adding entities to the graph from external service", () => {
         });
 
         await models.collection.destroy({ where: { id: collection.id } });
-    });
+    }, 10000);
 });
 
 async function loadData({ name }) {
@@ -839,13 +839,12 @@ async function setupCollectionForTestingExternalUpdates({ sessionId, testFolder 
     });
 
     // load the crate - which happens to be empty
-    let response = await fetch(`${api}/load`, {
-        method: "POST",
+    let response = await fetch(`${api}/load/local`, {
+        method: "GET",
         headers: {
             Authorization: `sid ${sessionId}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ resource: "local", folder: testFolder }),
     });
     expect(response.status).toEqual(200);
     let { collection } = await response.json();

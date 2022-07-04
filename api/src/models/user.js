@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function (sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
     let User = sequelize.define(
         "user",
         {
@@ -44,4 +44,4 @@ module.exports = function (sequelize, DataTypes) {
     };
 
     return User;
-};
+}

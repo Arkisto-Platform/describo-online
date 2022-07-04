@@ -1,5 +1,6 @@
-import { BadRequestError, ForbiddenError } from "restify-errors";
-import { loadConfiguration, route } from "../common";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError, ForbiddenError } = restifyErrorsPkg;
+import { loadConfiguration, route, getLogger } from "../common/index.js";
 
 import {
     insertTemplate,
@@ -8,9 +9,8 @@ import {
     getTemplates,
     addTemplate,
     replaceCrateWithTemplate,
-} from "../lib/template";
-import { saveCrate } from "../common/save-crate";
-import { getLogger } from "../common/logger";
+} from "../lib/template.js";
+import { saveCrate } from "../common/save-crate.js";
 const log = getLogger();
 
 export async function setupRoutes({ server }) {

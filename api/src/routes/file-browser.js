@@ -1,6 +1,7 @@
-import { listFolder, createFolder, deleteFolder } from "../lib/file-browser";
-import { BadRequestError } from "restify-errors";
-import { getLogger, route } from "../common";
+import { listFolder } from "../lib/file-browser.js";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError } = restifyErrorsPkg;
+import { getLogger, route } from "../common/index.js";
 const log = getLogger();
 
 export function setupRoutes({ server }) {

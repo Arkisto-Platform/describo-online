@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "Defines two enable classes with definitions but Dataset has an input that points to an undefined type (CreativeWork)",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

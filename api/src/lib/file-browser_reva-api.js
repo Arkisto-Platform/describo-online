@@ -4,28 +4,30 @@ import fetch from "node-fetch";
 import util from "util";
 import { pipeline } from "stream";
 const streamPipeline = util.promisify(pipeline);
-import { createWriteStream, createReadStream, stat } from "fs-extra";
+import pkg from "fs-extra";
+const { createWriteStream, createReadStream, stat } = pkg;
 import path from "path";
-import { getLogger } from "../common/logger";
+import { getLogger } from "../common/index.js";
 const log = getLogger();
 
 import { credentials, Metadata } from "grpc";
-import { GatewayAPIClient } from "@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_grpc_pb";
+import { ChannelCredentials } from "@grpc/grpc-js";
+import { GatewayAPIClient } from "@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_grpc_pb.js";
+import cs3GatewayPkg from "@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_pb.js";
+const { AuthenticateRequest, WhoAmIRequest } = cs3GatewayPkg;
+import cs3ProviderPkg from "@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/provider_api_pb.js";
 const {
-    AuthenticateRequest,
-    WhoAmIRequest,
-} = require("@cs3org/node-cs3apis/cs3/gateway/v1beta1/gateway_api_pb");
-import {
     ListContainerRequest,
     StatRequest,
     InitiateFileUploadRequest,
     InitiateFileDownloadRequest,
     MoveRequest,
-} from "@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/provider_api_pb";
-import { Reference } from "@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/resources_pb";
+} = cs3ProviderPkg;
+import cs3ResourcesPkg from "@cs3org/node-cs3apis/cs3/storage/provider/v1beta1/resources_pb.js";
+const { Reference } = cs3ResourcesPkg;
 
 export async function authenticate({ username, password, gateway }) {
-    const client = new GatewayAPIClient(gateway, credentials.createInsecure(), {});
+    const client = new GatewayAPIClient(gateway, ChannelCredentials.createInsecure(), {});
     const { authenticate } = promisifyAll(client);
 
     let req = new AuthenticateRequest();
@@ -39,7 +41,7 @@ export async function authenticate({ username, password, gateway }) {
 }
 
 export async function whoami({ token, gateway }) {
-    const client = new GatewayAPIClient(gateway, credentials.createInsecure(), {});
+    const client = new GatewayAPIClient(gateway, ChannelCredentials.createInsecure(), {});
     const { whoAmI } = promisifyAll(client);
     let req = new WhoAmIRequest();
     req.setToken(token);
@@ -55,7 +57,7 @@ export async function listFolder({ gateway, token, folder = "/" }) {
     folder = path.normalize(folder);
 
     log.debug(`List folder: reva api ${folder}`);
-    const client = new GatewayAPIClient(gateway, credentials.createInsecure(), {});
+    const client = new GatewayAPIClient(gateway, ChannelCredentials.createInsecure(), {});
     const { listContainer, stat } = promisifyAll(client);
 
     let ref = new Reference().setPath(folder);
@@ -88,7 +90,7 @@ export async function downloadFile({ gateway, token, remoteFile, localFile }) {
     const meta = new Metadata();
     meta.set("x-access-token", token);
 
-    const client = new GatewayAPIClient(gateway, credentials.createInsecure(), {});
+    const client = new GatewayAPIClient(gateway, ChannelCredentials.createInsecure(), {});
     const { initiateFileDownload } = promisifyAll(client);
 
     const ref = new Reference().setPath(remoteFile);
@@ -119,7 +121,7 @@ export async function uploadFile({ gateway, token, localFile, remoteFile }) {
     const meta = new Metadata();
     meta.set("x-access-token", token);
 
-    const client = new GatewayAPIClient(gateway, credentials.createInsecure(), {});
+    const client = new GatewayAPIClient(gateway, ChannelCredentials.createInsecure(), {});
     const { initiateFileUpload, move } = promisifyAll(client);
 
     const fileStat = await stat(localFile);

@@ -1,5 +1,5 @@
 import "regenerator-runtime";
-import { loadConfiguration, filterPrivateInformation } from "./configuration";
+import { loadConfiguration, filterPrivateInformation } from "./configuration.js";
 
 describe("Test loading the configuration", () => {
     test("it should be able to load the default configuration for the environment", async () => {

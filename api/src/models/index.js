@@ -1,9 +1,31 @@
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
-const basename = path.basename(__filename);
-const Sequelize = require("sequelize");
+import Sequelize from "sequelize";
+import collection from "./collection.js";
+import collectionEntity from "./collection_entity.js";
+import collectionUser from "./collection_user.js";
+import entity from "./entity.js";
+import entityProperties from "./entity_properties.js";
+import property from "./property.js";
+import user from "./user.js";
+import template from "./template.js";
+import session from "./session.js";
+import userEntity from "./user_entity.js";
+import profile from "./profile.js";
+const modules = [
+    collection,
+    collectionEntity,
+    collectionUser,
+    entity,
+    entityProperties,
+    property,
+    user,
+    template,
+    session,
+    userEntity,
+    profile,
+];
+
 const models = {};
 
 let config = {
@@ -31,20 +53,6 @@ let sequelize = new Sequelize(
     config.db
 );
 
-let modules = [
-    require("./collection.js"),
-    require("./collection_entity.js"),
-    require("./collection_user.js"),
-    require("./entity.js"),
-    require("./entity_properties.js"),
-    require("./property.js"),
-    require("./user.js"),
-    require("./template.js"),
-    require("./session.js"),
-    require("./user_entity.js"),
-    require("./profile.js"),
-];
-
 // Initialize models
 modules.forEach((module) => {
     const model = module(sequelize, Sequelize, config);
@@ -61,4 +69,4 @@ Object.keys(models).forEach((key) => {
 models.sequelize = sequelize;
 models.Sequelize = Sequelize;
 
-module.exports = models;
+export default models;

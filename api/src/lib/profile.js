@@ -1,5 +1,6 @@
-const models = require("../models");
-import { readJSON, readdir } from "fs-extra";
+import models from "../models/index.js";
+import pkg from "fs-extra";
+const { readJSON, readdir } = pkg;
 import {
     cloneDeep,
     flattenDeep,
@@ -11,9 +12,9 @@ import {
     isEmpty,
     startCase,
     merge,
-} from "lodash";
+} from "lodash-es";
 import path from "path";
-import { getLogger } from "../common/logger";
+import { getLogger } from "../common/index.js";
 const log = getLogger();
 import Ajv from "ajv";
 const typeDefinitions = "/srv/type-definitions.json";

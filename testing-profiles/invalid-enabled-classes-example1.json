@@ -2,7 +2,8 @@
     "metadata": {
         "name": "My profile",
         "description": "Define two enabled classes but only one has an actual definition",
-        "version": 0.1
+        "version": 0.1,
+        "warnMissingProperty": true
     },
     "classes": {
         "Dataset": {

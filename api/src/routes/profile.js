@@ -1,7 +1,8 @@
-import models from "../models";
-import { loadInstalledProfiles, loadProfile, loadClassDefinition } from "../lib/profile";
-import { BadRequestError } from "restify-errors";
-import { route, getLogger } from "../common";
+import models from "../models/index.js";
+import { loadInstalledProfiles, loadProfile, loadClassDefinition } from "../lib/profile.js";
+import restifyErrorsPkg from "restify-errors";
+const { BadRequestError } = restifyErrorsPkg;
+import { route, getLogger } from "../common/index.js";
 import path from "path";
 const log = getLogger();
 
