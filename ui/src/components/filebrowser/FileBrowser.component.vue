@@ -146,13 +146,13 @@ async function load({ resolve, path }) {
         resolve(content);
     } else if (response.status === 401) {
         // need to reauthenticate
-        ELMessage.error(
+        ElMessage.error(
             `You seem to be unauthorised - do you need to log in to the service again?`
         );
         resolve([]);
     } else {
         // something else went wrong
-        ELMessage.error(`There is an issue at this time`);
+        ElMessage.error(`There is an issue at this time`);
         resolve([]);
     }
 }
