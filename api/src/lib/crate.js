@@ -272,14 +272,7 @@ export class Crate {
     async exportCollectionAsROCrate({ collectionId, sync = false }) {
         const collection = await models.collection.findOne({
             where: { id: collectionId },
-            attributes: ["id", "metadata"],
-            include: [
-                {
-                    model: models.entity,
-                    raw: true,
-                    attributes: ["id", "eid"],
-                },
-            ],
+            attributes: ["id", "metadata", "updatedAt"],
         });
         let crate = {
             "@context": collection.metadata.context,
@@ -289,13 +282,11 @@ export class Crate {
                 },
             ],
         };
-        const entities = collection.entities.map((e) => e.get());
+        const entities = await collection.getEntities({
+            attributes: ["id", "eid", "etype", "name"],
+        });
         const idToEidMapping = entities.reduce((obj, e) => ({ ...obj, [e.id]: e.eid }), {});
         for (let entity of entities) {
-            entity = await getEntity({
-                id: entity.id,
-                collectionId: collection.id,
-            });
             let { properties } = await getEntityProperties({
                 id: entity.id,
                 collectionId: collection.id,
@@ -316,7 +307,7 @@ export class Crate {
             crate["@graph"].push(entity);
         }
         // console.log(JSON.stringify(crate, null, 2));
-        return crate;
+        return { crate, updatedAt: collection.updatedAt };
     }
 
     async saveCrate({ session, user, resource, parent, localFile, crate }) {
@@ -358,11 +349,16 @@ export class Crate {
         }
     }
 
-    async updateCrate({ localCrateFile, collectionId, actions }) {
+    async updateCrate({ localCrateFile, collectionId, actions, debug = false }) {
+        const collection = await models.collection.findOne({
+            where: { id: collectionId },
+            attributes: ["id", "metadata", "updatedAt"],
+        });
         let entity;
         let crate = await readJSON(localCrateFile);
         // console.log(JSON.stringify(crate, null, 2));
         for (let action of actions) {
+            if (debug) console.debug("action to apply", JSON.stringify(action, null, 2));
             let updates = [];
             if (action.name === "insert") {
                 const entityId = action.entity.id;
@@ -389,6 +385,7 @@ export class Crate {
             }
 
             for (let entity of updates) {
+                if (debug) console.log("entity to update", entity.get());
                 crate = updateEntity({ crate, entity });
                 let { properties } = await getEntityProperties({ collectionId, id: entity.id });
                 crate = await updateEntityProperties({
@@ -399,7 +396,7 @@ export class Crate {
             }
         }
         // console.log(JSON.stringify(crate, null, 2));
-        return crate;
+        return { crate, updatedAt: collection.updatedAt };
 
         function insertEntity({ crate, entity }) {
             crate["@graph"] = crate["@graph"].filter(
@@ -425,6 +422,8 @@ export class Crate {
         }
 
         function updateEntity({ crate, entity }) {
+            if (debug) console.log("crate as it is", JSON.stringify(crate, null, 2));
+
             crate["@graph"] = crate["@graph"].map((e) => {
                 if (e["@id"] === entity.eid && e["@type"] === entity.etype) {
                     return {
