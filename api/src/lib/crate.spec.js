@@ -538,7 +538,7 @@ describe("Test loading a crate from a file", () => {
                     author: ["Person", { "@id": "person1" }],
                 },
                 {
-                    "@id": "person1",
+                    "@id": "#person1",
                     "@type": "Person",
                     name: "a person",
                 },
@@ -555,7 +555,6 @@ describe("Test loading a crate from a file", () => {
             collectionId: collection.id,
             sync: true,
         });
-        // console.log(exportedCrate);
 
         crate["@graph"].forEach((entry) => {
             let exportedEntry = exportedCrate.crate["@graph"].filter(
@@ -655,7 +654,8 @@ describe("Test loading a crate from a file", () => {
 
         await removeCollection({ id: collection.id });
     });
-    test("it should correctly save the crate data after a change - patch crate", async () => {
+    // ! This is using a deprecated method
+    test.skip("it should correctly save the crate data after a change - patch crate", async () => {
         let crate = {
             "@context": "https://w3id.org/ro/crate/1.1/context",
             "@graph": [
