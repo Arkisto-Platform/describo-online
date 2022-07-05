@@ -1,20 +1,20 @@
 import "regenerator-runtime";
 import { writeJSON, remove, ensureDir } from "fs-extra";
-import { removeCollection, insertCollection } from "./collections";
+import { removeCollection, insertCollection } from "./collections.js";
 import path from "path";
-import { Crate } from "./crate";
-import { isPlainObject, isMatch, flattenDeep } from "lodash";
+import { Crate } from "./crate.js";
+import { isPlainObject, isMatch, flattenDeep } from "lodash-es";
 import {
     insertEntity,
     attachProperty,
     associate,
     removeEntity,
     removeProperty,
+    updateEntity,
     getEntity,
     getEntityProperties,
-} from "./entities";
-import models from "../models";
-import { createSessionForTest } from "../common";
+} from "./entities.js";
+import models from "../models/index.js";
 import Chance from "chance";
 const chance = new Chance();
 const profile = {
@@ -558,7 +558,9 @@ describe("Test loading a crate from a file", () => {
         // console.log(exportedCrate);
 
         crate["@graph"].forEach((entry) => {
-            let exportedEntry = exportedCrate["@graph"].filter((e) => e["@id"] === entry["@id"]);
+            let exportedEntry = exportedCrate.crate["@graph"].filter(
+                (e) => e["@id"] === entry["@id"]
+            );
             expect(exportedEntry.length).toEqual(1);
             exportedEntry = exportedEntry.pop();
             expect(isMatch(exportedEntry, entry)).toBeTrue;
@@ -653,7 +655,7 @@ describe("Test loading a crate from a file", () => {
 
         await removeCollection({ id: collection.id });
     });
-    test("it should correctly save the crate data after a change", async () => {
+    test("it should correctly save the crate data after a change - patch crate", async () => {
         let crate = {
             "@context": "https://w3id.org/ro/crate/1.1/context",
             "@graph": [
@@ -682,15 +684,17 @@ describe("Test loading a crate from a file", () => {
 
         await crate.importCrateIntoDatabase({ collection, crate: newCrate, sync: true });
 
-        let rootDataset = (await models.entity.findAll()).pop();
+        let rootDataset = await models.entity.findOne({
+            where: { collectionId: collection.id, eid: "./" },
+        });
 
         // update the name property of an entity
         rootDataset.name = "new name";
         let entity = await rootDataset.save();
 
         let updatedCrate = await save([{ name: "update", entity: entity.get() }]);
-        expect(updatedCrate["@graph"][1].name).toEqual("new name");
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].name).toEqual("new name");
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // attach simple property - description - with a value
         let property = await attachProperty({
@@ -701,8 +705,8 @@ describe("Test loading a crate from a file", () => {
             typeDefinition: {},
         });
         updatedCrate = await save([{ name: "update", entity: entity.get() }]);
-        expect(updatedCrate["@graph"][1].description).toEqual(["text"]);
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].description).toEqual(["text"]);
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // attach the same simple property - description - with another value
         property = await attachProperty({
@@ -713,8 +717,8 @@ describe("Test loading a crate from a file", () => {
             typeDefinition: {},
         });
         updatedCrate = await save([{ name: "update", entity: entity.get() }]);
-        expect(updatedCrate["@graph"][1].description).toEqual(["text", "new"]);
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].description).toEqual(["text", "new"]);
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // remove a simple property
         property = await removeProperty({
@@ -723,8 +727,8 @@ describe("Test loading a crate from a file", () => {
             propertyId: property.id,
         });
         updatedCrate = await save([{ name: "update", entity: entity.get() }]);
-        expect(updatedCrate["@graph"][1].description).toEqual(["text"]);
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].description).toEqual(["text"]);
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // add an entity to the collection
         let newEntity = await insertEntity({
@@ -733,10 +737,10 @@ describe("Test loading a crate from a file", () => {
             profile,
         });
         updatedCrate = await save([{ name: "insert", entity: newEntity }]);
-        expect(updatedCrate["@graph"].length).toEqual(3);
-        expect(updatedCrate["@graph"][2].name).toEqual("test");
-        expect(updatedCrate["@graph"][2]["@type"]).toEqual("Person");
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"].length).toEqual(3);
+        expect(updatedCrate.crate["@graph"][2].name).toEqual("test");
+        expect(updatedCrate.crate["@graph"][2]["@type"]).toEqual("Person");
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // associate an entity to the root dataset
         property = await associate({
@@ -746,9 +750,9 @@ describe("Test loading a crate from a file", () => {
             tgtEntityId: newEntity.id,
         });
         updatedCrate = await save([{ name: "update", entity: rootDataset }]);
-        expect(updatedCrate["@graph"][1].author).toEqual([{ "@id": newEntity.id }]);
-        expect(updatedCrate["@graph"][2]["@reverse"]).toEqual({ author: [{ "@id": "./" }] });
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].author).toEqual([{ "@id": newEntity.id }]);
+        expect(updatedCrate.crate["@graph"][2]["@reverse"]).toEqual({ author: [{ "@id": "./" }] });
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // remove a property
         let p = await models.property.findOne({
@@ -763,9 +767,9 @@ describe("Test loading a crate from a file", () => {
         }));
         let actions = updated.map((eid) => ({ name: "update", entity: { id: eid } }));
         updatedCrate = await save(actions);
-        expect(updatedCrate["@graph"][1].author).toBeUndefined;
-        expect(updatedCrate["@graph"][2]["@reverse"]).toBeUndefined;
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"][1].author).toBeUndefined;
+        expect(updatedCrate.crate["@graph"][2]["@reverse"]).toBeUndefined;
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // remove an entity
         //   but first re-associate it to the root
@@ -776,16 +780,16 @@ describe("Test loading a crate from a file", () => {
             tgtEntityId: newEntity.id,
         });
         updatedCrate = await save([{ name: "update", entity: rootDataset }]);
-        await writeJSON(testFileName, updatedCrate);
+        await writeJSON(testFileName, updatedCrate.crate);
 
         //  now remove the whole entity
         ({ updated, removed } = await removeEntity({ collectionId, entityId: newEntity.id }));
         actions = updated.map((eid) => ({ name: "update", entity: { id: eid } }));
         actions = [...actions, { name: "remove", entity: removed }];
         updatedCrate = await save(actions);
-        expect(updatedCrate["@graph"].length).toBe(2);
-        expect(updatedCrate["@graph"][1].name).toBe("new name");
-        await writeJSON(testFileName, updatedCrate);
+        expect(updatedCrate.crate["@graph"].length).toBe(2);
+        expect(updatedCrate.crate["@graph"][1].name).toBe("new name");
+        await writeJSON(testFileName, updatedCrate.crate);
 
         // console.log(JSON.stringify(updatedCrate["@graph"], null, 2));
 
@@ -796,6 +800,84 @@ describe("Test loading a crate from a file", () => {
                 localCrateFile: testFileName,
                 collectionId,
                 actions,
+            });
+        }
+    });
+    test("it should correctly save the crate data after an entity changes @id or name - export full crate", async () => {
+        let crate = {
+            "@context": "https://w3id.org/ro/crate/1.1/context",
+            "@graph": [
+                {
+                    "@type": "CreativeWork",
+                    "@id": "ro-crate-metadata.json",
+                    conformsTo: { "@id": "https://w3id.org/ro/crate/1.1" },
+                    about: { "@id": "./" },
+                },
+
+                {
+                    "@id": "./",
+                    "@type": "Dataset",
+                    name: "My crate",
+                },
+            ],
+        };
+        const testFileName = path.join(testFiles, "test1.json");
+        await writeJSON(testFileName, crate);
+
+        crate = new Crate({ profile });
+        let { crate: newCrate, collection } = await crate.loadCrateFromFile({
+            file: testFileName,
+        });
+        const collectionId = collection.id;
+
+        await crate.importCrateIntoDatabase({ collection, crate: newCrate, sync: true });
+
+        let rootDataset = await models.entity.findOne({
+            where: { collectionId: collection.id, eid: "./" },
+        });
+        let updatedCrate, property;
+
+        // add an entity to the collection and associate it to the root dataset
+        let newEntity = await insertEntity({
+            collectionId,
+            entity: { name: "test", etype: "Person" },
+            profile,
+        });
+        updatedCrate = await save();
+        await writeJSON(testFileName, updatedCrate.crate);
+
+        property = await associate({
+            collectionId,
+            entityId: rootDataset.id,
+            property: "author",
+            tgtEntityId: newEntity.id,
+        });
+        updatedCrate = await save();
+        await writeJSON(testFileName, updatedCrate.crate);
+
+        // update the id and name properties of an entity
+        const patch = { name: chance.word(), eid: chance.url() };
+        newEntity = await updateEntity({
+            collectionId,
+            entityId: newEntity.id,
+            ...patch,
+        });
+        updatedCrate = await save();
+        rootDataset = updatedCrate.crate["@graph"].filter((e) => e["@id"] === "./");
+        expect(rootDataset.length).toBe(1);
+        expect(rootDataset[0].author).toEqual([{ "@id": patch.eid }]);
+        let e = updatedCrate.crate["@graph"].filter((e) => e["@id"] === patch.eid);
+        expect(e.length).toBe(1);
+        expect(e[0]["@id"]).toEqual(patch.eid);
+        expect(e[0].name).toEqual(patch.name);
+        expect(e[0]["@reverse"]).toEqual({ author: [{ "@id": "./" }] });
+        await writeJSON(testFileName, updatedCrate.crate);
+
+        await removeCollection({ id: collection.id });
+
+        async function save() {
+            return await crate.exportCollectionAsROCrate({
+                collectionId,
             });
         }
     });
