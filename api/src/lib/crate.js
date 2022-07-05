@@ -296,7 +296,7 @@ export class Crate {
                 properties,
             });
             entity = {
-                "@id": entity.eid,
+                "@id": this.mapId(entity.eid),
                 "@type": entity.etype,
                 name: entity.name,
                 ...properties.forward,
@@ -349,6 +349,11 @@ export class Crate {
         }
     }
 
+    // ! Deprecated
+    // ! This method tries to patch an on disk crate (localCrateFile) with changes applied to the DB
+    // !  By its very it can't handle entity id updates b/c the id in the db is different to the id
+    // !  on disk so we can't know what needs to be updated. DON'T USE THIS METHOD
+    // !
     async updateCrate({ localCrateFile, collectionId, actions, debug = false }) {
         const collection = await models.collection.findOne({
             where: { id: collectionId },
@@ -506,7 +511,7 @@ export class Crate {
                 if (p.value) {
                     return p.value;
                 } else if (p.tgtEntityId) {
-                    return { "@id": idToEidMapping[p.tgtEntityId] };
+                    return { "@id": this.mapId(idToEidMapping[p.tgtEntityId]) };
                 }
             });
         }
@@ -514,9 +519,13 @@ export class Crate {
         let reverse = groupBy(reverseProperties, "name");
         for (let name of Object.keys(reverse)) {
             reverse[name] = reverse[name].map((p) => {
-                return { "@id": idToEidMapping[p.tgtEntityId] };
+                return { "@id": this.mapId(idToEidMapping[p.tgtEntityId]) };
             });
         }
         return { forward, reverse };
+    }
+
+    mapId(id) {
+        return encodeURI(isURL(id) ? id : id === "./" ? "./" : id.match(/^#/) ? id : `#${id}`);
     }
 }
