@@ -236,7 +236,6 @@ export async function putEntityRouteHandler(req, res, next) {
                 session: req.session,
                 user: req.user,
                 collectionId,
-                actions: [{ name: "update", entity }],
             });
         }
         res.send({ entity });

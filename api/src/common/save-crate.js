@@ -6,18 +6,18 @@ export async function saveCrate({ session, user, collectionId, actions = [] }) {
     try {
         const crateMgr = new Crate({ profile: session.data.profile });
         let hrstart = process.hrtime();
-        let crate;
+        let crate, updatedAt;
         if (actions?.length) {
-            crate = await crateMgr.updateCrate({
+            ({ crate, updatedAt } = await crateMgr.updateCrate({
                 localCrateFile: session?.data?.current?.local?.file,
                 collectionId,
                 actions,
-            });
+            }));
         } else {
-            crate = await crateMgr.exportCollectionAsROCrate({
+            ({ crate, updatedAt } = await crateMgr.exportCollectionAsROCrate({
                 collectionId,
                 sync: true,
-            });
+            }));
         }
         let hrend = process.hrtime(hrstart);
         await crateMgr.saveCrate({
