@@ -18,10 +18,18 @@
                 :label="item.name"
                 :value="item.id"
             >
-                <div class="flex flex-row space-x-2 text-gray-500 text-sm">
-                    <div class="text-sm">{{ item.etype }}:</div>
-                    <div class="text-sm" v-if="item.name">{{ item.name }}</div>
-                    <div class="text-sm text-right" v-else>{{ item.eid }}</div>
+                <div class="text-gray-500 text-sm">
+                    <div v-if="item.type === 'new'">
+                        <el-button type="success" size="default" class="flex flex-row">
+                            <div class="text-sm">Create new {{ item.etype }}:&nbsp;</div>
+                            <div class="text-sm">{{ item.name }}</div>
+                        </el-button>
+                    </div>
+                    <div v-else class="flex flex-row space-x-2">
+                        <div class="text-sm">{{ item.etype }}:</div>
+                        <div class="text-sm" v-if="item.name">{{ item.name }}</div>
+                        <div class="text-sm text-right" v-else>{{ item.eid }}</div>
+                    </div>
                 </div>
             </el-option>
         </el-option-group>
@@ -67,7 +75,12 @@ async function querySearch(queryString) {
         limit: 5,
     });
     let newEntity = [
-        { id: queryString, name: `${queryString} [create this entity]`, etype: props.type },
+        {
+            type: "new",
+            id: queryString,
+            name: `${queryString}`,
+            etype: props.type,
+        },
     ];
     entities = entities.map((e) => ({ ...e, type: "internal" })).slice(0, 5);
     templates = templates.map((e) => ({ ...e, type: "template" })).slice(0, 5);
