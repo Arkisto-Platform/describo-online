@@ -9,7 +9,7 @@
         "develop:server": "npm install && ./node_modules/.bin/nodemon ./index.js",
         "test": "./node_modules/.bin/jest --runInBand",
         "test:watch": "./node_modules/.bin/jest --watch --runInBand",
-        "build:production": "./node_modules/.bin/webpack --config webpack.production.js"
+        "build:production": "./node_modules/.bin/webpack --config webpack.production.cjs"
     },
     "author": "Marco La Rosa",
     "license": "GPL-3.0",

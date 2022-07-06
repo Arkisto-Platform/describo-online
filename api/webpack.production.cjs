@@ -7,6 +7,7 @@ module.exports = {
     target: "node",
     mode: "production",
     entry: "./index.js",
+    devtool: "source-map",
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "server.bundle.js",
