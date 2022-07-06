@@ -6,6 +6,8 @@
                 type="text"
                 v-model="internalValue"
                 resize="vertical"
+                @blur="save"
+                @change="save"
                 :rows="5"
             ></el-input>
         </div>
