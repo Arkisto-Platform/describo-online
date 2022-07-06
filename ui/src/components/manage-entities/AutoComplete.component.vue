@@ -2,12 +2,11 @@
     <el-select
         class="w-full"
         v-model="selection"
-        placeholder=""
+        placeholder="select an existing entity or create a new one"
         filterable
         clearable
         default-first-option
         automatic-dropdown
-        allow-create
         remote
         :remote-method="querySearch"
         @change="handleSelect"
@@ -67,19 +66,22 @@ async function querySearch(queryString) {
         filter: queryString,
         limit: 5,
     });
-    entities = entities.map((e) => ({ ...e, type: "internal" }));
-    templates = templates.map((e) => ({ ...e, type: "template" }));
+    let newEntity = [
+        { id: queryString, name: `${queryString} [create this entity]`, etype: props.type },
+    ];
+    entities = entities.map((e) => ({ ...e, type: "internal" })).slice(0, 5);
+    templates = templates.map((e) => ({ ...e, type: "template" })).slice(0, 5);
     let matches = [
         {
             label: "Create new entity",
-            entities: [],
+            entities: queryString ? newEntity : [],
         },
         {
-            label: "Entities in this crate",
+            label: "Associate an entity already defined in this crate",
             entities,
         },
         {
-            label: "Saved templates",
+            label: "Associate an entity from saved templates",
             entities: templates,
         },
     ];
