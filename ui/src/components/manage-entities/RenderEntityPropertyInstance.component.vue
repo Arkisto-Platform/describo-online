@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ 'bg-green-200 p-1 rounded': property.value }">
+    <div>
         <div v-if="property.value" class="w-full">
             <date-component
                 :property="property.name"
