@@ -66,6 +66,7 @@ export async function setFolderAndSaveToSession({ folder }) {
     if (folder) {
         router.push({ path: "/collection/build", query: { eid: "RootDataset" } }).catch(() => {});
     } else {
+        store.commit("setActiveCollection", {});
         router.push({ path: "/select-target" }).catch(() => {});
     }
 }
