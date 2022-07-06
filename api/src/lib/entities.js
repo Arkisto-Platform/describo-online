@@ -333,7 +333,7 @@ export async function insertFilesAndFolders({ collectionId, files }) {
         let defaults = {
             name: file.parent ? path.join(file.parent, file.path) : `${file.path}`,
         };
-        const entity = await models.entity.findOrCreate({
+        let entity = await models.entity.findOrCreate({
             where: clause,
             defaults: { ...clause, ...defaults },
         });
