@@ -3,22 +3,19 @@
         <el-input
             class="w-full"
             :type="type"
-            @input="debouncedSave"
             v-model="internalValue"
+            @blur="save"
+            @change="save"
             resize="vertical"
             :rows="5"
         ></el-input>
-        <div v-if="!autoSave">
-            <el-button @click="save" type="success" size="small">
-                <i class="fas fa-check fa-fw"></i>
-            </el-button>
-        </div>
+        <el-button @click="save" type="success" size="default">
+            <i class="fas fa-check fa-fw"></i>
+        </el-button>
     </div>
 </template>
 
 <script>
-import { debounce } from "lodash";
-
 export default {
     props: {
         type: {
@@ -35,15 +32,11 @@ export default {
         definition: {
             type: Object,
         },
-        autoSave: {
-            type: Boolean,
-            default: true,
-        },
     },
     data() {
         return {
             internalValue: this.value,
-            debouncedSave: this.autoSave ? debounce(this.save, 1000) : () => {},
+            currentValue: this.value,
         };
     },
     watch: {
@@ -53,10 +46,14 @@ export default {
     },
     methods: {
         save() {
-            this.$emit("save:property", {
-                property: this.property,
-                value: this.internalValue,
-            });
+            if (this.internalValue !== this.currentValue) {
+                this.currentValue = this.internalValue;
+
+                this.$emit("save:property", {
+                    property: this.property,
+                    value: this.internalValue,
+                });
+            }
         },
     },
 };

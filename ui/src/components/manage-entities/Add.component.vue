@@ -15,14 +15,12 @@
                     v-if="addType === 'Text'"
                     :property="property"
                     type="text"
-                    :auto-save="true"
                     @save:property="createProperty"
                 />
                 <text-component
                     v-if="addType === 'TextArea'"
                     :property="property"
                     type="textarea"
-                    :auto-save="false"
                     @save:property="createProperty"
                 />
                 <date-component
