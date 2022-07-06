@@ -7,14 +7,14 @@
         }"
         v-if="propertyDefinition"
     >
-        <div class="w-64 pt-2">
+        <div class="w-1/3 xl:w-1/5">
             <div v-if="propertyDefinition.label">
                 <display-property-name-component :label="propertyDefinition.label" />
             </div>
             <div v-else><display-property-name-component :label="property" /></div>
         </div>
 
-        <div class="flex-grow">
+        <div class="w-2/3 xl:w-4/5 flex-grow">
             <text-component
                 class="w-full"
                 type="text"
