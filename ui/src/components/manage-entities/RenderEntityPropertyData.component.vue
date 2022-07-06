@@ -34,7 +34,11 @@
                 "
             />
             <div class="flex flex-row flex-wrap">
-                <div v-for="instance of props.values" :key="instance.id" class="flex flex-row m-1">
+                <div
+                    v-for="instance of props.values"
+                    :key="instance.id"
+                    class="flex flex-row space-x-1 m-1"
+                >
                     <render-entity-property-instance-component
                         :property="instance"
                         :definition="props.definition"
@@ -43,7 +47,6 @@
                         @refresh="refresh"
                     />
                     <delete-property-component
-                        class="pt-1 pl-2"
                         type="delete"
                         :property="instance"
                         @delete:property="deleteProperty"
