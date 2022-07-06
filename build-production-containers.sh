@@ -69,10 +69,6 @@ if [ "$resp" == "y" ] ; then
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
-    # docker push arkisto/describo-online-api:latest
-    # docker push arkisto/describo-online-api:${VERSION}
-    # docker push arkisto/describo-online-ui:latest
-    # docker push arkisto/describo-online-ui:${VERSION}
 fi
 
 read -p '>> Remove local container copies? [y|N] ' resp
