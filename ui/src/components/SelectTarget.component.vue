@@ -5,9 +5,7 @@
 
             <div class="flex flex-row space-x-1">
                 <div v-if="localEnabled">
-                    <el-button @click="setLocalTargetResource" type="primary"
-                        >My Computer</el-button
-                    >
+                    <el-button @click="setLocalTarget" type="primary">My Computer</el-button>
                 </div>
                 <onedrive-authenticator-component v-if="onedriveEnabled" />
                 <owncloud-authenticator-component v-if="owncloudEnabled" />
@@ -19,7 +17,7 @@
         <div id="teleport-target-selection"></div>
 
         <div v-if="target.resource && !target.folder && !session.embedded">
-            <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
+            <el-button type="warning" size="small" @click="selectNewTarget">
                 Use another service
             </el-button>
         </div>
@@ -77,13 +75,7 @@ onMounted(() => {
 async function init() {
     await restoreSessionTarget();
 }
-async function selectNewResourceAndTarget() {
-    await selectNewTarget();
-}
 async function setSelectedFolder(folder) {
     await setFolderAndSaveToSession({ folder: folder.path });
-}
-async function setLocalTargetResource() {
-    await setLocalTarget();
 }
 </script>

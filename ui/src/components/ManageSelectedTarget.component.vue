@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-row space-x-1 bg-white p-4 text-sm">
         <div v-if="target.resource && !revaDeployment && allowServiceChange">
-            <el-button type="warning" size="small" @click="selectNewResourceAndTarget">
+            <el-button type="warning" size="small" @click="selectNewTarget">
                 Use another service
             </el-button>
         </div>
@@ -32,8 +32,5 @@ const profile = computed(() => store.state.profile);
 
 async function selectNewTargetFolder() {
     await setFolderAndSaveToSession({ folder: undefined });
-}
-async function selectNewResourceAndTarget() {
-    await selectNewTarget();
 }
 </script>
