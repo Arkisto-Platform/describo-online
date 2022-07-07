@@ -527,8 +527,13 @@ export class Crate {
     }
 
     mapId(id) {
-        const protocols = this.configuration.api.identifierURISchemes;
-        if (isURL(id, { protocols })) {
+        const protocols = this.configuration.api.identifierURISchemes.map((p) => `^${p}:`);
+        if (
+            protocols.some((p) => {
+                new RegExp(p);
+                return id.match(p);
+            })
+        ) {
             // is a valid url given the list of schemes defined in the config
             return encodeURI(id);
         } else if (isDataURI(id)) {
