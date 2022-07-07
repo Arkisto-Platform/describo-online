@@ -2,7 +2,6 @@
     <div>
         <el-select
             class="w-full"
-            size="small"
             v-model="internalValue"
             placeholder="Select"
             filterable
