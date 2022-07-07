@@ -8,8 +8,9 @@
                 'bg-red-200 p-1 rounded': update.error === 'eid',
             }"
         >
-            <div class="w-64 pt-1">Identifier</div>
+            <div class="w-1/3 xl:w-1/5">Identifier</div>
             <text-component
+                class="w-2/3 xl:w-4/5"
                 type="text"
                 property="eid"
                 :value.sync="entity.eid"
@@ -24,12 +25,10 @@
 </template>
 
 <script>
-import EntityIdComponent from "./EntityId.component.vue";
 import TextComponent from "./Text.component.vue";
 
 export default {
     components: {
-        EntityIdComponent,
         TextComponent,
     },
     props: {
