@@ -14,7 +14,7 @@ import models from "../models/index.js";
 import { syncLocalFileToRemote } from "../lib/file-browser.js";
 import fetch from "node-fetch";
 import validatorPkg from "validator";
-const { isURL } = validatorPkg;
+const { isURL, isDataURI } = validatorPkg;
 
 import { loadConfiguration, getLogger } from "../common/index.js";
 const log = getLogger();
@@ -270,6 +270,7 @@ export class Crate {
     }
 
     async exportCollectionAsROCrate({ collectionId, sync = false }) {
+        this.configuration = await loadConfiguration();
         const collection = await models.collection.findOne({
             where: { id: collectionId },
             attributes: ["id", "metadata", "updatedAt"],
@@ -526,6 +527,27 @@ export class Crate {
     }
 
     mapId(id) {
-        return encodeURI(isURL(id) ? id : id === "./" ? "./" : id.match(/^#/) ? id : `#${id}`);
+        const protocols = this.configuration.api.identifierURISchemes;
+        if (isURL(id, { protocols })) {
+            // is a valid url given the list of schemes defined in the config
+            return encodeURI(id);
+        } else if (isDataURI(id)) {
+            // is a valid data uri like data:[<mediatype>][;base64],<data>
+            return encodeURI(id);
+        } else if (id.match(/^[a-z,A-z]+:/gm)) {
+            // is a valid prefixed identifier: e.g. schema:Person
+            return encodeURI(id);
+        } else if (id.match(/^_:/gm)) {
+            // is an empty node: e.g. _:identifier
+            return encodeURI(id);
+        } else if (id.match(/^.?\//gm)) {
+            // starts with ./ or /
+            return encodeURI(id);
+        } else if (id.match(/^#/)) {
+            // starts with #
+            return encodeURI(id);
+        } else {
+            return encodeURI(`#${id}`);
+        }
     }
 }

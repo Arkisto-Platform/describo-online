@@ -35,6 +35,8 @@
         "periodicProcessInterval": 300,
         "typeDefinitions": "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions.json",
         "typeDefinitionsLookup": "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions-lookup.json",
+        "session": { "lifetime": { "hours": 5 }, "secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" },
+        "identifierURISchemes": ["http", "https", "file", "arcp"],
         "services": {
             "owncloud": [
                 {
