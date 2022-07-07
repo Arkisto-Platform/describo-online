@@ -21,6 +21,7 @@ const log = getLogger();
 
 const rootDescriptorIdPrefix = "#:localid:describo:";
 const rootDescriptors = ["ro-crate-metadata.json", "ro-crate-metadata.jsonld"];
+let defaultURIProtocols = ["http", "https", "file", "arcp"];
 
 export class Crate {
     constructor({ profile }) {
@@ -527,7 +528,12 @@ export class Crate {
     }
 
     mapId(id) {
-        const protocols = this.configuration.api.identifierURISchemes.map((p) => `^${p}:`);
+        let protocols;
+        try {
+            protocols = this.configuration.api.identifierURISchemes.map((p) => `^${p}:`);
+        } catch (error) {
+            protocols = [...defaultURIProtocols];
+        }
         if (
             protocols.some((p) => {
                 new RegExp(p);
