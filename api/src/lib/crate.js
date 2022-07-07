@@ -534,7 +534,7 @@ export class Crate {
         } else if (isDataURI(id)) {
             // is a valid data uri like data:[<mediatype>][;base64],<data>
             return encodeURI(id);
-        } else if (id.match(/^[a-z,A-z]+:/gm)) {
+        } else if (id.match(/^[a-z,A-z]+:[a-z,A-Z,0-9]+/gm)) {
             // is a valid prefixed identifier: e.g. schema:Person
             return encodeURI(id);
         } else if (id.match(/^_:/gm)) {
