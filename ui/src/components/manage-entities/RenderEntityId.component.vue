@@ -9,8 +9,9 @@
             }"
         >
             <div class="w-64 pt-1">Identifier</div>
-            <entity-id-component
-                class="flex-grow"
+            <text-component
+                type="text"
+                property="eid"
                 :value.sync="entity.eid"
                 @save:property="saveEntityProperty"
                 v-if="!['Dataset', 'File'].includes(entity.etype)"
