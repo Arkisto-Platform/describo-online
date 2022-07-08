@@ -1,20 +1,8 @@
 <template>
     <div class="flex flex-col style-panel" v-loading="loading">
         <!-- <div>render entity '{{ id }}'</div> -->
-        <div
-            class="flex"
-            :class="{
-                'flex-row space-x-1': entity.etype === 'File',
-                'flex-col': entity.etype !== 'File',
-            }"
-        >
-            <div
-                v-if="!loading && !error"
-                :class="{
-                    'w-1/2 lg:w-3/5': entity.etype === 'File',
-                    'w-full': entity.etype !== 'File',
-                }"
-            >
+        <div class="flex flex-row">
+            <div v-if="!loading && !error">
                 <render-entity-controls-component
                     :entity="entity"
                     :definition="definition"
@@ -73,7 +61,7 @@
                 {{ error }}
             </div>
 
-            <div
+            <!-- <div
                 class="pl-2 flex flex-col justify-items-start"
                 :class="{
                     'w-1/2 lg:w-2/5': entity.etype === 'File',
@@ -81,7 +69,7 @@
                 }"
             >
                 <render-entity-preview-component :entity="entity" v-loading="loading" />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -135,10 +123,10 @@ export default {
         },
     },
     watch: {
-        id: function() {
+        id: function () {
             this.getEntity();
         },
-        profile: function() {
+        profile: function () {
             if (this.profile?.name) {
                 this.getEntity();
             }
