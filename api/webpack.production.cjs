@@ -14,7 +14,7 @@ module.exports = {
     },
     externals: [
         nodeExternals({
-            // this WILL lodash-es`
+            // this WILL bundle lodash-es`
             allowlist: ["lodash-es"],
         }),
     ],
