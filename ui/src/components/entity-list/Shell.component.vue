@@ -49,7 +49,7 @@
                                 @click="deleteEntity(scope.row.id)"
                                 size="small"
                                 type="danger"
-                                v-if="scope.row.eid !== './'"
+                                :disabled="scope.row.eid == './'"
                             >
                                 <i class="fas fa-trash"></i>
                             </el-button>

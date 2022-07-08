@@ -33,11 +33,12 @@
                 <el-table-column label="Actions" width="100" align="center">
                     <template #default="scope">
                         <div class="flex flex-row space-x-2">
-                            <div v-if="!scope.row.etype && !scope.row.eid">
+                        <div>
                                 <el-button
                                     @click="applyCrateTemplate(scope.row.id)"
                                     size="small"
                                     type="primary"
+                                :disabled="scope.row.etype && scope.row.eid"
                                 >
                                     <i class="fas fa-check-double"></i>
                                 </el-button>
@@ -47,7 +48,7 @@
                                     @click="deleteTemplate(scope.row.id)"
                                     size="small"
                                     type="danger"
-                                    v-if="scope.row.eid !== './'"
+                                :disabled="scope.row.eid == './'"
                                 >
                                     <i class="fas fa-trash"></i>
                                 </el-button>
