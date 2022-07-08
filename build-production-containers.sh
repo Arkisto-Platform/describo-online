@@ -5,41 +5,23 @@ if [ "$#" != 1 ] ; then
     exit -1
 fi
 VERSION="${1}"
-mkdir docker-metadata
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     echo '>> Building the API container '
-    docker buildx build --platform=linux/amd64,linux/arm64 \
-        --rm \
-        --metadata-file docker-metadata/api-metadata.json \
+    docker buildx build --load --rm \
         -t arkisto/describo-online-api:latest \
         -t arkisto/describo-online-api:${VERSION} \
         -f Dockerfile.api-build .
-    docker buildx build --load \
-        --metadata-file docker-metadata/api-metadata.json \
-        -t arkisto/describo-online-api:latest \
-        -t arkisto/describo-online-api:${VERSION} \
-        -f Dockerfile.api-build .
-
     echo
 
     echo '>> Building the UI container'
-    cd ui
     docker run -it --rm \
-        -v $PWD:/srv/ui \
-        -v $PWD/../../describo-ui-plugins:/srv/ui/src/plugins \
+        -v $PWD/ui:/srv/ui \
+        -v $PWD/../describo-ui-plugins:/srv/ui/src/plugins \
         -v ui_node_modules:/srv/ui/node_modules \
         -w /srv/ui node:14-buster bash -l -c "npm run build"
-    cd -
-    docker buildx build --platform=linux/amd64,linux/arm64 \
-        --rm \
-        --metadata-file docker-metadata/ui-metadata.json \
-        -t arkisto/describo-online-ui:latest \
-        -t arkisto/describo-online-ui:${VERSION} \
-        -f Dockerfile.ui-build .
-    docker buildx build --load \
-        --metadata-file docker-metadata/ui-metadata.json \
+    docker buildx build --load --rm \
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
@@ -57,22 +39,14 @@ if [ "$resp" == "y" ] ; then
     git commit -a -m "tag and bump version"
 fi
 
-read -p '>> Push the containers to docker hub? [y|N] ' resp
+read -p '>> Build multi-arch containers and push to docker hub? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     docker login
-
-    echo "Pushing built containers to docker hub"
-    docker buildx build --platform=linux/amd64,linux/arm64 \
-        --push \
-        --rm \
-        --metadata-file docker-metadata/api-metadata.json \
+    docker buildx build --push --rm --platform=linux/amd64,linux/arm64 \
         -t arkisto/describo-online-api:latest \
         -t arkisto/describo-online-api:${VERSION} \
         -f Dockerfile.api-build .
-    docker buildx build --platform=linux/amd64,linux/arm64 \
-        --push \
-        --rm \
-        --metadata-file docker-metadata/ui-metadata.json \
+    docker buildx build --push --rm --platform=linux/amd64,linux/arm64 \
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
@@ -84,6 +58,4 @@ if [ "$resp" == "y" ] ; then
     docker rmi arkisto/describo-online-api:${VERSION}
     docker rmi arkisto/describo-online-ui:latest
     docker rmi arkisto/describo-online-ui:${VERSION}
-    rm -rf docker-metadata
-
 fi
