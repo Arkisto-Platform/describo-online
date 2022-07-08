@@ -5,16 +5,19 @@ if [ "$#" != 1 ] ; then
     exit -1
 fi
 VERSION="${1}"
+mkdir docker-metadata
 
 read -p '>> Build the containers? [y|N] ' resp
 if [ "$resp" == "y" ] ; then
     echo '>> Building the API container '
     docker buildx build --platform=linux/amd64,linux/arm64 \
         --rm \
+        --metadata-file docker-metadata/api-metadata.json \
         -t arkisto/describo-online-api:latest \
         -t arkisto/describo-online-api:${VERSION} \
         -f Dockerfile.api-build .
     docker buildx build --load \
+        --metadata-file docker-metadata/api-metadata.json \
         -t arkisto/describo-online-api:latest \
         -t arkisto/describo-online-api:${VERSION} \
         -f Dockerfile.api-build .
@@ -31,10 +34,12 @@ if [ "$resp" == "y" ] ; then
     cd -
     docker buildx build --platform=linux/amd64,linux/arm64 \
         --rm \
+        --metadata-file docker-metadata/ui-metadata.json \
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
     docker buildx build --load \
+        --metadata-file docker-metadata/ui-metadata.json \
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
@@ -60,12 +65,14 @@ if [ "$resp" == "y" ] ; then
     docker buildx build --platform=linux/amd64,linux/arm64 \
         --push \
         --rm \
+        --metadata-file docker-metadata/api-metadata.json \
         -t arkisto/describo-online-api:latest \
         -t arkisto/describo-online-api:${VERSION} \
         -f Dockerfile.api-build .
     docker buildx build --platform=linux/amd64,linux/arm64 \
         --push \
         --rm \
+        --metadata-file docker-metadata/ui-metadata.json \
         -t arkisto/describo-online-ui:latest \
         -t arkisto/describo-online-ui:${VERSION} \
         -f Dockerfile.ui-build .
@@ -77,4 +84,6 @@ if [ "$resp" == "y" ] ; then
     docker rmi arkisto/describo-online-api:${VERSION}
     docker rmi arkisto/describo-online-ui:latest
     docker rmi arkisto/describo-online-ui:${VERSION}
+    rm -rf docker-metadata
+
 fi
