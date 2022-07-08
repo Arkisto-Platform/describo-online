@@ -1,7 +1,19 @@
-FROM --platform=$TARGETPLATFORM node:14-buster-slim
+FROM --platform=$TARGETPLATFORM node:14-buster AS api-builder
 WORKDIR /srv
-RUN apt-get update && apt-get install -y postgresql-client ca-certificates
 COPY api/ /srv/
 RUN npm install
-COPY scripts/wait-for-postgres.sh /srv/wait-for-postgres.sh
-CMD [ "/srv/wait-for-postgres.sh", "node", "index.js" ]  
+RUN npm run build:production
+
+FROM  --platform=$TARGETPLATFORM node:14-buster-slim
+WORKDIR /srv/api
+RUN apt-get update && apt-get install -y postgresql-client ca-certificates
+COPY --from=api-builder /srv/dist/package.json /srv/api/package.json
+COPY --from=api-builder /srv/dist/package-lock.json /srv/api/package-lock.json
+COPY --from=api-builder /srv/src/common/type-definitions.json /srv/api/type-definitions.json
+COPY --from=api-builder /srv/src/common/type-definitions-lookup.json /srv/api/type-definitions-lookup.json
+COPY --from=api-builder /srv/src/lib/profile.schema.json /srv/api/profile.schema.json
+COPY scripts/wait-for-postgres.sh /srv/api/wait-for-postgres.sh
+RUN npm install
+COPY --from=api-builder /srv/dist/ /srv/api/
+COPY --from=api-builder /srv/bin /srv/api/bin
+CMD [ "/srv/api/wait-for-postgres.sh", "node", "./server.bundle.cjs" ]  
