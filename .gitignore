@@ -7,3 +7,7 @@ coverage
 configuration.json
 development-configuration.json
 production-configuration.json
+
+docker-metadata
+api/type-definitions-lookup.json
+api/type-definitions.json
