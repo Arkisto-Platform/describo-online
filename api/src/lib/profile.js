@@ -14,11 +14,14 @@ import {
     merge,
 } from "lodash-es";
 import path from "path";
-import { getLogger } from "../common/index.js";
+import { getLogger, getInstallationBasePath } from "../common/index.js";
 const log = getLogger();
 import Ajv from "ajv";
-const typeDefinitions = "/srv/type-definitions.json";
-const typeDefinitionsLookup = "/srv/type-definitions-lookup.json";
+const typeDefinitions = path.join(getInstallationBasePath(), "type-definitions.json");
+const typeDefinitionsLookup = path.join(
+    getInstallationBasePath(),
+    "/srv/type-definitions-lookup.json"
+);
 const profileSchema = "profile.schema.json";
 const SimpleDataTypes = [
     "Text",
@@ -81,7 +84,12 @@ export async function loadProfile({ profilePath, file }) {
 
 export async function validateProfile({ profile }) {
     const ajv = new Ajv();
-    const schema = await readJSON(path.join(__dirname, profileSchema));
+    let schema;
+    if (process.env.NODE_ENV === "development") {
+        schema = await readJSON(path.join("./", profileSchema));
+    } else {
+        schema = await readJSON(path.join(getInstallationBasePath(), profileSchema));
+    }
     const validate = ajv.compile(schema);
     let valid = validate(profile);
     if (!valid) {

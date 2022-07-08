@@ -2,7 +2,7 @@ import "regenerator-runtime";
 import restify from "restify";
 import models from "./src/models/index.js";
 import { setupRoutes } from "./src/routes/index.js";
-import { loadConfiguration, getLogger } from "./src/common/index.js";
+import { loadConfiguration, getLogger, getInstallationBasePath } from "./src/common/index.js";
 import * as periodicProcesses from "./src/periodic-processes/index.js";
 import fsExtraPkg from "fs-extra";
 const { pathExists, writeJson } = fsExtraPkg;
@@ -11,6 +11,7 @@ const log = getLogger();
 import { Server } from "socket.io";
 import fetchPkg from "node-fetch";
 const fetch = fetchPkg;
+import path from "path";
 
 // DEVELOPER NOTE
 //
@@ -83,17 +84,17 @@ async function runPeriodicProcesses() {
 }
 
 async function getTypeDefinitions({ configuration }) {
-    if (!(await pathExists("/srv/type-definitions.json")) && configuration.api?.typeDefinitions) {
+    let typeDefinitions = path.join(getInstallationBasePath(), "type-definitions.json");
+    if (!(await pathExists(typeDefinitions)) && configuration.api?.typeDefinitions) {
         let response = await fetch(configuration.api?.typeDefinitions);
-        const typeDefinitions = await response.json();
-        await writeJson("/srv/type-definitions.json", typeDefinitions);
+        await writeJson(typeDefinitions, await response.json());
     }
-    if (
-        !(await pathExists("/srv/type-definitions-lookup.json")) &&
-        configuration.api?.typeDefinitionsLookup
-    ) {
+    let typeDefinitionsLookup = path.join(
+        getInstallationBasePath(),
+        "type-definitions-lookup.json"
+    );
+    if (!(await pathExists(typeDefinitionsLookup)) && configuration.api?.typeDefinitionsLookup) {
         let response = await fetch(configuration.api?.typeDefinitionsLookup);
-        const typeDefinitionsLookup = await response.json();
-        await writeJson("/srv/type-definitions-lookup.json", typeDefinitionsLookup);
+        await writeJson(typeDefinitionsLookup, await response.json());
     }
 }

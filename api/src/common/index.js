@@ -10,11 +10,16 @@ import fetch from "node-fetch";
 import fsExtraPkg from "fs-extra";
 const { writeJSON } = fsExtraPkg;
 import { cloneDeep } from "lodash-es";
+import path from "path";
 const api = "http://localhost:8080";
 import Chance from "chance";
 const chance = new Chance();
 
 import { loadConfiguration } from "./configuration.js";
+
+export function getInstallationBasePath() {
+    return path.join("/srv", "api");
+}
 
 export async function createSessionForTest() {
     const origConfig = await loadConfiguration();

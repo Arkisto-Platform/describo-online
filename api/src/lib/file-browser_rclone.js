@@ -208,9 +208,5 @@ async function runCommand({ cwd, args }) {
 }
 
 function rclone() {
-    if (process.env.NODE_ENV === "production") {
-        return "/srv/bin/rclone";
-    } else {
-        return "/srv/api/bin/rclone";
-    }
+    return "/srv/api/bin/rclone";
 }

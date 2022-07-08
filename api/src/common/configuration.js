@@ -1,14 +1,20 @@
 import fsextraPkg from "fs-extra";
 const { readJSON } = fsextraPkg;
 import { isEmpty } from "lodash-es";
+import { getInstallationBasePath } from "./index.js";
+import path from "path";
 
 export const privateFields = ["clientSecret", "awsAccessKeyId", "awsSecretAccessKey"];
 
 export async function loadConfiguration() {
     let configuration =
         process.env.NODE_ENV === "development"
-            ? "/srv/configuration/development-configuration.json"
-            : "/srv/configuration.json";
+            ? path.join(
+                  getInstallationBasePath(),
+                  "configuration",
+                  "development-configuration.json"
+              )
+            : path.join(getInstallationBasePath(), "configuration.json");
     configuration = await readJSON(configuration);
     return configuration;
 }
