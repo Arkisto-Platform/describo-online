@@ -10,9 +10,14 @@ module.exports = {
     devtool: "source-map",
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: "server.bundle.js",
+        filename: "server.bundle.cjs",
     },
-    externals: [nodeExternals()],
+    externals: [
+        nodeExternals({
+            // this WILL lodash-es`
+            allowlist: ["lodash-es"],
+        }),
+    ],
     plugins: [
         new CleanWebpackPlugin(),
         new CopyPlugin({
