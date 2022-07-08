@@ -66,7 +66,7 @@ services:
             - ./api:/srv/api:delegated
             - ./profiles:/srv/profiles:delegated
             - ./testing-profiles:/srv/testing-profiles:delegated
-            - ./configuration:/srv/configuration
+            - ./configuration:/srv/api/configuration
             - .git:/srv/api/.git:delegated
             - api_node_modules:/srv/api/node_modules:delegated
             - ./scripts/wait-for-it.sh:/wait-for-it.sh
