@@ -1,6 +1,6 @@
 <template>
-    <div class="flex flex-col">
-        <div class="flex flex-col space-y-2">
+    <div class="flex flex-col space-y-2">
+        <div class="flex flex-col">
             <!-- <add-entity-component @add-entity="addNewEntity" /> -->
 
             <div class="flex flex-row space-x-2">
@@ -20,7 +20,7 @@
                 </el-pagination>
             </div>
         </div>
-        <el-table :data="data.entities" highlight-current-row>
+        <el-table :data="data.entities" highlight-current-row v-loading="loading">
             <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
             <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
             <el-table-column prop="name" label="Name"> </el-table-column>
@@ -36,7 +36,7 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="Actions" width="150">
+            <el-table-column label="Actions" width="100">
                 <template #default="scope">
                     <div class="flex flex-row space-x-2">
                         <div>
