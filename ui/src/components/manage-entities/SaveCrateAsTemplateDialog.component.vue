@@ -47,6 +47,7 @@ export default {
         },
         save() {
             this.$emit("save:crate-as-template", { name: this.crateName });
+            this.crateName = undefined;
         },
     },
 };
