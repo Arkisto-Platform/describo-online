@@ -122,11 +122,14 @@ watch(
     }
 );
 
-watch(profile, () => {
-    if (this.profile?.name) {
-        this.getEntity();
+watch(
+    () => profile,
+    () => {
+        if (profile?.name) {
+            getEntity();
+        }
     }
-});
+);
 onMounted(() => {
     socket.on("ENTITY_UPDATED_HANDLER", (response) => {
         getEntity();
