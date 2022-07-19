@@ -191,12 +191,12 @@ function renderContent(h, { node, data, store }) {
     return(
         h('div', {class : 'border-b flex grow max-w-full truncate '},
             [
-                h('i', {class: 'fa mx-2 mt-0.5 text-gray-400 ' + (!this.node.data.isDir ? matchIconWithMimeType(node.data.mimeType) : "fa-folder")}),
+                h('i', {class: 'fa mx-2 mt-0.5 text-gray-400 ' + (!this.node.data.isDir ? matchMimeTypeWithIcon(node.data.mimeType) : "fa-folder")}),
                 h('span', {class: 'grow truncate mr-10'}, this.node.data.name),
                 h('span', {class: 'text-gray-400 min-w-fit'} , (!this.node.data.isDir ? formatBytes(this.node.data.size) : null))
             ]))
 }
-function matchIconWithMimeType(mimeType){
+function matchMimeTypeWithIcon(mimeType){
     switch(true) {
         case mimeType.startsWith('audio'):
             return 'fa-file-audio'
