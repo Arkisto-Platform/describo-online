@@ -2,8 +2,8 @@
     <div
         class="flex flex-row"
         :class="{
-            'bg-green-200 p-1 rounded': update.success === property,
-            'bg-red-200 p-1 rounded': update.error === property,
+            'bg-green-200 p-1 rounded': data.update.success,
+            'bg-red-200 p-1 rounded': data.update.error,
         }"
         v-if="propertyDefinition"
     >
@@ -11,14 +11,14 @@
             <div v-if="propertyDefinition.label">
                 <display-property-name-component :label="propertyDefinition.label" />
             </div>
-            <div v-else><display-property-name-component :label="property" /></div>
+            <div v-else><display-property-name-component :label="data.property" /></div>
         </div>
 
         <div class="w-2/3 xl:w-4/5 flex-grow">
             <text-component
                 class="w-full"
                 type="text"
-                :property="property"
+                :property="data.property"
                 :value.sync="entity.name"
                 @save:property="saveEntityProperty"
             />
@@ -26,59 +26,52 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import TextComponent from "./Text.component.vue";
 import DisplayPropertyNameComponent from "./DisplayPropertyName.component.vue";
+import { reactive, computed, watch, onMounted } from "vue";
 
-export default {
-    components: {
-        TextComponent,
-        DisplayPropertyNameComponent,
+const props = defineProps({
+    entity: {
+        type: Object,
+        required: true,
     },
-    props: {
-        entity: {
-            type: Object,
-            required: true,
-        },
-        inputDefinitions: {
-            type: Array,
-            required: true,
-        },
-        dataService: {
-            type: Object,
-            required: true,
-        },
+    definition: {
+        type: Object,
+        required: true,
     },
-    data() {
-        return {
-            property: "name",
-            propertyDefinition: this.inputDefinitions.filter((i) => i.name === "name")?.[0],
-            update: {
-                error: false,
-                success: false,
-            },
-        };
+    dataService: {
+        type: Object,
+        required: true,
     },
-    methods: {
-        async saveEntityProperty(data) {
-            try {
-                await this.dataService.updateEntityProperty({
-                    id: this.entity.id,
-                    property: data.property,
-                    value: data.value,
-                });
-                this.update.success = data.property;
-                setTimeout(() => {
-                    this.update.success = false;
-                }, 1500);
-            } catch (error) {
-                this.update.error = data.property;
-                setTimeout(() => {
-                    this.update.error = false;
-                    this.$emit("getEntity");
-                }, 1500);
-            }
-        },
+});
+const data = reactive({
+    property: "name",
+    update: {
+        error: false,
+        success: false,
     },
-};
+});
+const propertyDefinition = computed(() => {
+    return props.definition.inputs.filter((i) => i.name === "name")?.[0];
+});
+
+async function saveEntityProperty({ value }) {
+    try {
+        await props.dataService.updateEntityProperty({
+            id: props.entity.id,
+            property: data.property,
+            value,
+        });
+        data.update.success = true;
+        setTimeout(() => {
+            data.update.success = false;
+        }, 1500);
+    } catch (error) {
+        data.update.error = false;
+        setTimeout(() => {
+            data.update.error = false;
+        }, 1500);
+    }
+}
 </script>

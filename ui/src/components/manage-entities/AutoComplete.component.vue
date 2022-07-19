@@ -39,7 +39,7 @@
 <script setup>
 import DataService from "./data.service.js";
 const dataService = new DataService();
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 
 const props = defineProps({
     type: {
@@ -57,6 +57,12 @@ const data = reactive({
 onMounted(() => {
     querySearch();
 });
+watch(
+    () => props.type,
+    () => {
+        querySearch();
+    }
+);
 
 async function querySearch(queryString) {
     selection.value = undefined;
