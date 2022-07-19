@@ -3,10 +3,10 @@
         <div class="flex flex-col w-full">
             <div class="flex flex-row" v-if="props.enableFileSelector">
                 <div class="w-3/5 flex-grow px-2">
-                    <div v-if="props.mode === 'openFile'">
-                        <el-checkbox v-model="selectAllChildren">
-                            Select all children when adding folders
-                        </el-checkbox>
+                    <div v-if="props.mode === 'openFile'" class="m-2">
+                        <el-switch
+                            v-model="selectAllChildren"
+                            active-text="Select all children when adding folders"/>
                     </div>
                     <div>
                         <el-tree
