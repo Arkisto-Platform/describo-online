@@ -56,6 +56,60 @@
                     @refresh="getEntity"
                 />
             </div>
+            <div class="flex flex-col flex-grow" v-if="data.tabs.length">
+                <render-entity-controls-component
+                    :entity="data.tabs[0].entity"
+                    :definition="data.definition"
+                    @refresh="getEntity"
+                />
+                <el-tabs tab-position="left">
+                    <el-tab-pane label="Core Metadata">
+                        <!-- render entity id -->
+                        <render-entity-id-component
+                            class="mb-2"
+                            :entity="data.tabs[0].entity"
+                            :data-service="dataService"
+                            @get-entity="getEntity"
+                        />
+                        <!-- render entity type -->
+                        <render-entity-type-component
+                            class="mb-2"
+                            :entity="data.tabs[0].entity"
+                            v-if="data.entity.eid !== './'"
+                        />
+
+                        <!-- render entity name / label -->
+                        <render-entity-name-component
+                            class="mb-2"
+                            :entity="data.tabs[0].entity"
+                            :definition="data.definition"
+                            :data-service="dataService"
+                            @get-entity="getEntity"
+                        ></render-entity-name-component>
+                    </el-tab-pane>
+                    <el-tab-pane
+                        :label="tab.name"
+                        v-for="(tab, idx) of data.tabs.slice(1)"
+                        :key="idx"
+                    >
+                        <!-- render entity properties -->
+                        <render-entity-properties-component
+                            :entity="tab.entity"
+                            :definition="data.definition"
+                            :data-service="dataService"
+                            @refresh="getEntity"
+                        />
+                    </el-tab-pane>
+                    <el-tab-pane label="Linked To">
+                        <!--render entities it links to  -->
+                        <render-entity-reverse-properties-component
+                            class="mt-2"
+                            v-if="data.tabs[0].entity.reverseProperties"
+                            :entity="data.tabs[0].entity"
+                        />
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
             <div v-if="data.error" class="flex-grow bg-red-200 p-2 text-center rounded">
                 {{ data.error }}
             </div>
@@ -107,6 +161,7 @@ const data = reactive({
         forwardProperties: {},
         reverseProperties: {},
     },
+    tabs: [],
     definition: {
         inputs: [],
     },
@@ -118,18 +173,24 @@ let profile = computed(() => {
 watch(
     () => props.id,
     () => {
+        data.entity = {
+            forwardProperties: {},
+            reverseProperties: {},
+        };
+        data.tabs = [];
         getEntity();
     }
 );
-
-watch(
-    () => profile,
-    () => {
-        if (profile?.name) {
-            getEntity();
-        }
+watch(profile, () => {
+    if (profile.value?.name) {
+        data.entity = {
+            forwardProperties: {},
+            reverseProperties: {},
+        };
+        data.tabs = [];
+        getEntity();
     }
-);
+});
 onMounted(() => {
     socket.on("ENTITY_UPDATED_HANDLER", (response) => {
         getEntity();
@@ -182,10 +243,56 @@ async function getEntity() {
                         entity.forwardProperties[propertyNames[k]])
             );
         entity.forwardProperties = forwardProperties;
-        data.entity = { ...data.entity, ...entity };
+        let layout = applyLayout({ layout: definition.layout, entity });
+        if (layout.entity) {
+            data.entity = { ...data.entity, ...layout.entity };
+        } else if (layout.tabs) {
+            data.tabs = cloneDeep(layout.tabs);
+        }
     } catch (error) {
         data.error = error.message;
     }
+}
+
+function applyLayout({ layout, entity }) {
+    if (!layout?.length) return { entity };
+
+    let tabs = [];
+    tabs.push({ name: "tab1", entity: cloneDeep(entity) });
+
+    let mappedInputs = [];
+    layout.forEach((section) => {
+        let sectionEntity = cloneDeep(entity);
+        sectionEntity.forwardProperties = {};
+        tabs.push({
+            name: section.name,
+            description: section?.description,
+            entity: sectionEntity,
+        });
+        section.inputs.forEach((input) => {
+            let property = Object.keys(entity.forwardProperties).filter(
+                (property) => property === input
+            );
+            if (property.length) {
+                mappedInputs.push(input);
+                sectionEntity.forwardProperties[input] = entity.forwardProperties[input];
+            }
+        });
+    });
+
+    let unmappedInputs = Object.keys(entity.forwardProperties).filter(
+        (p) => !mappedInputs.includes(p)
+    );
+    if (unmappedInputs.length) {
+        let sectionEntity = cloneDeep(entity);
+        sectionEntity.forwardProperties = {};
+        unmappedInputs.forEach(
+            (p) => (sectionEntity.forwardProperties[p] = entity.forwardProperties[p])
+        );
+        tabs.push({ name: "other", description: "", entity: sectionEntity });
+    }
+
+    return { tabs };
 }
 </script>
 

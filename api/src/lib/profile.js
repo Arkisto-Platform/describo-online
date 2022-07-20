@@ -258,7 +258,12 @@ export async function loadClassDefinition({ classNames, profile }) {
     inputs = orderBy(inputs, ["required", "label"]);
     hierarchy = uniq(hierarchy);
 
-    return { inputs, hierarchy, classDefinitionType };
+    return {
+        inputs,
+        hierarchy,
+        classDefinitionType,
+        layout: profile?.layouts?.[classNames.sort().join(", ")],
+    };
 
     function mapClassHierarchies(classes) {
         return classes.map((className) => {
