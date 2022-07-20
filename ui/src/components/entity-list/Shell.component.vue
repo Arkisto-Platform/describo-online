@@ -20,7 +20,7 @@
                 </el-pagination>
             </div>
         </div>
-        <el-table :data="data.entities" highlight-current-row v-loading="loading">
+        <el-table :data="data.entities" highlight-current-row>
             <el-table-column prop="etype" label="@type" width="180"> </el-table-column>
             <el-table-column prop="eid" label="@id" width="400"> </el-table-column>
             <el-table-column prop="name" label="Name"> </el-table-column>
