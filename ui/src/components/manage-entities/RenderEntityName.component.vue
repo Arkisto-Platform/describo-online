@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-row"
+        class="flex flex-row pl-1 pt-3 pr-2 pb-4 border-b border-gray-200"
         :class="{
             'bg-green-200 p-1 rounded': data.update.success,
             'bg-red-200 p-1 rounded': data.update.error,

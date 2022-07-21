@@ -9,7 +9,7 @@
             :clearable="true"
         >
         </el-date-picker>
-        <div class="text-xs text-gray-700" v-if="!value">
+        <div class="text-xs text-gray-700 mt-2" v-if="!value">
             Date format is: YYYY-MM-DD. e.g. 2021-03-22
         </div>
     </div>
