@@ -20,6 +20,7 @@
                     :property="props.property"
                     type="text"
                     @save:property="createProperty"
+                    placeholder="Add text"
                 />
                 <text-component
                     v-if="data.addType === 'TextArea'"
