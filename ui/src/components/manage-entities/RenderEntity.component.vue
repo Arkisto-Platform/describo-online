@@ -62,8 +62,11 @@
                     :definition="data.definition"
                     @refresh="getEntity"
                 />
-                <el-tabs tab-position="left">
-                    <el-tab-pane label="Core Metadata">
+                <el-tabs tab-position="left" v-model="data.activeTab">
+                    <el-tab-pane label="About" name="about">
+                        <template #label>
+                            <span class="cursor-pointerspace text-gray-600"> About </span>
+                        </template>
                         <!-- render entity id -->
                         <render-entity-id-component
                             class="mb-2"
@@ -86,26 +89,30 @@
                             :data-service="dataService"
                             @get-entity="getEntity"
                         ></render-entity-name-component>
-                    </el-tab-pane>
-                    <el-tab-pane
-                        :label="tab.name"
-                        v-for="(tab, idx) of data.tabs.slice(1)"
-                        :key="idx"
-                    >
-                        <!-- render entity properties -->
-                        <render-entity-properties-component
-                            :entity="tab.entity"
-                            :definition="data.definition"
-                            :data-service="dataService"
-                            @refresh="getEntity"
-                        />
-                    </el-tab-pane>
-                    <el-tab-pane label="Linked To">
+
                         <!--render entities it links to  -->
                         <render-entity-reverse-properties-component
                             class="mt-2"
                             v-if="data.tabs[0].entity.reverseProperties"
                             :entity="data.tabs[0].entity"
+                        />
+                    </el-tab-pane>
+                    <el-tab-pane
+                        :label="tab.name"
+                        :name="tab.name"
+                        v-for="(tab, idx) of data.tabs.slice(1)"
+                        :key="idx"
+                    >
+                        <template #label>
+                            <span class="cursor-pointer text-gray-600">{{ tab.name }}</span>
+                        </template>
+                        <!-- render entity properties -->
+                        <render-entity-properties-component
+                            v-if="data.activeTab === tab.name"
+                            :entity="tab.entity"
+                            :definition="data.definition"
+                            :data-service="dataService"
+                            @refresh="getEntity"
                         />
                     </el-tab-pane>
                 </el-tabs>
@@ -156,7 +163,7 @@ const props = defineProps({
     },
 });
 const data = reactive({
-    dataService: undefined,
+    activeTab: "about",
     entity: {
         forwardProperties: {},
         reverseProperties: {},
@@ -289,7 +296,7 @@ function applyLayout({ layout, entity }) {
         unmappedInputs.forEach(
             (p) => (sectionEntity.forwardProperties[p] = entity.forwardProperties[p])
         );
-        tabs.push({ name: "other", description: "", entity: sectionEntity });
+        tabs.push({ name: "...", description: "", entity: sectionEntity });
     }
 
     return { tabs };

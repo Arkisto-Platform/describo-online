@@ -9,7 +9,7 @@ const dataService = new DataService();
 import { reactive, onMounted, nextTick } from "vue";
 
 const props = defineProps({
-    id: { type: String },
+    entity: { type: Object },
 });
 
 const data = reactive({
@@ -34,9 +34,9 @@ async function init() {
         ext: "jpg",
         noWrap: true,
     }).addTo(data.map);
-    data.entity = await dataService.getEntity({ id: props.id });
+    data.entity = { ...props.entity };
     data.properties = (
-        await dataService.getEntityProperties({ id: props.id })
+        await dataService.getEntityProperties({ id: data.entity.id })
     ).properties.forwardProperties;
 
     let fg;
@@ -62,8 +62,6 @@ async function init() {
         removeExistingLayers();
         fg = addFeatureGroup({ geoJSON: geojson });
     }
-    // await new Promise((resolve) => setTimeout(resolve, 200));
-    // data.map.fitBounds(fg.getBounds());
 }
 
 function centerMap() {

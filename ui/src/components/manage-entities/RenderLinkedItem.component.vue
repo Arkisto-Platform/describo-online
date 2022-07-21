@@ -16,7 +16,7 @@
                 <span v-else>{{ data.entity.eid }}</span>
             </div>
         </div>
-        <map-component :id="data.entity.eid" v-if="showMap" />
+        <map-component :entity="data.entity" v-if="showMap" />
         <delete-property-component
             class="bg-yellow-200 cursor-pointer rounded-r p-2"
             :type="type"
@@ -46,7 +46,7 @@ const props = defineProps({
 const data = reactive({
     entity: {},
 });
-let showMap = computed(() => (props.entity?.tgtEntityType?.match("Geo") ? true : false));
+let showMap = computed(() => (data.entity?.etype?.match("Geo") ? true : false));
 // let type = computed(() => (showMap.value ? "delete" : "unlink"));
 let type = "unlink";
 
