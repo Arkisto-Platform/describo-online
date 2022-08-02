@@ -75,18 +75,20 @@ function removeExistingLayers() {
 function addFeatureGroup({ geoJSON, type }) {
     let fg;
     if (type === "box") {
-        fg = Leaflet.featureGroup([Leaflet.geoJSON(geoJSON, { style: { color: "black" } })]);
+        fg = Leaflet.featureGroup(Leaflet.geoJSON(geoJSON));
     } else {
         fg = Leaflet.featureGroup([
             Leaflet.geoJSON(geoJSON, {
                 pointToLayer: function (feature, latlng) {
-                    return L.circleMarker(latlng, { color: "black", fillColor: "black" });
+                    return L.circleMarker(latlng);
                 },
             }),
         ]);
     }
+    fg.setStyle({ color: "#37474F" });
     fg.addTo(data.map);
     data.layers.push(fg);
+
     return fg;
 }
 </script>
@@ -94,6 +96,6 @@ function addFeatureGroup({ geoJSON, type }) {
 <style scoped>
 .map-style {
     width: 600px;
-    height: 400px;
+    height: 520px;
 }
 </style>

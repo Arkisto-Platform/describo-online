@@ -74,6 +74,7 @@
                 />
                 <geo-component
                     v-if="data.addType === 'Geo'"
+                    mode="entity"
                     @create:object="createObject"
                     @link:entity="linkEntity"
                 />

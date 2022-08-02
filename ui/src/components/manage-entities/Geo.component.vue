@@ -1,35 +1,36 @@
 <template>
     <div class="flex flex-row text-gray-600">
-        <div class="w-2/3 flex flex-col p-4">
+        <div
+            class="flex flex-col p-4"
+            :class="{ 'w-full': props.mode === 'feature', 'w-2/3': props.mode === 'entity' }"
+        >
             <div>Define a location by selection on the map</div>
-            <div class="flex flex-row flex-wrap space-x-4 py-1">
-                <div>
-                    <el-radio v-model="data.mode" label="box" @change="updateHandlers">
-                        select region
-                    </el-radio>
-                </div>
-                <div>
-                    <el-radio v-model="data.mode" label="point" @change="updateHandlers">
-                        select point
-                    </el-radio>
-                </div>
-                <div>
-                    <el-button @click="centerMap">
-                        <i class="fa-solid fa-crosshairs"></i>&nbsp; center map
-                    </el-button>
-                </div>
-                <div class="flex-grow"></div>
-                <div v-if="data.mode === 'box'" class="pt-1 text-gray-700 text-sm">
-                    Press the shift key and drag the mouse to select an area
-                </div>
-                <div v-if="data.mode === 'point'" class="pt-1 text-gray-700 text-sm">
-                    Click on the map to select a point
-                </div>
-            </div>
             <div class="flex flex-col">
+                <div class="flex flex-row space-x-4 py-1">
+                    <div>
+                        <el-button @click="centerMap" type="primary">
+                            <i class="fa-solid fa-crosshairs"></i>&nbsp; center map
+                        </el-button>
+                    </div>
+                    <div class="flex flex-col">
+                        <el-radio v-model="data.mode" label="box" @change="updateHandlers">
+                            select region
+                        </el-radio>
+                        <el-radio v-model="data.mode" label="point" @change="updateHandlers">
+                            select point
+                        </el-radio>
+                    </div>
+                    <div v-if="data.mode === 'box'" class="pt-1 text-gray-600">
+                        Press the shift key and drag the mouse to select an area
+                    </div>
+                    <div v-if="data.mode === 'point'" class="pt-1 text-gray-600">
+                        Click on the map to select a point
+                    </div>
+                </div>
                 <el-form
+                    class="mt-1"
+                    v-if="props.mode === 'entity'"
                     :model="data.form"
-                    label-width="120px"
                     @submit.prevent.native="emitFeature"
                 >
                     <el-form-item label="Location Name">
@@ -39,10 +40,10 @@
                         ></el-input>
                     </el-form-item>
                 </el-form>
-                <div id="map" class="map-style"></div>
             </div>
+            <div id="map" class="flex-grow map-style"></div>
         </div>
-        <div class="w-1/3 p-4">
+        <div class="w-1/3 p-4" v-if="props.mode === 'entity' && data.existingEntities.length">
             <div class="flex flex-col p-2">
                 <div>Select existing location defined in the crate</div>
                 <el-select
@@ -74,7 +75,19 @@ import { reactive, onMounted } from "vue";
 import DataService from "./data.service.js";
 const dataService = new DataService();
 
-const emit = defineEmits(["create:object", "link:entity"]);
+const props = defineProps({
+    mode: {
+        type: String,
+        default: "entity",
+        validator(value) {
+            return ["entity", "feature"].includes(value);
+        },
+    },
+    entity: {
+        type: Object,
+    },
+});
+const emit = defineEmits(["create:object", "link:entity", "save:property", "create:property"]);
 
 const data = reactive({
     mode: "box",
@@ -88,6 +101,7 @@ const data = reactive({
     feature: undefined,
     existingEntities: [],
     selectValue: undefined,
+    geojsonProperty: undefined,
 });
 
 onMounted(() => {
@@ -96,6 +110,7 @@ onMounted(() => {
 
 async function init() {
     await loadGeoDataInCrate();
+    await loadPropertyData();
     data.map = new Leaflet.map("map");
     centerMap();
     Leaflet.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}", {
@@ -121,6 +136,13 @@ async function loadGeoDataInCrate() {
         etype: "GeoCoordinates",
     });
     data.existingEntities = [...geoShape.entities, ...geoCoordinates.entities];
+}
+
+async function loadPropertyData() {
+    if (props?.entity?.id) {
+        let { properties } = await dataService.getEntityProperties({ id: props.entity.id });
+        data.geojsonProperty = properties.forwardProperties?.geojson?.[0];
+    }
 }
 
 function centerMap() {
@@ -174,9 +196,6 @@ function handleAreaSelect(e) {
         },
     };
     removeExistingLayers();
-    // addFeatureGroup(geoJSON);
-
-    // const box = geoJSON.geometry.coordinates[0].map((p) => `${p[0]},${p[1]}`).join(" ");
     const entity = {
         "@type": "GeoShape",
         geojson: geoJSON,
@@ -195,7 +214,6 @@ function handlePointSelect(e) {
         },
     };
     removeExistingLayers();
-    // addFeatureGroup(geoJSON);
 
     const entity = {
         "@type": "GeoCoordinates",
@@ -206,16 +224,29 @@ function handlePointSelect(e) {
 }
 
 function emitFeature() {
-    if (data.locationName && data.feature?.geojson) {
-        data.feature["@id"] = `#${data.locationName.replace(/ /g, "_")}`;
-        data.feature.name = data.locationName;
-        data.feature.geojson = JSON.stringify(data.feature.geojson);
-        emit("create:object", data.feature);
-    } else {
+    if (props.mode === "entity" && !(data.locationName || data.feature.geojson)) {
         ElMessage({
             message: "You need to provide a name for this location",
             type: "warning",
         });
+        return;
+    } else if (props.mode === "entity" && data.locationName && data.feature?.geojson) {
+        let entity = {
+            ...data.feature,
+            "@id": `#${data.locationName.replace(/ /g, "_")}`,
+            name: data.locationName,
+            geojson: JSON.stringify(data.feature.geojson),
+        };
+        emit("create:object", entity);
+    } else if (props.mode === "feature" && data.feature?.geojson) {
+        if (data.geojsonProperty) {
+            emit("save:property", {
+                propertyId: data.geojsonProperty.id,
+                value: JSON.stringify(data.feature.geojson),
+            });
+        } else {
+            emit("create:property", { value: JSON.stringify(data.feature.geojson) });
+        }
     }
 }
 
@@ -229,7 +260,7 @@ function emitSelection(selection) {
 
 <style scoped>
 .map-style {
-    width: 100%;
+    width: 700px;
     height: 500px;
 }
 </style>
