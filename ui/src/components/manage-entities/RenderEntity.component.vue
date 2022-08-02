@@ -11,7 +11,7 @@
 
                 <!-- render entity id -->
                 <render-entity-id-component
-                    class="mb-2"
+                    class="px-1 pt-3 pb-4 border-b border-gray-200"
                     :entity="data.entity"
                     :data-service="dataService"
                     @get-entity="getEntity"
@@ -20,14 +20,14 @@
 
                 <!-- render entity type -->
                 <render-entity-type-component
-                    class="mb-2"
+                    class="px-1 pt-3 pb-4 border-b border-gray-200"
                     :entity="data.entity"
                     v-if="data.entity.eid !== './'"
                 />
 
                 <!-- render entity name / label -->
                 <render-entity-name-component
-                    class="mb-2"
+                    class="px-1 pt-3 pb-4 border-b border-gray-200"
                     :entity="data.entity"
                     :definition="data.definition"
                     :data-service="dataService"

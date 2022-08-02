@@ -8,6 +8,7 @@
             @change="save"
             resize="vertical"
             :rows="5"
+            :placeholder="placeholder"
         ></el-input>
         <el-button @click="save" type="success" size="default">
             <i class="fas fa-check fa-fw"></i>
@@ -32,6 +33,9 @@ export default {
         definition: {
             type: Object,
         },
+        placeholder: {
+            type: String,
+        }
     },
     data() {
         return {
