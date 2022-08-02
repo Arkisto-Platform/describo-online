@@ -12,7 +12,7 @@
         <div class="flex flex-row mt-1">
             <div
                 v-if="addSimpleType"
-                class="w-full"
+                class="w-full my-2"
                 :class="{ 'bg-indigo-200 p-2': !props.embedded }"
             >
                 <text-component
@@ -20,6 +20,7 @@
                     :property="props.property"
                     type="text"
                     @save:property="createProperty"
+                    placeholder="Add text"
                 />
                 <text-component
                     v-if="data.addType === 'TextArea'"
