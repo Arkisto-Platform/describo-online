@@ -89,11 +89,11 @@ export async function setLocalTarget() {
     });
 }
 
-export async function loadCollection() {
+export async function loadCollection({ clientId }) {
     const resource = store.state.target.resource;
 
     let response = await $http.get({
-        route: `/load/${resource}`,
+        route: `/load/${resource}?clientId=${clientId}`,
     });
     if (response.status !== 200) {
         resetInternalState();

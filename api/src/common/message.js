@@ -3,12 +3,15 @@ const messagePathMap = {
     entityUpdatedHandler: "ENTITY_UPDATED_HANDLER",
 };
 export class Message {
-    constructor({ io, path }) {
-        this.path = messagePathMap[path];
+    constructor({ io = undefined, path = undefined, clientId = undefined }) {
         this.io = io;
+        this.path = messagePathMap[path];
+        this.clientId = clientId;
     }
 
     emit(msg) {
-        this.io.emit(this.path, msg);
+        if (this.io && this.path && this.clientId) {
+            this.io.to(this.clientId).emit(this.path, msg);
+        }
     }
 }

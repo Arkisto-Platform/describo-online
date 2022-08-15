@@ -199,9 +199,9 @@ watch(profile, () => {
     }
 });
 onMounted(() => {
-    socket.on("ENTITY_UPDATED_HANDLER", (response) => {
-        getEntity();
-    });
+    // socket.on("ENTITY_UPDATED_HANDLER", (response) => {
+    //     getEntity();
+    // });
     getEntity();
 });
 function loadRootDataset() {

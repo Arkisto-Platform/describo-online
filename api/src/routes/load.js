@@ -40,7 +40,11 @@ export async function setupRoutes({ server }) {
 }
 
 export async function loadRouteHandler(req, res, next) {
-    const message = new Message({ io: req.io, path: "loadRouteHandler" });
+    const message = new Message({
+        io: req.io,
+        path: "loadRouteHandler",
+        clientId: req.query?.clientId,
+    });
     message.emit({
         msg: "loading crate",
         stage: 1,

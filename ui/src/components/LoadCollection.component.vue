@@ -8,7 +8,7 @@
 
 <script setup>
 import { loadCollection } from "./session-handlers";
-import { computed, reactive, inject, onMounted } from "vue";
+import { reactive, inject, onMounted } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
 const $socket = inject("$socket");
@@ -16,9 +16,6 @@ const $socket = inject("$socket");
 const state = reactive({
     loading: false,
     msg: undefined,
-});
-const target = computed(() => {
-    return store.state.target;
 });
 onMounted(() => {
     $socket.on("LOAD_ROUTE_HANDLER", (response) => {
@@ -30,7 +27,7 @@ onMounted(() => {
 });
 async function loadFolder() {
     state.loading = true;
-    await loadCollection();
+    await loadCollection({ clientId: $socket.id });
     state.loading = false;
     state.msg = undefined;
 }
