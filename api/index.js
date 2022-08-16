@@ -79,7 +79,7 @@ import path from "path";
 async function runPeriodicProcesses() {
     for (let process of Object.keys(periodicProcesses)) {
         log.info(`Kick off: ${process}`);
-        periodicProcesses[process]();
+        await periodicProcesses[process]();
     }
 }
 
