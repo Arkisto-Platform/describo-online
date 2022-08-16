@@ -263,6 +263,7 @@ export async function loadClassDefinition({ classNames, profile }) {
         hierarchy,
         classDefinitionType,
         layout: profile?.layouts?.[classNames.sort().join(", ")],
+        hide: profile?.hide?.[classNames.sort().join(", ")],
     };
 
     function mapClassHierarchies(classes) {

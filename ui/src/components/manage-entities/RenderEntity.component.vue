@@ -250,7 +250,7 @@ async function getEntity() {
                         entity.forwardProperties[propertyNames[k]])
             );
         entity.forwardProperties = forwardProperties;
-        let layout = applyLayout({ layout: definition.layout, entity });
+        let layout = applyLayout({ layout: definition.layout, hide: definition.hide, entity });
         if (layout.entity) {
             data.entity = { ...data.entity, ...layout.entity };
         } else if (layout.tabs) {
@@ -261,11 +261,11 @@ async function getEntity() {
     }
 }
 
-function applyLayout({ layout, entity }) {
+function applyLayout({ layout, hide, entity }) {
     if (!layout?.length) return { entity };
 
     let tabs = [];
-    tabs.push({ name: "tab1", entity: cloneDeep(entity) });
+    tabs.push({ name: "About", entity: cloneDeep(entity) });
 
     let mappedInputs = [];
     layout.forEach((section) => {
@@ -280,7 +280,7 @@ function applyLayout({ layout, entity }) {
             let property = Object.keys(entity.forwardProperties).filter(
                 (property) => property === input
             );
-            if (property.length) {
+            if (property.length && !hide.includes(input)) {
                 mappedInputs.push(input);
                 sectionEntity.forwardProperties[input] = entity.forwardProperties[input];
             }
@@ -293,9 +293,11 @@ function applyLayout({ layout, entity }) {
     if (unmappedInputs.length) {
         let sectionEntity = cloneDeep(entity);
         sectionEntity.forwardProperties = {};
-        unmappedInputs.forEach(
-            (p) => (sectionEntity.forwardProperties[p] = entity.forwardProperties[p])
-        );
+        unmappedInputs.forEach((p) => {
+            if (!hide.includes(p)) {
+                sectionEntity.forwardProperties[p] = entity.forwardProperties[p];
+            }
+        });
         tabs.push({ name: "...", description: "", entity: sectionEntity });
     }
 
