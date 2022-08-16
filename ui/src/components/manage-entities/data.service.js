@@ -71,7 +71,6 @@ export default class DataService {
             body: { types },
         });
         if (response.status !== 200) {
-            console.log(response);
             return this.handleError({ response });
         } else {
             response = await response.json();
