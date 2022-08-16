@@ -261,7 +261,7 @@ async function getEntity() {
     }
 }
 
-function applyLayout({ layout, hide, entity }) {
+function applyLayout({ layout, hide = [], entity }) {
     if (!layout?.length) return { entity };
 
     let tabs = [];
