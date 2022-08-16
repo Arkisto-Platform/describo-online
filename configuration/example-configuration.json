@@ -33,6 +33,7 @@
     "api": {
         "port": 8080,
         "periodicProcessInterval": 300,
+        "cleanupCollections": { "days": 3 },
         "typeDefinitions": "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions.json",
         "typeDefinitionsLookup": "https://raw.githubusercontent.com/Arkisto-Platform/arkisto-type-definitions/master/types/type-definitions-lookup.json",
         "session": { "lifetime": { "hours": 5 }, "secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" },
