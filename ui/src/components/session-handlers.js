@@ -45,10 +45,8 @@ export async function restoreSessionTarget() {
 export async function restoreSessionProfile() {
     const { session } = await getSession();
 
-    if (session) {
-        if (session.profile) {
-            store.commit("setProfile", session.profile);
-        }
+    if (session?.profile) {
+        store.commit("setProfile", session.profile);
     }
 }
 

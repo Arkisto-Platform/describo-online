@@ -53,6 +53,9 @@ export async function getSession(req, res, next) {
             embeddedSession: req.session.creator ? true : false,
             session,
         };
+
+        // we don't need the inline profile on the UI so remove it
+        delete session.session?.profile?.inline;
         res.send(session);
         next();
     } else {
@@ -164,7 +167,12 @@ export async function createApplicationSession(req, res, next) {
         // set up the profile
         let profiles = await loadInstalledProfiles({});
         let profile;
-        if (req.body?.profile?.file) {
+        if (req.body?.profile?.inline) {
+            data.profile = {
+                file: "inline",
+                inline: req.body.profile.inline,
+            };
+        } else if (req.body?.profile?.file) {
             profile = profiles.filter((p) => p.file === req.body.profile.file);
             if (profile.length) {
                 data.profile = profile[0];
@@ -172,16 +180,17 @@ export async function createApplicationSession(req, res, next) {
         }
 
         // setup up any configuration
-        data.configuration = {
-            allowProfileChange:
-                req.body?.configuration?.allowProfileChange === undefined
-                    ? true
-                    : req.body.configuration.allowProfileChange,
-            allowServiceChange:
-                req.body?.configuration?.allowServiceChange === undefined
-                    ? true
-                    : req.body.configuration.allowServiceChange,
-        };
+        else
+            data.configuration = {
+                allowProfileChange:
+                    req.body?.configuration?.allowProfileChange === undefined
+                        ? true
+                        : req.body.configuration.allowProfileChange,
+                allowServiceChange:
+                    req.body?.configuration?.allowServiceChange === undefined
+                        ? true
+                        : req.body.configuration.allowServiceChange,
+            };
 
         let sessionId = await postSession({
             authorization,

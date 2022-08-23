@@ -25,7 +25,7 @@
                             //     region: "us-east-1",
                             // },
                             local: {
-                                folder: "{{ /path/to/folder/on/api }}",
+                                folder: "{{ /path/to/data/inside/api/container }}",
                             },
                         },
                         configuration: {
@@ -33,7 +33,42 @@
                             allowServiceChange: false,
                         },
                         profile: {
-                            file: "schema.org",
+                            // file: 'nyingarn-profile.json',
+                            // inline: {
+                            //     metadata: {
+                            //         name: "Describo Test Profile",
+                            //         description:
+                            //             "A profile with entries for each of the supported datatypes",
+                            //         version: 0.1,
+                            //         warnMissingProperty: true,
+                            //     },
+                            //     classes: {
+                            //         Dataset: {
+                            //             definition: "override",
+                            //             subClassOf: [],
+                            //             inputs: [
+                            //                 {
+                            //                     id: "https://schema.org/name",
+                            //                     name: "name",
+                            //                     help: "",
+                            //                     type: ["Text"],
+                            //                     required: true,
+                            //                     multiple: false,
+                            //                 },
+                            //                 {
+                            //                     id: "https://schema.org/location",
+                            //                     name: "location",
+                            //                     label: "Attach a location",
+                            //                     help: "",
+                            //                     type: ["Geo"],
+                            //                     required: true,
+                            //                     multiple: false,
+                            //                 },
+                            //             ],
+                            //         },
+                            //     },
+                            //     enabledClasses: ["Dataset"],
+                            // },
                         },
                     }),
                 });

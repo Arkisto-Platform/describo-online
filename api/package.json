@@ -54,6 +54,7 @@
         "protoc-gen-grpc-web": "^1.4.0",
         "regenerator-runtime": "^0.13.9",
         "restify": "^8.6.1",
+        "restify-cors-middleware2": "^2.1.2",
         "restify-errors": "^8.0.2",
         "sequelize": "^6.21.2",
         "socket.io": "^4.5.1",

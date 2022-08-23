@@ -1,7 +1,7 @@
 import models from "../models/index.js";
 import { Op } from "sequelize";
 import { getEntity, getEntityProperties, insertEntity, attachProperty } from "./entities.js";
-import { loadClassDefinition, loadProfile } from "./profile.js";
+import { loadClassDefinition } from "./profile.js";
 import { groupBy } from "lodash-es";
 import { Crate } from "./crate.js";
 

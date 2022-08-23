@@ -67,17 +67,19 @@ export async function loadInstalledProfiles({ profilePath }) {
     ];
 }
 
-export async function loadProfile({ profilePath, file }) {
-    if (file === "schema.org") {
+export async function loadProfile({ profilePath, profile }) {
+    if (profile.file === "schema.org") {
         let schemaOrgTypeDefinitions = await readJSON(typeDefinitions);
         return {
             classes: schemaOrgTypeDefinitions,
         };
+    } else if (profile.inline) {
+        return profile.inline;
     } else {
         if (profilePath) {
-            return await readJSON(path.join(profilePath, file));
+            return await readJSON(path.join(profilePath, profile.file));
         } else {
-            return await readJSON(path.join("/srv", "profiles", file));
+            return await readJSON(path.join("/srv", "profiles", profile.file));
         }
     }
 }
@@ -189,7 +191,7 @@ export async function validateProfile({ profile }) {
 
 export async function loadClassDefinition({ classNames, profile }) {
     if (profile.file && profile.file !== "schema.org") {
-        profile = { ...(await loadProfile({ file: profile.file })), ...profile };
+        profile = { ...(await loadProfile({ profile })), ...profile };
     }
     // for each class
     //      check profile for a definition
@@ -198,7 +200,7 @@ export async function loadClassDefinition({ classNames, profile }) {
     //          if none, check schema.org
     //              if found and inherit, collect inputs then watch the hierarchy
     //              if none set hierarchy to thing and collect inputs
-    const schemaOrgTypeDefinitions = await loadProfile({ file: "schema.org" });
+    const schemaOrgTypeDefinitions = await loadProfile({ profile: { file: "schema.org" } });
 
     let inputs = [];
     let hierarchy = [...classNames];

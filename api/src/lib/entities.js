@@ -7,7 +7,7 @@ import { loadProfile, loadClassDefinition } from "./profile.js";
 
 export async function insertEntity({ entity, collectionId, profile }) {
     verifyEntity({ entity });
-    profile = await loadProfile({ file: profile.file });
+    profile = await loadProfile({ profile });
 
     let hierarchy;
     try {

@@ -10,6 +10,7 @@ const server = restify.createServer();
 const log = getLogger();
 import { Server } from "socket.io";
 import fetchPkg from "node-fetch";
+import corsMiddleware from "restify-cors-middleware2";
 const fetch = fetchPkg;
 import path from "path";
 
@@ -43,6 +44,17 @@ import path from "path";
         return next();
     });
     server.use(restify.plugins.dateParser());
+    if (process.env.NODE_ENV === "development") {
+        const cors = corsMiddleware({
+            preflightMaxAge: 5, //Optional
+            origins: ["http://localhost:8080"],
+            allowHeaders: ["Content-Type", "Authorization"],
+            exposeHeaders: ["Content-Type", "Authorization"],
+        });
+
+        server.pre(cors.preflight);
+        server.use(cors.actual);
+    }
     server.use(restify.plugins.queryParser());
     server.use(restify.plugins.jsonp());
     server.use(restify.plugins.gzipResponse());

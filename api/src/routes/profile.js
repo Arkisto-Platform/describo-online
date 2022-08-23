@@ -21,7 +21,7 @@ export async function postTypeDefinitionRouteHandler(req, res, next) {
             profile: req.session.data.profile,
         });
         res.send({ definition });
-        return next(0);
+        return next();
     } catch (error) {
         console.log(error);
         log.error(`getTypeDefinition: ${error.message}`);
@@ -33,7 +33,7 @@ export async function lookupProfileRouteHandler(req, res, next) {
     try {
         let { query } = req.query;
         // let matches = await lookupProfile({ collectionId, query });
-        let profile = await loadProfile({ file: req.session.data.profile.file });
+        let profile = await loadProfile({ profile: req.session.data.profile });
         const re = new RegExp(query, "i");
         let matches = Object.keys(profile.classes).filter((c) => c.match(re));
         matches = matches.map((m) => ({
@@ -42,7 +42,7 @@ export async function lookupProfileRouteHandler(req, res, next) {
         }));
 
         res.send({ matches });
-        return next(0);
+        return next();
     } catch (error) {
         log.error(`lookupProfileRouteHandler: ${error.message}`);
         return next(new BadRequestError());
