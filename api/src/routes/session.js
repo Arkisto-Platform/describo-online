@@ -180,17 +180,16 @@ export async function createApplicationSession(req, res, next) {
         }
 
         // setup up any configuration
-        else
-            data.configuration = {
-                allowProfileChange:
-                    req.body?.configuration?.allowProfileChange === undefined
-                        ? true
-                        : req.body.configuration.allowProfileChange,
-                allowServiceChange:
-                    req.body?.configuration?.allowServiceChange === undefined
-                        ? true
-                        : req.body.configuration.allowServiceChange,
-            };
+        data.configuration = {
+            allowProfileChange:
+                req.body?.configuration?.allowProfileChange === undefined
+                    ? true
+                    : req.body.configuration.allowProfileChange,
+            allowServiceChange:
+                req.body?.configuration?.allowServiceChange === undefined
+                    ? true
+                    : req.body.configuration.allowServiceChange,
+        };
 
         let sessionId = await postSession({
             authorization,
