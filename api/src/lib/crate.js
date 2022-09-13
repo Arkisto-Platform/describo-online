@@ -227,7 +227,7 @@ export class Crate {
                     } else if (isPlainObject(value) && "@id" in value) {
                         let tgtEntityId = entitiesById[value["@id"]];
                         if (tgtEntityId && tgtEntityId.length) {
-                            tgtEntityId = tgtEntityId.pop().uuid;
+                            tgtEntityId = tgtEntityId[0].uuid;
                             await associate({
                                 typeDefinition: propertyDefinition,
                                 collectionId: collection.id,
