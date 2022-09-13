@@ -1,14 +1,15 @@
 import fsextraPkg from "fs-extra";
-const { ensureDir, open, write, close, pathExists, remove } = fsextraPkg;
+const { ensureDir, open, write, close, pathExists, remove, readFile } = fsextraPkg;
 import util from "util";
 import { spawn } from "child_process";
 import childProcess from "child_process";
 const exec = util.promisify(childProcess.exec);
 import pkg from "restify-errors";
-const { NotFoundError, InternalServerError, UnauthorizedError } = pkg;
+const { NotFoundError } = pkg;
 import path from "path";
 import { camelCase, uniqBy } from "lodash-es";
 import { getLogger } from "../common/index.js";
+import crypto from "crypto";
 const log = getLogger();
 const localCachePath = "/srv/tmp";
 
@@ -83,10 +84,35 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
     const rcloneSrc = localFile;
     const rcloneTgt = `${resource}:${parent}`;
 
-    let args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
-    log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
+    // compare the local file hash to the remote
+    let args = ["hashsum", "sha1", path.join(rcloneTgt, "ro-crate-metadata.json")];
     try {
-        await runCommand({ cwd, args });
+        let content = await runCommand({ cwd, args });
+        let remoteHash = content.split(" ")[0].trim();
+
+        const fileBuffer = await readFile(localFile);
+        const hashSum = crypto.createHash("sha1");
+        hashSum.update(fileBuffer);
+        if (remoteHash !== hashSum.digest("hex")) {
+            // if they differ - then move the remote
+            log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
+            args = [
+                "moveto",
+                path.join(rcloneTgt, "ro-crate-metadata.json"),
+                path.join(rcloneTgt, `ro-crate-metadata.${new Date().toISOString()}.conflict.json`),
+            ];
+            await runCommand({ cwd, args });
+        }
+
+        // now copy the new local back out to the remote storage
+        args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
+        log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
+        try {
+            await runCommand({ cwd, args });
+        } catch (error) {
+            log.error(`syncLocalFileToRemote: ${error.message}`);
+            console.log(error);
+        }
     } catch (error) {
         log.error(`syncLocalFileToRemote: ${error.message}`);
         console.log(error);
@@ -198,7 +224,11 @@ async function runCommand({ cwd, args }) {
         });
         s.on("close", (code) => {
             if (!code) {
-                if (content) resolve(JSON.parse(content));
+                try {
+                    if (content) resolve(JSON.parse(content));
+                } catch (error) {
+                    resolve(content);
+                }
                 resolve();
             }
             reject(new Error(error));
