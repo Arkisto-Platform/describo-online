@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import { startOfDay } from "date-fns";
-
 export default {
     props: {
         property: {
