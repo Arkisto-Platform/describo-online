@@ -185,6 +185,7 @@ export async function loadRouteHandler(req, res, next) {
     } catch (error) {
         if (error.message !== "That collection is already loaded.") {
             log.error(`loadRouteHandler: ${error.message}`);
+            console.log(error);
             return next(error);
         }
     }
