@@ -59,7 +59,6 @@ export async function getEntityRouteHandler(req, res, next) {
                 eid: "./",
                 etype: "Dataset",
                 collectionId,
-                fuzzy: false,
             });
             entity = entities.pop();
             if (!entity) {

@@ -43,7 +43,6 @@ export class Crate {
         let crate = await readJSON(file);
 
         const { rootDataset, rootDescriptor } = this.getRootDataset({ crate });
-        // console.log(rootDataset, rootDescriptor);
 
         // does the root descriptor have an identifier property?
         if (rootDescriptor.identifier) {
@@ -123,7 +122,10 @@ export class Crate {
             throw new Error("Unable to locate the root dataset");
         }
         rootDataset = rootDataset.pop();
-        if (rootDataset["@id"] !== "./") rootDataset["@id"] = "./";
+        if (rootDataset["@id"] !== "./") {
+            rootDataset["@id"] = "./";
+            rootDescriptor.about["@id"] = "./";
+        }
         if (rootDataset) return { rootDescriptor, rootDataset };
     }
 
