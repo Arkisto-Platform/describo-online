@@ -85,9 +85,13 @@ function addFeatureGroup({ geoJSON, type }) {
             }),
         ]);
     }
-    fg.setStyle({ color: "#37474F" });
+
+    fg.setStyle({ color: "#fff000" });
     fg.addTo(data.map);
     data.layers.push(fg);
+    setTimeout(() => {
+        data.map.fitBounds(fg.getBounds(), { maxZoom: 5 });
+    }, 500);
 
     return fg;
 }
