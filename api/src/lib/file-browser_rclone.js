@@ -84,35 +84,10 @@ export async function syncLocalFileToRemote({ session, user, resource, parent, l
     const rcloneSrc = localFile;
     const rcloneTgt = `${resource}:${parent}`;
 
-    // compare the local file hash to the remote
-    let args = ["hashsum", "sha1", path.join(rcloneTgt, "ro-crate-metadata.json")];
+    let args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
+    log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
     try {
-        let content = await runCommand({ cwd, args });
-        let remoteHash = content.split(" ")[0].trim();
-
-        const fileBuffer = await readFile(localFile);
-        const hashSum = crypto.createHash("sha1");
-        hashSum.update(fileBuffer);
-        // if (remoteHash !== hashSum.digest("hex")) {
-        //     // if they differ - then move the remote
-        //     log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
-        //     args = [
-        //         "moveto",
-        //         path.join(rcloneTgt, "ro-crate-metadata.json"),
-        //         path.join(rcloneTgt, `ro-crate-metadata.${new Date().toISOString()}.conflict.json`),
-        //     ];
-        //     await runCommand({ cwd, args });
-        // }
-
-        // now copy the new local back out to the remote storage
-        args = ["copy", "--no-traverse", rcloneSrc, rcloneTgt];
-        log.debug(`syncLocalFileToRemote: rclone ${JSON.stringify(args)}`);
-        try {
-            await runCommand({ cwd, args });
-        } catch (error) {
-            log.error(`syncLocalFileToRemote: ${error.message}`);
-            console.log(error);
-        }
+        await runCommand({ cwd, args });
     } catch (error) {
         log.error(`syncLocalFileToRemote: ${error.message}`);
         console.log(error);
